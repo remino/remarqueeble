@@ -1,11 +1,13 @@
-import { readFile, rm } from 'node:fs/promises'
+import { readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { build } from 'vite'
 
 const root = process.cwd()
 const pkg = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'))
 const currentYear = new Date().getFullYear()
-const banner = `/*! ${pkg.name} v${pkg.version} | (c) 2026-${currentYear} ${pkg.author.name} <${pkg.author.url}> | ${pkg.license} Licence */`
+const copyrightYears = (startYear, endYear = new Date().getFullYear()) =>
+	startYear === endYear ? String(startYear) : `${startYear}-${endYear}`
+const banner = `/*! ${pkg.name} v${pkg.version} | (c) ${copyrightYears(2026, currentYear)} ${pkg.author.name} <${pkg.author.url}> | ${pkg.license} Licence */`
 
 const buildLibrary = async ({
 	entry,
@@ -36,6 +38,13 @@ const buildLibrary = async ({
 		},
 	})
 
+const ensureBanner = async filePath => {
+	const file = await readFile(filePath, 'utf8')
+	if (file.startsWith(banner)) return
+
+	await writeFile(filePath, `${banner}\n${file}`)
+}
+
 await rm(resolve(root, 'dist'), { force: true, recursive: true })
 
 await buildLibrary({
@@ -59,3 +68,10 @@ await buildLibrary({
 	minify: true,
 	name: 'remarqueeble',
 })
+
+const distFiles = await readdir(resolve(root, 'dist'))
+await Promise.all(
+	distFiles
+		.filter(fileName => /\.(?:cjs|mjs|js)$/.test(fileName))
+		.map(fileName => ensureBanner(resolve(root, 'dist', fileName)))
+)
