@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../../components/BaseLayout.astro'
+import { site } from '../../data/site'
+import LicenseContent from '../../../LICENSE.md'
+---
+
+<BaseLayout
+	title="Licence"
+	description={`ISC licence for ${site.title}.`}
+	path="/remarqueeble/license/">
+	<main>
+		<h1>Licence</h1>
+		<LicenseContent />
+	</main>
+</BaseLayout>
