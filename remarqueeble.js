@@ -263,7 +263,10 @@ class RemarqueebleElement extends HTMLElement {
 
 		this.loopsDone = 0
 		this.forward = true
-		this.position = this.getStartPosition(hostSize, trackSize)
+		this.position =
+			this.behavior === 'alternate'
+				? this.getAlternateStartPosition(hostSize, trackSize)
+				: this.getStartPosition(hostSize, trackSize)
 
 		this.render()
 	}
@@ -282,8 +285,20 @@ class RemarqueebleElement extends HTMLElement {
 		return this.directionSign < 0 ? hostSize : -trackSize
 	}
 
-	getEndPosition(hostSize, trackSize) {
+	getFlushEndPosition(hostSize, trackSize) {
+		return this.directionSign < 0 ? 0 : hostSize - trackSize
+	}
+
+	getOffEndPosition(hostSize, trackSize) {
 		return this.directionSign < 0 ? -trackSize : hostSize
+	}
+
+	getSlideEndPosition(hostSize, trackSize) {
+		return this.directionSign < 0 ? 0 : hostSize - trackSize
+	}
+
+	getAlternateStartPosition(hostSize, trackSize) {
+		return this.directionSign < 0 ? hostSize - trackSize : 0
 	}
 
 	tick(time = performance.now()) {
@@ -298,6 +313,8 @@ class RemarqueebleElement extends HTMLElement {
 			this.lastTime = time
 		}
 
+		if (!this.running) return
+
 		this.rafId = requestAnimationFrame(nextTime => this.tick(nextTime))
 	}
 
@@ -305,7 +322,13 @@ class RemarqueebleElement extends HTMLElement {
 		const hostSize = this.getHostSize()
 		const trackSize = this.getTrackSize()
 		const startPosition = this.getStartPosition(hostSize, trackSize)
-		const endPosition = this.getEndPosition(hostSize, trackSize)
+		const flushEndPosition = this.getFlushEndPosition(hostSize, trackSize)
+		const offEndPosition = this.getOffEndPosition(hostSize, trackSize)
+		const slideEndPosition = this.getSlideEndPosition(hostSize, trackSize)
+		const alternateStartPosition = this.getAlternateStartPosition(
+			hostSize,
+			trackSize
+		)
 		const amount = this.scrollAmount
 		const delta = this.directionSign * amount
 
@@ -314,42 +337,72 @@ class RemarqueebleElement extends HTMLElement {
 
 			if (this.forward) {
 				if (
-					(this.directionSign < 0 && this.position <= endPosition) ||
-					(this.directionSign > 0 && this.position >= endPosition)
+					(this.directionSign < 0 && this.position <= flushEndPosition) ||
+					(this.directionSign > 0 && this.position >= flushEndPosition)
 				) {
-					this.position = endPosition
+					this.position = flushEndPosition
 					this.forward = false
-					this.countLoop()
+					this.incrementLoopCount()
+
+					if (this.shouldStopAfterLoop()) {
+						this.stop()
+					}
 				}
 			} else if (
-				(this.directionSign < 0 && this.position >= startPosition) ||
-				(this.directionSign > 0 && this.position <= startPosition)
+				(this.directionSign < 0 && this.position >= alternateStartPosition) ||
+				(this.directionSign > 0 && this.position <= alternateStartPosition)
 			) {
-				this.position = startPosition
+				this.position = alternateStartPosition
 				this.forward = true
-				this.countLoop()
+				this.incrementLoopCount()
+
+				if (this.shouldStopAfterLoop()) {
+					this.stop()
+				}
+			}
+		} else if (this.behavior === 'slide') {
+			this.position += delta
+
+			if (
+				(this.directionSign < 0 && this.position <= slideEndPosition) ||
+				(this.directionSign > 0 && this.position >= slideEndPosition)
+			) {
+				this.position = slideEndPosition
+				this.incrementLoopCount()
+
+				if (!this.hasAttribute(ATTR_LOOP) || this.loop <= 0) {
+					this.stop()
+				} else if (this.shouldStopAfterLoop()) {
+					this.stop()
+				} else {
+					this.position = startPosition
+				}
 			}
 		} else {
 			this.position += delta
 
 			if (
-				(this.directionSign < 0 && this.position <= endPosition) ||
-				(this.directionSign > 0 && this.position >= endPosition)
+				(this.directionSign < 0 && this.position <= offEndPosition) ||
+				(this.directionSign > 0 && this.position >= offEndPosition)
 			) {
 				this.position = startPosition
-				this.countLoop()
+				this.incrementLoopCount()
+
+				if (this.shouldStopAfterLoop()) {
+					this.stop()
+				}
 			}
 		}
 
 		this.render()
 	}
 
-	countLoop() {
+	incrementLoopCount() {
 		this.loopsDone++
+	}
 
-		if (this.loop > 0 && this.loopsDone >= this.loop) {
-			this.stop()
-		}
+	shouldStopAfterLoop() {
+		return this.hasAttribute(ATTR_LOOP) && this.loop > 0 && this.loopsDone >= this.loop
 	}
 
 	render() {
