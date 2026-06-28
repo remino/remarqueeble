@@ -35,6 +35,12 @@ export default [
 		},
 	},
 	{
+		files: ['spec/**/*.js'],
+		languageOptions: {
+			globals: globals.jasmine,
+		},
+	},
+	{
 		files: ['src/**/*.astro'],
 		languageOptions: {
 			parser: astroParser,

@@ -1,4 +1,5 @@
 /*! remarqueeble v0.1.0 | (c) 2026 Rémino Rem <https://remino.net/> | ISC Licence */
+Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 //#region src/lib/remarqueeble.ts
 var DEFAULT_DIRECTION = "left";
 var DEFAULT_BEHAVIOR = "scroll";
@@ -24,19 +25,17 @@ var CSS_VAR_HSPACE = "--attr-hspace";
 var CSS_VAR_VSPACE = "--attr-vspace";
 var CSS_VAR_BG_COLOR = "--attr-bgcolor";
 var parsePresentationalDimension = (value) => {
-	if (value == null) return null;
-	const trimmed = String(value).trim();
-	if (!trimmed) return null;
+	if (value === null) return null;
+	const trimmed = value.trim();
+	if (trimmed === "") return null;
 	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) return `${trimmed}px`;
-	if (typeof CSS !== "undefined" && CSS.supports?.("width", trimmed)) return trimmed;
-	return null;
+	return globalThis.CSS?.supports("width", trimmed) ? trimmed : null;
 };
 var parseLegacyColor = (value) => {
-	if (value == null) return null;
-	const trimmed = String(value).trim();
-	if (!trimmed) return null;
-	if (typeof CSS !== "undefined" && CSS.supports?.("background-color", trimmed)) return trimmed;
-	return null;
+	if (value === null) return null;
+	const trimmed = value.trim();
+	if (trimmed === "") return null;
+	return globalThis.CSS?.supports("background-color", trimmed) ? trimmed : null;
 };
 var ATTRIBUTE_HINTS = [
 	{
@@ -303,3 +302,4 @@ var defineRemarqueebleElements = () => {
 //#region src/lib/auto.ts
 defineRemarqueebleElements();
 //#endregion
+exports.defineRemarqueebleElements = defineRemarqueebleElements;

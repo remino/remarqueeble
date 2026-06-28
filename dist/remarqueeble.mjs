@@ -24,19 +24,17 @@ var CSS_VAR_HSPACE = "--attr-hspace";
 var CSS_VAR_VSPACE = "--attr-vspace";
 var CSS_VAR_BG_COLOR = "--attr-bgcolor";
 var parsePresentationalDimension = (value) => {
-	if (value == null) return null;
-	const trimmed = String(value).trim();
-	if (!trimmed) return null;
+	if (value === null) return null;
+	const trimmed = value.trim();
+	if (trimmed === "") return null;
 	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) return `${trimmed}px`;
-	if (typeof CSS !== "undefined" && CSS.supports?.("width", trimmed)) return trimmed;
-	return null;
+	return globalThis.CSS?.supports("width", trimmed) ? trimmed : null;
 };
 var parseLegacyColor = (value) => {
-	if (value == null) return null;
-	const trimmed = String(value).trim();
-	if (!trimmed) return null;
-	if (typeof CSS !== "undefined" && CSS.supports?.("background-color", trimmed)) return trimmed;
-	return null;
+	if (value === null) return null;
+	const trimmed = value.trim();
+	if (trimmed === "") return null;
+	return globalThis.CSS?.supports("background-color", trimmed) ? trimmed : null;
 };
 var ATTRIBUTE_HINTS = [
 	{
@@ -300,4 +298,4 @@ var defineRemarqueebleElements = () => {
 	if (!customElements.get("re-marquee-ble")) customElements.define("re-marquee-ble", RemarqueebleElement);
 };
 //#endregion
-export { RemarqueebleElement, defineRemarqueebleElements };
+export { RemarqueebleElement, defineRemarqueebleElements, parseLegacyColor, parsePresentationalDimension };

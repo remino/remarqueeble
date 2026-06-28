@@ -1,3 +1,5 @@
+export declare const parsePresentationalDimension: (value: string | null) => string | null;
+export declare const parseLegacyColor: (value: string | null) => string | null;
 export declare class RemarqueebleElement extends HTMLElement {
     static observedAttributes: string[];
     private readonly track;

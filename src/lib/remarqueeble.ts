@@ -21,45 +21,37 @@ const CSS_VAR_HEIGHT = '--attr-height'
 const CSS_VAR_HSPACE = '--attr-hspace'
 const CSS_VAR_VSPACE = '--attr-vspace'
 const CSS_VAR_BG_COLOR = '--attr-bgcolor'
+const HTMLElementBase = globalThis.HTMLElement ?? (class {} as typeof HTMLElement)
+
+export const parsePresentationalDimension = (
+	value: string | null
+): string | null => {
+	if (value === null) return null
+
+	const trimmed = value.trim()
+	if (trimmed === '') return null
+
+	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) {
+		return `${trimmed}px`
+	}
+
+	return globalThis.CSS?.supports('width', trimmed) ? trimmed : null
+}
+
+export const parseLegacyColor = (value: string | null): string | null => {
+	if (value === null) return null
+
+	const trimmed = value.trim()
+	if (trimmed === '') return null
+
+	return globalThis.CSS?.supports('background-color', trimmed) ? trimmed : null
+}
 
 type PresentationalHint = {
 	attribute: string
 	cssVar: string
 	parser: (value: string | null) => string | null
 	fallback?: (element: RemarqueebleElement) => string | null
-}
-
-const parsePresentationalDimension = (value: string | null): string | null => {
-	if (value == null) return null
-
-	const trimmed = String(value).trim()
-	if (!trimmed) return null
-
-	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) {
-		return `${trimmed}px`
-	}
-
-	if (typeof CSS !== 'undefined' && CSS.supports?.('width', trimmed)) {
-		return trimmed
-	}
-
-	return null
-}
-
-const parseLegacyColor = (value: string | null): string | null => {
-	if (value == null) return null
-
-	const trimmed = String(value).trim()
-	if (!trimmed) return null
-
-	if (
-		typeof CSS !== 'undefined' &&
-		CSS.supports?.('background-color', trimmed)
-	) {
-		return trimmed
-	}
-
-	return null
 }
 
 const ATTRIBUTE_HINTS: PresentationalHint[] = [
@@ -95,7 +87,7 @@ const ATTRIBUTE_HINTS: PresentationalHint[] = [
 	},
 ]
 
-export class RemarqueebleElement extends HTMLElement {
+export class RemarqueebleElement extends HTMLElementBase {
 	static observedAttributes = [
 		ATTR_DIRECTION,
 		ATTR_BEHAVIOR,
@@ -435,6 +427,8 @@ export class RemarqueebleElement extends HTMLElement {
 }
 
 export const defineRemarqueebleElements = (): void => {
+	if (typeof customElements === 'undefined') return
+
 	if (!customElements.get('re-marquee')) {
 		customElements.define('re-marquee', RemarqueebleElement)
 	}
