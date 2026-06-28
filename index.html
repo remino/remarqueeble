@@ -174,6 +174,37 @@
 				</re-marquee>
 			</p>
 
+			<h2>Behaviour: slide</h2>
+
+			<p><code>behavior="slide"</code></p>
+			<re-marquee behavior="slide">
+				Slides through once per loop, then restarts.
+			</re-marquee>
+
+			<h2>Legacy presentational hints</h2>
+
+			<p><code>bgcolor="var(--dress-bg-2)" width="18rem"</code></p>
+			<re-marquee bgcolor="var(--dress-bg-2)" width="18rem">
+				The background color and width come from marquee attributes.
+			</re-marquee>
+
+			<p><code>hspace="2rem" vspace="1rem"</code></p>
+			<re-marquee hspace="2rem" vspace="1rem">
+				Horizontal and vertical spacing map to margins.
+			</re-marquee>
+
+			<p><code>height="6rem" direction="up"</code></p>
+			<p class="tall">
+				<re-marquee height="6rem" direction="up">
+					The explicit height overrides the vertical default of 200px.
+				</re-marquee>
+			</p>
+
+			<p><code>scrolldelay="20" truespeed</code></p>
+			<re-marquee scrolldelay="20" truespeed>
+				True speed keeps delays under 60ms instead of clamping them.
+			</re-marquee>
+
 			<h2>Loop count</h2>
 
 			<p><code>loop="1"</code></p>
