@@ -21,7 +21,48 @@ const CSS_VAR_HEIGHT = '--attr-height'
 const CSS_VAR_HSPACE = '--attr-hspace'
 const CSS_VAR_VSPACE = '--attr-vspace'
 const CSS_VAR_BG_COLOR = '--attr-bgcolor'
-const ATTRIBUTE_HINTS = [
+
+type PresentationalHint = {
+	attribute: string
+	cssVar: string
+	parser: (value: string | null) => string | null
+	fallback?: (element: RemarqueebleElement) => string | null
+}
+
+const parsePresentationalDimension = (value: string | null): string | null => {
+	if (value == null) return null
+
+	const trimmed = String(value).trim()
+	if (!trimmed) return null
+
+	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) {
+		return `${trimmed}px`
+	}
+
+	if (typeof CSS !== 'undefined' && CSS.supports?.('width', trimmed)) {
+		return trimmed
+	}
+
+	return null
+}
+
+const parseLegacyColor = (value: string | null): string | null => {
+	if (value == null) return null
+
+	const trimmed = String(value).trim()
+	if (!trimmed) return null
+
+	if (
+		typeof CSS !== 'undefined' &&
+		CSS.supports?.('background-color', trimmed)
+	) {
+		return trimmed
+	}
+
+	return null
+}
+
+const ATTRIBUTE_HINTS: PresentationalHint[] = [
 	{
 		attribute: ATTR_WIDTH,
 		cssVar: CSS_VAR_WIDTH,
@@ -54,45 +95,7 @@ const ATTRIBUTE_HINTS = [
 	},
 ]
 
-function parsePresentationalDimension(value) {
-	if (value == null) return null
-
-	const trimmed = String(value).trim()
-	if (!trimmed) return null
-
-	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) {
-		return `${trimmed}px`
-	}
-
-	if (
-		typeof CSS !== 'undefined' &&
-		CSS.supports &&
-		CSS.supports('width', trimmed)
-	) {
-		return trimmed
-	}
-
-	return null
-}
-
-function parseLegacyColor(value) {
-	if (value == null) return null
-
-	const trimmed = String(value).trim()
-	if (!trimmed) return null
-
-	if (
-		typeof CSS !== 'undefined' &&
-		CSS.supports &&
-		CSS.supports('background-color', trimmed)
-	) {
-		return trimmed
-	}
-
-	return null
-}
-
-class RemarqueebleElement extends HTMLElement {
+export class RemarqueebleElement extends HTMLElement {
 	static observedAttributes = [
 		ATTR_DIRECTION,
 		ATTR_BEHAVIOR,
@@ -107,50 +110,55 @@ class RemarqueebleElement extends HTMLElement {
 		ATTR_VSPACE,
 	]
 
+	private readonly track: HTMLElement
+	private running = false
+	private position = 0
+	private lastTime: number | null = null
+	private loopsDone = 0
+	private forward = true
+	private rafId: number | null = null
+
 	constructor() {
 		super()
 
-		this.attachShadow({ mode: 'open' })
+		const shadowRoot = this.attachShadow({ mode: 'open' })
 
-		this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          display: inline-block;
-          text-align: initial;
-          overflow: hidden !important;
-          white-space: nowrap;
-          width: var(${CSS_VAR_WIDTH}, ${DEFAULT_HOST_WIDTH});
-          height: var(${CSS_VAR_HEIGHT}, auto);
-          margin-inline: var(${CSS_VAR_HSPACE}, 0px);
-          margin-block: var(${CSS_VAR_VSPACE}, 0px);
-          background-color: var(${CSS_VAR_BG_COLOR}, transparent);
-          box-sizing: border-box;
-        }
+		shadowRoot.innerHTML = `
+			<style>
+				:host {
+					display: inline-block;
+					text-align: initial;
+					overflow: hidden !important;
+					white-space: nowrap;
+					width: var(${CSS_VAR_WIDTH}, ${DEFAULT_HOST_WIDTH});
+					height: var(${CSS_VAR_HEIGHT}, auto);
+					margin-inline: var(${CSS_VAR_HSPACE}, 0px);
+					margin-block: var(${CSS_VAR_VSPACE}, 0px);
+					background-color: var(${CSS_VAR_BG_COLOR}, transparent);
+					box-sizing: border-box;
+				}
 
-        :host([direction="up"]),
-        :host([direction="down"]) {
-          white-space: normal;
-        }
+				:host([direction="up"]),
+				:host([direction="down"]) {
+					white-space: normal;
+				}
 
-        .track {
-          display: inline-block;
-          will-change: transform;
-        }
-      </style>
+				.track {
+					display: inline-block;
+					will-change: transform;
+				}
+			</style>
 
-      <span class="track"><slot></slot></span>
-    `
+			<span class="track"><slot></slot></span>
+		`
 
-		this.track = this.shadowRoot.querySelector('.track')
-		this.running = false
-		this.position = 0
-		this.lastTime = null
-		this.loopsDone = 0
-		this.forward = true
-		this.rafId = null
+		const track = shadowRoot.querySelector<HTMLElement>('.track')
+		if (!track) throw new Error('Remarqueeble track element was not created.')
+
+		this.track = track
 	}
 
-	connectedCallback() {
+	connectedCallback(): void {
 		this.running = true
 		this.syncPresentationalHints()
 
@@ -161,7 +169,7 @@ class RemarqueebleElement extends HTMLElement {
 		})
 	}
 
-	disconnectedCallback() {
+	disconnectedCallback(): void {
 		this.running = false
 		this.lastTime = null
 
@@ -171,7 +179,11 @@ class RemarqueebleElement extends HTMLElement {
 		}
 	}
 
-	attributeChangedCallback(name, oldValue, newValue) {
+	attributeChangedCallback(
+		_name: string,
+		oldValue: string | null,
+		newValue: string | null
+	): void {
 		if (oldValue === newValue) return
 
 		this.syncPresentationalHints()
@@ -181,43 +193,44 @@ class RemarqueebleElement extends HTMLElement {
 		}
 	}
 
-	get direction() {
+	get direction(): string {
 		return this.getAttribute(ATTR_DIRECTION) || DEFAULT_DIRECTION
 	}
 
-	get behavior() {
+	get behavior(): string {
 		return this.getAttribute(ATTR_BEHAVIOR) || DEFAULT_BEHAVIOR
 	}
 
-	get scrollAmount() {
+	get scrollAmount(): number {
 		const raw = this.getAttribute(ATTR_SCROLL_AMOUNT)
 		const value = raw === null || raw.trim() === '' ? NaN : Number(raw)
 		return Number.isFinite(value) && value >= 0 ? value : DEFAULT_SCROLL_AMOUNT
 	}
 
-	get scrollDelay() {
+	get scrollDelay(): number {
 		const raw = this.getAttribute(ATTR_SCROLL_DELAY)
 		const value = raw === null || raw.trim() === '' ? NaN : Number(raw)
-		const delay = Number.isFinite(value) && value >= 0 ? value : DEFAULT_SCROLL_DELAY
+		const delay =
+			Number.isFinite(value) && value >= 0 ? value : DEFAULT_SCROLL_DELAY
 
 		if (this.hasAttribute(ATTR_TRUE_SPEED)) return delay
 		return Math.max(delay, MIN_SCROLL_DELAY)
 	}
 
-	get loop() {
+	get loop(): number {
 		const value = this.getAttribute(ATTR_LOOP)
 		return value === null ? -1 : Number(value)
 	}
 
-	get directionSign() {
+	get directionSign(): number {
 		return this.direction === 'right' || this.direction === 'down' ? 1 : -1
 	}
 
-	get isVerticalDirection() {
+	get isVerticalDirection(): boolean {
 		return this.direction === 'up' || this.direction === 'down'
 	}
 
-	start() {
+	start(): void {
 		if (this.running) return
 
 		this.running = true
@@ -225,7 +238,7 @@ class RemarqueebleElement extends HTMLElement {
 		this.tick()
 	}
 
-	stop() {
+	stop(): void {
 		this.running = false
 
 		if (this.rafId !== null) {
@@ -234,13 +247,13 @@ class RemarqueebleElement extends HTMLElement {
 		}
 	}
 
-	syncPresentationalHints() {
+	private syncPresentationalHints(): void {
 		for (const hint of ATTRIBUTE_HINTS) {
 			this.syncVar(hint)
 		}
 	}
 
-	syncVar(hint) {
+	private syncVar(hint: PresentationalHint): void {
 		const raw = this.getAttribute(hint.attribute)
 		const value = hint.parser(raw)
 		const fallback = hint.fallback ? hint.fallback(this) : null
@@ -257,7 +270,7 @@ class RemarqueebleElement extends HTMLElement {
 		this.style.setProperty(hint.cssVar, value)
 	}
 
-	reset() {
+	private reset(): void {
 		const hostSize = this.getHostSize()
 		const trackSize = this.getTrackSize()
 
@@ -271,37 +284,40 @@ class RemarqueebleElement extends HTMLElement {
 		this.render()
 	}
 
-	getHostSize() {
+	private getHostSize(): number {
 		return this.isVerticalDirection ? this.clientHeight : this.clientWidth
 	}
 
-	getTrackSize() {
+	private getTrackSize(): number {
 		return this.isVerticalDirection
 			? this.track.offsetHeight
 			: this.track.offsetWidth
 	}
 
-	getStartPosition(hostSize, trackSize) {
+	private getStartPosition(hostSize: number, trackSize: number): number {
 		return this.directionSign < 0 ? hostSize : -trackSize
 	}
 
-	getFlushEndPosition(hostSize, trackSize) {
+	private getFlushEndPosition(hostSize: number, trackSize: number): number {
 		return this.directionSign < 0 ? 0 : hostSize - trackSize
 	}
 
-	getOffEndPosition(hostSize, trackSize) {
+	private getOffEndPosition(hostSize: number, trackSize: number): number {
 		return this.directionSign < 0 ? -trackSize : hostSize
 	}
 
-	getSlideEndPosition(hostSize, trackSize) {
+	private getSlideEndPosition(hostSize: number, trackSize: number): number {
 		return this.directionSign < 0 ? 0 : hostSize - trackSize
 	}
 
-	getAlternateStartPosition(hostSize, trackSize) {
+	private getAlternateStartPosition(
+		hostSize: number,
+		trackSize: number
+	): number {
 		return this.directionSign < 0 ? hostSize - trackSize : 0
 	}
 
-	tick(time = performance.now()) {
+	private tick(time = performance.now()): void {
 		if (!this.running) return
 
 		if (this.lastTime === null) this.lastTime = time
@@ -318,7 +334,7 @@ class RemarqueebleElement extends HTMLElement {
 		this.rafId = requestAnimationFrame(nextTime => this.tick(nextTime))
 	}
 
-	step() {
+	private step(): void {
 		const hostSize = this.getHostSize()
 		const trackSize = this.getTrackSize()
 		const startPosition = this.getStartPosition(hostSize, trackSize)
@@ -397,15 +413,19 @@ class RemarqueebleElement extends HTMLElement {
 		this.render()
 	}
 
-	incrementLoopCount() {
+	private incrementLoopCount(): void {
 		this.loopsDone++
 	}
 
-	shouldStopAfterLoop() {
-		return this.hasAttribute(ATTR_LOOP) && this.loop > 0 && this.loopsDone >= this.loop
+	private shouldStopAfterLoop(): boolean {
+		return (
+			this.hasAttribute(ATTR_LOOP) &&
+			this.loop > 0 &&
+			this.loopsDone >= this.loop
+		)
 	}
 
-	render() {
+	private render(): void {
 		if (this.isVerticalDirection) {
 			this.track.style.transform = `translateY(${this.position}px)`
 		} else {
@@ -414,10 +434,19 @@ class RemarqueebleElement extends HTMLElement {
 	}
 }
 
-if (!customElements.get('re-marquee')) {
-	customElements.define('re-marquee', RemarqueebleElement)
+export const defineRemarqueebleElements = (): void => {
+	if (!customElements.get('re-marquee')) {
+		customElements.define('re-marquee', RemarqueebleElement)
+	}
+
+	if (!customElements.get('re-marquee-ble')) {
+		customElements.define('re-marquee-ble', RemarqueebleElement)
+	}
 }
 
-if (!customElements.get('re-marquee-ble')) {
-	customElements.define('re-marquee-ble', RemarqueebleElement)
+declare global {
+	interface HTMLElementTagNameMap {
+		're-marquee': RemarqueebleElement
+		're-marquee-ble': RemarqueebleElement
+	}
 }

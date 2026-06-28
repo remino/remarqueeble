@@ -1,0 +1,16 @@
+@import '@remino/directive';
+
+main {
+	margin-block-end: var(--rmn-ribbon-push, 0px);
+}
+
+marquee,
+re-marquee {
+	border: var(--dress-bs) dashed;
+}
+
+.tall marquee,
+.tall re-marquee {
+	height: 8rem;
+	white-space: normal;
+}

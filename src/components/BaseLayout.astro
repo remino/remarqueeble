@@ -1,0 +1,91 @@
+---
+import SiteNavFooter from '@remino/astro-site-nav/SiteNavFooter.astro'
+import SiteNavHeader from '@remino/astro-site-nav/SiteNavHeader.astro'
+import SiteNavHtmlHead from '@remino/astro-site-nav/SiteNavHtmlHead.astro'
+import HeaderNav from './HeaderNav.astro'
+import { site } from '../data/site'
+import '../assets/css/style.css'
+
+interface Props {
+	title?: string
+	description?: string
+	path?: string
+	htmlClass?: string
+	bodyClass?: string
+}
+
+const {
+	title = site.title,
+	description = site.description,
+	path = '/remarqueeble/',
+	htmlClass = '',
+	bodyClass = '',
+} = Astro.props
+
+const siteUrl = Astro.site ? new URL(path, Astro.site).toString() : site.url
+const documentTitle = title === site.title ? title : `${title} // ${site.title}`
+const combinedHtmlClass = ['no-js', 'rmn-nav-ribbon-bg-blur', htmlClass]
+	.filter(Boolean)
+	.join(' ')
+const navItems = [
+	{ label: 'Home', href: '/remarqueeble/' },
+	{ label: 'Demo', href: '/remarqueeble/demo/' },
+	{
+		label: 'GitHub',
+		href: 'https://github.com/remino/remarqueeble',
+		external: true,
+	},
+	{
+		label: 'npm',
+		href: 'https://www.npmjs.com/package/remarqueeble',
+		external: true,
+	},
+]
+---
+
+<!doctype html>
+<html lang="en" class={combinedHtmlClass}>
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="viewport-fit=cover, width=device-width, initial-scale=1.0"
+		/>
+		<meta name="format-detection" content="telephone=no" />
+		<title>{documentTitle}</title>
+		<meta name="description" content={description} />
+		<meta property="og:title" content={documentTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={siteUrl} />
+		<meta property="og:type" content="website" />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:title" content={documentTitle} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:site" content={site.twitterHandle} />
+		<meta name="twitter:creator" content={site.twitterHandle} />
+		<meta name="twitter:url" content={siteUrl} />
+		<SiteNavHtmlHead />
+		<slot name="head" />
+		<script>
+			document.documentElement.classList.add('js')
+			document.documentElement.classList.remove('no-js')
+		</script>
+	</head>
+	<body class={bodyClass}>
+		<SiteNavHeader />
+		<header>
+			<h1>
+				<a href="/remarqueeble/">Remarqueeble</a>
+			</h1>
+			<HeaderNav items={navItems} />
+		</header>
+		<slot />
+		<SiteNavFooter>
+			<a href="/remarqueeble/">Remarqueeble</a>
+		</SiteNavFooter>
+		<script>
+			import '../lib/auto'
+		</script>
+		<slot name="scripts" />
+	</body>
+</html>

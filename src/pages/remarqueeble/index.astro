@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../components/BaseLayout.astro'
+import { site } from '../../data/site'
+import ReadmeContent from '../../../README.md'
+---
+
+<BaseLayout title={site.title} description={site.description}>
+	<main>
+		<ReadmeContent />
+	</main>
+</BaseLayout>

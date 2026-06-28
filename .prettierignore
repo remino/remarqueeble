@@ -1,0 +1,6 @@
+.astro
+.build
+deploy
+dist
+node_modules
+specs
