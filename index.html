@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>ReMarqueeBle Demo</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<link
+			rel="stylesheet"
+			href="https://unpkg.com/@remino/dress.css/dist/dress.css" />
+		<script type="module" src="./remarqueeble.js"></script>
+
+		<style>
+			re-marquee {
+				border: var(--dress-bs) var(--dress-bg-2) solid;
+				padding: 0.5rem;
+			}
+
+			.tall re-marquee {
+				height: 8rem;
+				white-space: normal;
+			}
+		</style>
+	</head>
+
+	<body>
+		<main>
+			<header>
+				<re-marquee>
+					<h1>ReMarqueeBle</h1>
+				</re-marquee>
+			</header>
+
+			<p>
+				A tiny custom element tribute to the cursed glory of
+				<code>&lt;marquee&gt;</code>.
+			</p>
+
+			<h2>Default</h2>
+			<p><code>&lt;re-marquee&gt;</code></p>
+			<re-marquee>
+				Default marquee: left, scroll, scrollamount 6, scrolldelay 85.
+			</re-marquee>
+
+			<h2>Directions</h2>
+
+			<p><code>direction="left"</code></p>
+			<re-marquee direction="left">
+				← I crawl left into the neon ditch.
+			</re-marquee>
+
+			<p><code>direction="right"</code></p>
+			<re-marquee direction="right">
+				I flee right with suspicious confidence. →
+			</re-marquee>
+
+			<p><code>direction="up"</code></p>
+			<p class="tall">
+				<re-marquee direction="up">
+					↑ Upward scroll. Ancient guestbook energy rising from the crypt.
+				</re-marquee>
+			</p>
+
+			<p><code>direction="down"</code></p>
+			<p class="tall">
+				<re-marquee direction="down">
+					Downward scroll. A banner descending from the GeoCities ceiling. ↓
+				</re-marquee>
+			</p>
+
+			<h2>Scroll speed</h2>
+
+			<p><code>scrollamount="1"</code></p>
+			<re-marquee scrollamount="1">
+				Very slow. The dial-up modem is thinking.
+			</re-marquee>
+
+			<p><code>scrollamount="12"</code></p>
+			<re-marquee scrollamount="12">
+				Fast. Too fast. The web page has escaped containment.
+			</re-marquee>
+
+			<p><code>scrolldelay="200"</code></p>
+			<re-marquee scrolldelay="200">
+				Slow delay. Chunky little steps across the screen.
+			</re-marquee>
+
+			<p><code>scrollamount="2" scrolldelay="20"</code></p>
+			<re-marquee scrollamount="2" scrolldelay="20">
+				Smooth-ish and steady.
+			</re-marquee>
+
+			<h2>Behaviour: scroll</h2>
+
+			<p><code>behavior="scroll"</code></p>
+			<re-marquee behavior="scroll">
+				Scroll behaviour loops from one side to the other.
+			</re-marquee>
+
+			<p><code>behavior="scroll" direction="right"</code></p>
+			<re-marquee behavior="scroll" direction="right">
+				Same idea, but rightward.
+			</re-marquee>
+
+			<h2>Behaviour: alternate</h2>
+
+			<p><code>behavior="alternate"</code></p>
+			<re-marquee behavior="alternate">
+				I bounce between the walls like a screensaver DVD logo.
+			</re-marquee>
+
+			<p><code>behavior="alternate" scrollamount="12"</code></p>
+			<re-marquee behavior="alternate" scrollamount="12">
+				Aggressive bounce mode.
+			</re-marquee>
+
+			<p><code>behavior="alternate" direction="up"</code></p>
+			<p class="tall">
+				<re-marquee behavior="alternate" direction="up">
+					Vertical bounce. The ghost in the table layout is restless.
+				</re-marquee>
+			</p>
+
+			<p><code>behavior="alternate" direction="down"</code></p>
+			<p class="tall">
+				<re-marquee behavior="alternate" direction="down">
+					Downward alternate bounce.
+				</re-marquee>
+			</p>
+
+			<h2>Loop count</h2>
+
+			<p><code>loop="1"</code></p>
+			<re-marquee loop="1"> I only loop once, then I stop. </re-marquee>
+
+			<p><code>loop="3"</code></p>
+			<re-marquee loop="3" scrollamount="10">
+				Three loops and then silence.
+			</re-marquee>
+
+			<p><code>loop="-1"</code></p>
+			<re-marquee loop="-1"> Infinite loop, explicitly. </re-marquee>
+
+			<h2>Start and stop API</h2>
+
+			<p>
+				<button
+					type="button"
+					onclick="document.querySelector('#api-demo').start()">
+					Start
+				</button>
+				<button
+					type="button"
+					onclick="document.querySelector('#api-demo').stop()">
+					Stop
+				</button>
+			</p>
+
+			<re-marquee id="api-demo" scrollamount="5">
+				Controlled with start() and stop().
+			</re-marquee>
+
+			<h2>HTML content inside</h2>
+
+			<p><code>slotted HTML</code></p>
+			<re-marquee scrollamount="4">
+				<strong>Bold!</strong>
+				<em>Italic!</em>
+				<span>Inline elements work too.</span>
+				★ ✦ ✧
+			</re-marquee>
+		</main>
+	</body>
+</html>
