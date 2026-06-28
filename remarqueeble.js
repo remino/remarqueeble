@@ -364,3 +364,7 @@ class RemarqueebleElement extends HTMLElement {
 if (!customElements.get('re-marquee')) {
 	customElements.define('re-marquee', RemarqueebleElement)
 }
+
+if (!customElements.get('re-marquee-ble')) {
+	customElements.define('re-marquee-ble', RemarqueebleElement)
+}
