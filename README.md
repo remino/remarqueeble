@@ -3,15 +3,38 @@
 A tiny custom element tribute to the cursed glory of `<marquee>`, exposed as
 `<re-marquee>` and `<re-marquee-ble>`.
 
-[Demo](https://remino.net/remarqueeble/demo/) |
+By Rémino Rem  
+<https://remino.net/>
+
+[Docs](https://remino.net/remarqueeble/) |
 [Code Repo](https://github.com/remino/remarqueeble) |
 [npm Package](https://www.npmjs.com/package/remarqueeble)
+
+---
+
+<!-- mtoc-start -->
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Attributes](#attributes)
+- [API](#api)
+- [Development](#development)
+- [Contributing](#contributing)
+- [Licence](#licence)
+
+<!-- mtoc-end -->
+
+---
 
 ## Installation
 
 ```sh
 npm install remarqueeble
 ```
+
+[Back to top](#)
+
+---
 
 ## Usage
 
@@ -36,6 +59,10 @@ Then use either element name:
 <re-marquee-ble direction="right">Rightward marquee behaviour.</re-marquee-ble>
 ```
 
+[Back to top](#)
+
+---
+
 ## Attributes
 
 Remarqueeble follows the legacy marquee attribute names where practical:
@@ -49,6 +76,10 @@ Remarqueeble follows the legacy marquee attribute names where practical:
 - `bgcolor`, `width`, `height`, `hspace`, `vspace`: presentational hints mapped
   to CSS.
 
+[Back to top](#)
+
+---
+
 ## API
 
 Each element exposes the legacy methods:
@@ -60,6 +91,10 @@ marquee.stop()
 marquee.start()
 ```
 
+[Back to top](#)
+
+---
+
 ## Development
 
 ```sh
@@ -70,3 +105,25 @@ npm run build
 
 The library source lives in `src/lib`. The documentation site is built with
 Astro and lives in the rest of `src`.
+
+---
+
+## Contributing
+
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feature/amazing-feature`.
+3. Make your changes.
+4. Run `npm run build` and `npm test`.
+5. Commit, push, and open a pull request.
+
+Issues and ideas are welcome—please star the project if you enjoy it!
+
+[Back to top](#)
+
+---
+
+## Licence
+
+Licensed under the ISC licence. See `LICENSE.md`.
+
+[Back to top](#)
