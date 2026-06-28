@@ -1,0 +1,45 @@
+export declare class RemarqueebleElement extends HTMLElement {
+    static observedAttributes: string[];
+    private readonly track;
+    private running;
+    private position;
+    private lastTime;
+    private loopsDone;
+    private forward;
+    private rafId;
+    constructor();
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+    attributeChangedCallback(_name: string, oldValue: string | null, newValue: string | null): void;
+    get direction(): string;
+    get behavior(): string;
+    get scrollAmount(): number;
+    get scrollDelay(): number;
+    get loop(): number;
+    get directionSign(): number;
+    get isVerticalDirection(): boolean;
+    start(): void;
+    stop(): void;
+    private syncPresentationalHints;
+    private syncVar;
+    private reset;
+    private getHostSize;
+    private getTrackSize;
+    private getStartPosition;
+    private getFlushEndPosition;
+    private getOffEndPosition;
+    private getSlideEndPosition;
+    private getAlternateStartPosition;
+    private tick;
+    private step;
+    private incrementLoopCount;
+    private shouldStopAfterLoop;
+    private render;
+}
+export declare const defineRemarqueebleElements: () => void;
+declare global {
+    interface HTMLElementTagNameMap {
+        're-marquee': RemarqueebleElement;
+        're-marquee-ble': RemarqueebleElement;
+    }
+}
