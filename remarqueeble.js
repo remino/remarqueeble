@@ -92,7 +92,7 @@ function parseLegacyColor(value) {
 	return null
 }
 
-class ReMarqueeBle extends HTMLElement {
+class RemarqueebleElement extends HTMLElement {
 	static observedAttributes = [
 		ATTR_DIRECTION,
 		ATTR_BEHAVIOR,
@@ -361,4 +361,6 @@ class ReMarqueeBle extends HTMLElement {
 	}
 }
 
-customElements.define('re-marquee', ReMarqueeBle)
+if (!customElements.get('re-marquee')) {
+	customElements.define('re-marquee', RemarqueebleElement)
+}
