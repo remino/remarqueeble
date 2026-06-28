@@ -24,6 +24,7 @@ var CSS_VAR_HEIGHT = "--attr-height";
 var CSS_VAR_HSPACE = "--attr-hspace";
 var CSS_VAR_VSPACE = "--attr-vspace";
 var CSS_VAR_BG_COLOR = "--attr-bgcolor";
+var HTMLElementBase = globalThis.HTMLElement ?? class {};
 var parsePresentationalDimension = (value) => {
 	if (value === null) return null;
 	const trimmed = value.trim();
@@ -67,7 +68,7 @@ var ATTRIBUTE_HINTS = [
 		parser: parseLegacyColor
 	}
 ];
-var RemarqueebleElement = class extends HTMLElement {
+var RemarqueebleElement = class extends HTMLElementBase {
 	static observedAttributes = [
 		ATTR_DIRECTION,
 		ATTR_BEHAVIOR,
@@ -295,6 +296,7 @@ var RemarqueebleElement = class extends HTMLElement {
 	}
 };
 var defineRemarqueebleElements = () => {
+	if (typeof customElements === "undefined") return;
 	if (!customElements.get("re-marquee")) customElements.define("re-marquee", RemarqueebleElement);
 	if (!customElements.get("re-marquee-ble")) customElements.define("re-marquee-ble", RemarqueebleElement);
 };

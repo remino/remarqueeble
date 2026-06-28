@@ -1,6 +1,10 @@
+declare const HTMLElementBase: {
+    new (): HTMLElement;
+    prototype: HTMLElement;
+};
 export declare const parsePresentationalDimension: (value: string | null) => string | null;
 export declare const parseLegacyColor: (value: string | null) => string | null;
-export declare class RemarqueebleElement extends HTMLElement {
+export declare class RemarqueebleElement extends HTMLElementBase {
     static observedAttributes: string[];
     private readonly track;
     private running;
@@ -45,3 +49,4 @@ declare global {
         're-marquee-ble': RemarqueebleElement;
     }
 }
+export {};
