@@ -1,0 +1,120 @@
+---
+import BaseLayout from '../../../components/BaseLayout.astro'
+import { site } from '../../../data/site'
+---
+
+<BaseLayout title="Demo" description={site.description}>
+	<main>
+		<p>
+			A tiny custom element tribute to the cursed glory of
+			<code>&lt;marquee&gt;</code>, exposed as
+			<code>&lt;re-marquee&gt;</code> and
+			<code>&lt;re-marquee-ble&gt;</code>.
+		</p>
+		<p>
+			Install it with <code>npm install remarqueeble</code>, then import
+			<code>remarqueeble/auto</code> or call
+			<code>defineRemarqueebleElements()</code> yourself.
+		</p>
+
+		<h2>Default</h2>
+		<p><code>&lt;re-marquee&gt;</code></p>
+		<re-marquee>
+			Default marquee: left, scroll, scrollamount 6, scrolldelay 85. Nisi nisi
+			anim enim consequat pariatur reprehenderit. Proident cillum incididunt in
+			laborum est duis quis.
+		</re-marquee>
+
+		<h2>Directions</h2>
+		<p><code>direction="left"</code></p>
+		<re-marquee direction="left">← I crawl left into the neon ditch.</re-marquee
+		>
+
+		<p><code>direction="right"</code></p>
+		<re-marquee direction="right">
+			I flee right with suspicious confidence. →
+		</re-marquee>
+
+		<p><code>direction="up"</code></p>
+		<div class="tall">
+			<re-marquee direction="up">
+				↑ Upward scroll. Ancient guestbook energy rising from the crypt.
+			</re-marquee>
+		</div>
+
+		<p><code>direction="down"</code></p>
+		<div class="tall">
+			<re-marquee direction="down">
+				Downward scroll. A banner descending from the GeoCities ceiling. ↓
+			</re-marquee>
+		</div>
+
+		<h2>Scroll Speed</h2>
+		<p><code>scrollamount="1"</code></p>
+		<re-marquee scrollamount="1">
+			Very slow. The dial-up modem is thinking.
+		</re-marquee>
+
+		<p><code>scrollamount="12"</code></p>
+		<re-marquee scrollamount="12">
+			Fast. Too fast. The web page has escaped containment.
+		</re-marquee>
+
+		<p><code>scrolldelay="200"</code></p>
+		<re-marquee scrolldelay="200">
+			Slow delay. Chunky little steps across the screen.
+		</re-marquee>
+
+		<h2>Behaviour</h2>
+		<p><code>behavior="scroll"</code></p>
+		<re-marquee behavior="scroll">
+			Scroll behaviour loops from one side to the other.
+		</re-marquee>
+
+		<p><code>behavior="alternate"</code></p>
+		<re-marquee behavior="alternate">
+			I bounce between the walls like a screensaver DVD logo.
+		</re-marquee>
+
+		<p><code>behavior="slide" loop="2"</code></p>
+		<re-marquee behavior="slide" loop="2">Slides twice.</re-marquee>
+
+		<h2>Presentation</h2>
+		<p><code>bgcolor="var(--dress-bg-2)" width="18rem"</code></p>
+		<re-marquee bgcolor="var(--dress-bg-2)" width="18rem">
+			The background color and width come from marquee attributes.
+		</re-marquee>
+
+		<p><code>hspace="2rem" vspace="1rem"</code></p>
+		<re-marquee hspace="2rem" vspace="1rem">
+			Horizontal and vertical spacing map to margins.
+		</re-marquee>
+
+		<p><code>height="6rem" direction="up"</code></p>
+		<div class="tall">
+			<re-marquee height="6rem" direction="up">
+				The explicit height overrides the vertical default of 200px.
+			</re-marquee>
+		</div>
+
+		<h2>Start And Stop API</h2>
+		<p>
+			<button type="button" data-demo-action="start">Start</button>
+			<button type="button" data-demo-action="stop">Stop</button>
+		</p>
+
+		<re-marquee id="api-demo" scrollamount="5">
+			Controlled with start() and stop().
+		</re-marquee>
+	</main>
+
+	<script slot="scripts">
+		const apiDemo = document.querySelector('#api-demo')
+		document
+			.querySelector('[data-demo-action="start"]')
+			?.addEventListener('click', () => apiDemo?.start())
+		document
+			.querySelector('[data-demo-action="stop"]')
+			?.addEventListener('click', () => apiDemo?.stop())
+	</script>
+</BaseLayout>
