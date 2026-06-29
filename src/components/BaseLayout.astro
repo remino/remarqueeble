@@ -23,7 +23,9 @@ const {
 } = Astro.props
 
 const siteUrl = Astro.site ? new URL(path, Astro.site).toString() : site.url
-const imageUrl = Astro.site ? new URL(site.image, Astro.site).toString() : site.image
+const imageUrl = Astro.site
+	? new URL(site.image, Astro.site).toString()
+	: site.image
 const documentTitle = title === site.title ? title : `${title} // ${site.title}`
 const readableDocumentTitle =
 	title === site.title
@@ -35,6 +37,7 @@ const combinedHtmlClass = ['no-js', 'rmn-nav-ribbon-bg-blur', htmlClass]
 const navItems = [
 	{ label: 'Home', href: '/remarqueeble/' },
 	{ label: 'Demo', href: '/remarqueeble/demo/' },
+	{ label: 'Playground', href: '/remarqueeble/playground/' },
 	{ label: 'Licence', href: '/remarqueeble/license/' },
 	{
 		label: 'GitHub',

@@ -27,3 +27,84 @@ re-marquee {
 	height: 8rem;
 	white-space: normal;
 }
+
+.playground {
+	display: grid;
+	gap: 2rem;
+}
+
+.playground h2 {
+	margin-block-start: 0;
+}
+
+.playground-controls,
+.playground-preview,
+.playground-code {
+	display: grid;
+	gap: 1rem;
+}
+
+.control-grid {
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
+.control-grid label,
+.content-control {
+	display: grid;
+	gap: 0.35rem;
+}
+
+.control-grid input,
+.control-grid select,
+.content-control textarea {
+	box-sizing: border-box;
+	inline-size: 100%;
+}
+
+.checkbox-control {
+	align-content: end;
+	grid-template-columns: auto 1fr;
+}
+
+.checkbox-control input {
+	inline-size: auto;
+}
+
+.preview-stage {
+	display: grid;
+	gap: 1rem;
+}
+
+.preview-item {
+	display: grid;
+	gap: 0.5rem;
+	min-inline-size: 0;
+}
+
+.preview-item h3 {
+	font-size: 1rem;
+	margin: 0;
+}
+
+.preview-item marquee,
+.preview-item re-marquee {
+	min-block-size: 2rem;
+}
+
+.code-header {
+	align-items: center;
+	display: flex;
+	gap: 1rem;
+	justify-content: space-between;
+}
+
+.code-header h2 {
+	margin: 0;
+}
+
+.playground-code pre {
+	margin: 0;
+	overflow: auto;
+}
