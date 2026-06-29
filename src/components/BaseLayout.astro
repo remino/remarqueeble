@@ -23,6 +23,7 @@ const {
 } = Astro.props
 
 const siteUrl = Astro.site ? new URL(path, Astro.site).toString() : site.url
+const imageUrl = Astro.site ? new URL(site.image, Astro.site).toString() : site.image
 const documentTitle = title === site.title ? title : `${title} // ${site.title}`
 const readableDocumentTitle =
 	title === site.title
@@ -61,11 +62,15 @@ const navItems = [
 		<meta name="description" content={description} />
 		<meta property="og:title" content={documentTitle} />
 		<meta property="og:description" content={description} />
+		<meta property="og:image" content={imageUrl} />
+		<meta property="og:image:alt" content={site.imageAlt} />
 		<meta property="og:url" content={siteUrl} />
 		<meta property="og:type" content="website" />
-		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content={documentTitle} />
 		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={imageUrl} />
+		<meta name="twitter:image:alt" content={site.imageAlt} />
 		<meta name="twitter:site" content={site.twitterHandle} />
 		<meta name="twitter:creator" content={site.twitterHandle} />
 		<meta name="twitter:url" content={siteUrl} />

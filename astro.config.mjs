@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config'
+import imageVariants from '@remino/astro-image-variants'
 import compressor from 'astro-compressor'
 import minifyHtml from 'astro-minify-html'
 
@@ -9,6 +10,7 @@ export default defineConfig({
 	site: 'https://remino.net/remarqueeble/',
 	trailingSlash: 'always',
 	integrations: [
+		imageVariants(),
 		minifyHtml({
 			collapseWhitespace: true,
 			removeComments: true,

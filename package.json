@@ -6,6 +6,7 @@
 	"browser": "dist/remarqueeble.umd.js",
 	"description": "Custom element tribute to the cursed glory of marquee.",
 	"dependencies": {
+		"@remino/astro-image-variants": "^0.1.1",
 		"@remino/astro-middleware": "^0.1.0",
 		"@remino/astro-site-nav": "^0.4.2",
 		"@remino/directive": "^5.3.4"
