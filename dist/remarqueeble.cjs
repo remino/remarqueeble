@@ -10,6 +10,7 @@ var DEFAULT_VERTICAL_HEIGHT = "200px";
 var DEFAULT_HOST_WIDTH = "calc(100% - (var(--attr-hspace, 0px) * 2))";
 var ATTR_DIRECTION = "direction";
 var ATTR_BEHAVIOR = "behavior";
+var ATTR_MODE = "mode";
 var ATTR_SCROLL_AMOUNT = "scrollamount";
 var ATTR_SCROLL_DELAY = "scrolldelay";
 var ATTR_TRUE_SPEED = "truespeed";
@@ -24,6 +25,15 @@ var CSS_VAR_HEIGHT = "--attr-height";
 var CSS_VAR_HSPACE = "--attr-hspace";
 var CSS_VAR_VSPACE = "--attr-vspace";
 var CSS_VAR_BG_COLOR = "--attr-bgcolor";
+var CSS_VAR_ANIMATION_DURATION = "--animation-duration";
+var CSS_VAR_ANIMATION_DIRECTION = "--animation-direction";
+var CSS_VAR_ANIMATION_ITERATION_COUNT = "--animation-iteration-count";
+var CSS_VAR_ANIMATION_PLAY_STATE = "--animation-play-state";
+var CSS_VAR_ANIMATION_TIMING_FUNCTION = "--animation-timing-function";
+var CSS_VAR_TRANSLATE_X_END = "--translate-x-end";
+var CSS_VAR_TRANSLATE_X_START = "--translate-x-start";
+var CSS_VAR_TRANSLATE_Y_END = "--translate-y-end";
+var CSS_VAR_TRANSLATE_Y_START = "--translate-y-start";
 var HTMLElementBase = globalThis.HTMLElement ?? class {};
 var parsePresentationalDimension = (value) => {
 	if (value === null) return null;
@@ -72,6 +82,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	static observedAttributes = [
 		ATTR_DIRECTION,
 		ATTR_BEHAVIOR,
+		ATTR_MODE,
 		ATTR_SCROLL_AMOUNT,
 		ATTR_SCROLL_DELAY,
 		ATTR_TRUE_SPEED,
@@ -116,6 +127,32 @@ var RemarqueebleElement = class extends HTMLElementBase {
 					display: inline-block;
 					will-change: transform;
 				}
+
+				:host([mode="css"]) .track {
+					animation: remarqueeble-css-motion
+						var(${CSS_VAR_ANIMATION_DURATION}, 10s)
+						var(${CSS_VAR_ANIMATION_TIMING_FUNCTION}, linear)
+						var(${CSS_VAR_ANIMATION_ITERATION_COUNT}, infinite)
+						var(${CSS_VAR_ANIMATION_DIRECTION}, normal)
+						both;
+					animation-play-state: var(${CSS_VAR_ANIMATION_PLAY_STATE}, running);
+				}
+
+				@keyframes remarqueeble-css-motion {
+					from {
+						transform: translate(
+							var(${CSS_VAR_TRANSLATE_X_START}, 100%),
+							var(${CSS_VAR_TRANSLATE_Y_START}, 0px)
+						);
+					}
+
+					to {
+						transform: translate(
+							var(${CSS_VAR_TRANSLATE_X_END}, -100%),
+							var(${CSS_VAR_TRANSLATE_Y_END}, 0px)
+						);
+					}
+				}
 			</style>
 
 			<span class="track"><slot></slot></span>
@@ -130,7 +167,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		requestAnimationFrame(() => {
 			if (!this.isConnected || !this.running) return;
 			this.reset();
-			this.tick();
+			if (!this.isCssMode) this.tick();
 		});
 	}
 	disconnectedCallback() {
@@ -144,13 +181,20 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	attributeChangedCallback(_name, oldValue, newValue) {
 		if (oldValue === newValue) return;
 		this.syncPresentationalHints();
-		if (this.isConnected) this.reset();
+		this.cancelTick();
+		if (this.isConnected) {
+			this.reset();
+			if (this.running && !this.isCssMode) this.tick();
+		}
 	}
 	get direction() {
 		return this.getAttribute(ATTR_DIRECTION) || DEFAULT_DIRECTION;
 	}
 	get behavior() {
 		return this.getAttribute(ATTR_BEHAVIOR) || DEFAULT_BEHAVIOR;
+	}
+	get mode() {
+		return this.getAttribute(ATTR_MODE) || "js";
 	}
 	get scrollAmount() {
 		const raw = this.getAttribute(ATTR_SCROLL_AMOUNT);
@@ -174,14 +218,23 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	get isVerticalDirection() {
 		return this.direction === "up" || this.direction === "down";
 	}
+	get isCssMode() {
+		return this.mode === "css";
+	}
 	start() {
 		if (this.running) return;
 		this.running = true;
 		this.lastTime = null;
-		this.tick();
+		this.syncAnimationPlayState();
+		if (!this.isCssMode) this.tick();
 	}
 	stop() {
 		this.running = false;
+		this.syncAnimationPlayState();
+		this.cancelTick();
+	}
+	cancelTick() {
+		this.lastTime = null;
 		if (this.rafId !== null) {
 			cancelAnimationFrame(this.rafId);
 			this.rafId = null;
@@ -189,6 +242,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	}
 	syncPresentationalHints() {
 		for (const hint of ATTRIBUTE_HINTS) this.syncVar(hint);
+		this.syncAnimationPlayState();
 	}
 	syncVar(hint) {
 		const raw = this.getAttribute(hint.attribute);
@@ -207,7 +261,11 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		this.loopsDone = 0;
 		this.forward = true;
 		this.position = this.behavior === "alternate" ? this.getAlternateStartPosition(hostSize, trackSize) : this.getStartPosition(hostSize, trackSize);
-		this.render();
+		if (this.isCssMode) this.syncCssAnimation(hostSize, trackSize);
+		else {
+			this.clearCssAnimation();
+			this.render();
+		}
 	}
 	getHostSize() {
 		return this.isVerticalDirection ? this.clientHeight : this.clientWidth;
@@ -289,6 +347,48 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	}
 	shouldStopAfterLoop() {
 		return this.hasAttribute(ATTR_LOOP) && this.loop > 0 && this.loopsDone >= this.loop;
+	}
+	syncAnimationPlayState() {
+		this.style.setProperty(CSS_VAR_ANIMATION_PLAY_STATE, this.running ? "running" : "paused");
+	}
+	syncCssAnimation(hostSize, trackSize) {
+		const startPosition = this.behavior === "alternate" ? this.getAlternateStartPosition(hostSize, trackSize) : this.getStartPosition(hostSize, trackSize);
+		const endPosition = this.behavior === "slide" ? this.getSlideEndPosition(hostSize, trackSize) : this.behavior === "alternate" ? this.getFlushEndPosition(hostSize, trackSize) : this.getOffEndPosition(hostSize, trackSize);
+		const distance = Math.abs(endPosition - startPosition);
+		const steps = Math.max(1, Math.ceil(distance / Math.max(1, this.scrollAmount)));
+		const duration = Math.max(1, steps * this.scrollDelay);
+		const iterationCount = this.getCssIterationCount();
+		this.track.style.removeProperty("transform");
+		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, `${duration}ms`);
+		this.style.setProperty(CSS_VAR_ANIMATION_DIRECTION, this.behavior === "alternate" ? "alternate" : "normal");
+		this.style.setProperty(CSS_VAR_ANIMATION_ITERATION_COUNT, iterationCount);
+		this.style.setProperty(CSS_VAR_ANIMATION_TIMING_FUNCTION, `steps(${steps}, end)`);
+		if (this.isVerticalDirection) {
+			this.style.setProperty(CSS_VAR_TRANSLATE_X_START, "0px");
+			this.style.setProperty(CSS_VAR_TRANSLATE_X_END, "0px");
+			this.style.setProperty(CSS_VAR_TRANSLATE_Y_START, `${startPosition}px`);
+			this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, `${endPosition}px`);
+		} else {
+			this.style.setProperty(CSS_VAR_TRANSLATE_X_START, `${startPosition}px`);
+			this.style.setProperty(CSS_VAR_TRANSLATE_X_END, `${endPosition}px`);
+			this.style.setProperty(CSS_VAR_TRANSLATE_Y_START, "0px");
+			this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, "0px");
+		}
+	}
+	clearCssAnimation() {
+		this.style.removeProperty(CSS_VAR_ANIMATION_DURATION);
+		this.style.removeProperty(CSS_VAR_ANIMATION_DIRECTION);
+		this.style.removeProperty(CSS_VAR_ANIMATION_ITERATION_COUNT);
+		this.style.removeProperty(CSS_VAR_ANIMATION_TIMING_FUNCTION);
+		this.style.removeProperty(CSS_VAR_TRANSLATE_X_START);
+		this.style.removeProperty(CSS_VAR_TRANSLATE_X_END);
+		this.style.removeProperty(CSS_VAR_TRANSLATE_Y_START);
+		this.style.removeProperty(CSS_VAR_TRANSLATE_Y_END);
+	}
+	getCssIterationCount() {
+		if (this.behavior === "slide" && !this.hasAttribute(ATTR_LOOP)) return "1";
+		if (!this.hasAttribute(ATTR_LOOP) || this.loop <= 0) return "infinite";
+		return String(this.loop);
 	}
 	render() {
 		if (this.isVerticalDirection) this.track.style.transform = `translateY(${this.position}px)`;

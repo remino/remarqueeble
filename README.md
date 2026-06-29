@@ -17,6 +17,7 @@ By Rémino Rem
 - [Installation](#installation)
 - [Usage](#usage)
 - [Attributes](#attributes)
+- [CSS Mode](#css-mode)
 - [API](#api)
 - [Development](#development)
 - [Contributing](#contributing)
@@ -70,12 +71,29 @@ marquee attribute names where practical:
 
 - `behavior`: `scroll`, `slide`, or `alternate`.
 - `direction`: `left`, `right`, `up`, or `down`.
+- `mode`: `js` for the default legacy emulation, or `css` for CSS animation
+  imitation.
 - `scrollamount`: step size in pixels.
 - `scrolldelay`: delay between steps in milliseconds.
 - `truespeed`: keeps delays under 60ms instead of clamping them.
 - `loop`: positive loop count, or `-1` for infinite scrolling.
 - `bgcolor`, `width`, `height`, `hspace`, `vspace`: presentational hints mapped
   to CSS.
+
+[Back to top](#)
+
+---
+
+## CSS Mode
+
+Use `mode="css"` when you want the marquee look with CSS animations:
+
+```html
+<re-marquee mode="css">CSS animation imitation.</re-marquee>
+```
+
+CSS mode maps the legacy attributes to animation variables where practical, but
+the default JavaScript mode remains the closer emulation of `<marquee>`.
 
 [Back to top](#)
 

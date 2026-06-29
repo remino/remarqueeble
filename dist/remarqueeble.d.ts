@@ -19,13 +19,16 @@ export declare class RemarqueebleElement extends HTMLElementBase {
     attributeChangedCallback(_name: string, oldValue: string | null, newValue: string | null): void;
     get direction(): string;
     get behavior(): string;
+    get mode(): string;
     get scrollAmount(): number;
     get scrollDelay(): number;
     get loop(): number;
     get directionSign(): number;
     get isVerticalDirection(): boolean;
+    get isCssMode(): boolean;
     start(): void;
     stop(): void;
+    private cancelTick;
     private syncPresentationalHints;
     private syncVar;
     private reset;
@@ -40,6 +43,10 @@ export declare class RemarqueebleElement extends HTMLElementBase {
     private step;
     private incrementLoopCount;
     private shouldStopAfterLoop;
+    private syncAnimationPlayState;
+    private syncCssAnimation;
+    private clearCssAnimation;
+    private getCssIterationCount;
     private render;
 }
 export declare const defineRemarqueebleElements: () => void;
