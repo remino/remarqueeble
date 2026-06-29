@@ -24,6 +24,10 @@ const {
 
 const siteUrl = Astro.site ? new URL(path, Astro.site).toString() : site.url
 const documentTitle = title === site.title ? title : `${title} // ${site.title}`
+const readableDocumentTitle =
+	title === site.title
+		? site.readableTitle
+		: `${title} // ${site.readableTitle}`
 const combinedHtmlClass = ['no-js', 'rmn-nav-ribbon-bg-blur', htmlClass]
 	.filter(Boolean)
 	.join(' ')
@@ -53,7 +57,7 @@ const navItems = [
 			content="viewport-fit=cover, width=device-width, initial-scale=1.0"
 		/>
 		<meta name="format-detection" content="telephone=no" />
-		<title>{documentTitle}</title>
+		<title>{readableDocumentTitle}</title>
 		<meta name="description" content={description} />
 		<meta property="og:title" content={documentTitle} />
 		<meta property="og:description" content={description} />
@@ -76,13 +80,18 @@ const navItems = [
 		<SiteNavHeader />
 		<header>
 			<h1>
-				<a href="/remarqueeble/">Remarqueeble</a>
+				<a href="/remarqueeble/" aria-labelledby="site-title-readable">
+					<span id="site-title-readable" class="sr-only">
+						<mark>{site.readableTitle}</mark>
+					</span>
+					<mark aria-hidden="true">{site.title}</mark>
+				</a>
 			</h1>
 			<HeaderNav items={navItems} />
 		</header>
 		<slot />
 		<SiteNavFooter>
-			<a href="/remarqueeble/">Remarqueeble</a>
+			<a href="/remarqueeble/">{site.title}</a>
 		</SiteNavFooter>
 		<script>
 			import '../lib/auto'

@@ -1,4 +1,6 @@
 ---
+import { site } from '../data/site'
+
 const siteUrl = '/remarqueeble/'
 ---
 
@@ -7,7 +9,7 @@ const siteUrl = '/remarqueeble/'
 	<head>
 		<meta charset="UTF-8" />
 		<meta http-equiv="refresh" content={`0; url=${siteUrl}`} />
-		<title>Remarqueeble</title>
+		<title>{site.readableTitle}</title>
 	</head>
 	<body></body>
 </html>

@@ -1,4 +1,4 @@
-# Remarqueeble
+# <mark aria-label="Remarqueeble">&lt;re-marquee&gt;ble</mark>
 
 A tiny custom element tribute to the cursed glory of `<marquee>`, exposed as
 `<re-marquee>` and `<re-marquee-ble>`.
@@ -65,7 +65,8 @@ Then use either element name:
 
 ## Attributes
 
-Remarqueeble follows the legacy marquee attribute names where practical:
+<mark aria-label="Remarqueeble">&lt;re-marquee&gt;ble</mark> follows the legacy
+marquee attribute names where practical:
 
 - `behavior`: `scroll`, `slide`, or `alternate`.
 - `direction`: `left`, `right`, `up`, or `down`.
