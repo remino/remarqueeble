@@ -28,48 +28,22 @@ re-marquee {
 	white-space: normal;
 }
 
-.playground {
-	display: grid;
-	gap: 2rem;
-}
-
-.playground h2 {
-	margin-block-start: 0;
-}
-
-.playground-controls,
-.playground-preview,
-.playground-code {
+.playground-display {
+	align-content: center;
 	display: grid;
 	gap: 1rem;
+	min-block-size: min(32rem, calc(100dvb - 14rem));
 }
 
-.control-grid {
-	display: grid;
-	gap: 1rem;
-	grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-}
-
-.control-grid label,
-.content-control {
-	display: grid;
-	gap: 0.35rem;
-}
-
-.control-grid input,
-.control-grid select,
-.content-control textarea {
+.playground-display:fullscreen {
+	background: var(--dress-bg);
 	box-sizing: border-box;
 	inline-size: 100%;
+	padding: var(--dress-m-b) var(--dress-m-i);
 }
 
-.checkbox-control {
-	align-content: end;
-	grid-template-columns: auto 1fr;
-}
-
-.checkbox-control input {
-	inline-size: auto;
+.playground-display h2 {
+	margin-block-start: 0;
 }
 
 .preview-stage {
@@ -93,18 +67,145 @@ re-marquee {
 	min-block-size: 2rem;
 }
 
-.code-header {
-	align-items: center;
+.playground-controls-menu {
 	display: flex;
-	gap: 1rem;
-	justify-content: space-between;
+	gap: 0.5rem;
+	inset-block-end: calc(
+		var(--rmn-ribbon-push, 0px) + 1rem + env(safe-area-inset-bottom)
+	);
+	inset-inline-end: calc(1rem + env(safe-area-inset-right));
+	margin: 0;
+	padding: 0;
+	position: fixed;
+	z-index: 10;
 }
 
-.code-header h2 {
-	margin: 0;
+.playground-controls-menu li,
+.playground-controls-footer li {
+	display: block;
 }
 
-.playground-code pre {
+.playground-controls-menu a,
+.playground-controls-menu button,
+.playground-controls dialog {
+	-webkit-backdrop-filter: blur(0.75em);
+	backdrop-filter: blur(0.75em);
+	background: color-mix(in srgb, var(--dress-bg) 68%, transparent);
+}
+
+.playground-controls-menu a {
+	border: solid var(--dress-bs) var(--dress-dt);
+	color: var(--dress-fg);
+	display: inline-block;
+	line-height: var(--dress-lh);
+	margin-block: calc(var(--dress-m-b) / 4);
+	padding-block: calc(var(--dress-m-b) / 4 - var(--dress-bs));
+	padding-inline: calc(var(--dress-m-i) / 2 - var(--dress-bs));
+	text-decoration: none;
+}
+
+.playground-controls-menu button[aria-pressed='true'] {
+	background: var(--dress-fg);
+	color: var(--dress-bg);
+}
+
+.playground-controls dialog {
+	box-sizing: border-box;
+	inline-size: min(24rem, calc(100vi - 2rem));
+	inset-block-end: calc(
+		var(--rmn-ribbon-push, 0px) + 5rem + env(safe-area-inset-bottom)
+	);
+	inset-block-start: auto;
+	inset-inline-end: calc(1rem + env(safe-area-inset-right));
+	inset-inline-start: auto;
 	margin: 0;
+	max-block-size: calc(100dvb - 6rem - var(--rmn-ribbon-push, 0px));
 	overflow: auto;
+	position: fixed;
+}
+
+.playground-controls dialog::backdrop {
+	background: transparent;
+}
+
+.playground-controls form,
+.playground-controls form > label {
+	display: grid;
+	gap: 0.5rem;
+}
+
+.playground-controls form {
+	gap: 1rem;
+}
+
+.playground-controls form > h2 {
+	margin-block-start: 0;
+}
+
+.playground-controls input,
+.playground-controls select,
+.playground-controls textarea {
+	box-sizing: border-box;
+	inline-size: 100%;
+}
+
+.playground-controls
+	label:has([data-setting-control='number']):has(
+		[data-setting-control='range']
+	) {
+	align-items: center;
+	display: grid;
+	gap: 0.35rem 0.75rem;
+	grid-template-columns: minmax(0, 2fr) minmax(5rem, 1fr);
+}
+
+.playground-controls
+	label:has([data-setting-control='number']):has([data-setting-control='range'])
+	> span {
+	grid-column: 1 / -1;
+}
+
+.playground-controls
+	label:has([data-setting-control='number']):has([data-setting-control='range'])
+	> [data-setting-control='range'] {
+	grid-column: 1;
+	grid-row: 2;
+}
+
+.playground-controls
+	label:has([data-setting-control='number']):has([data-setting-control='range'])
+	> [data-setting-control='number'] {
+	grid-column: 2;
+	grid-row: 2;
+}
+
+.checkbox-control {
+	align-items: center;
+	display: grid;
+	gap: 0.5rem;
+	grid-template-columns: auto 1fr;
+}
+
+.checkbox-control input {
+	inline-size: auto;
+}
+
+.playground-controls-footer {
+	display: flex;
+	justify-content: flex-end;
+	margin: 0;
+	padding: 0;
+}
+
+.playground-controls-footer menu {
+	display: flex;
+	flex-flow: row wrap;
+	gap: 0.5rem;
+	justify-content: flex-end;
+	margin: 0;
+	padding: 0;
+}
+
+.playground-controls-footer::before {
+	display: none;
 }

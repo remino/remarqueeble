@@ -12,6 +12,7 @@ interface Props {
 	path?: string
 	htmlClass?: string
 	bodyClass?: string
+	showHeader?: boolean
 }
 
 const {
@@ -20,6 +21,7 @@ const {
 	path = '/remarqueeble/',
 	htmlClass = '',
 	bodyClass = '',
+	showHeader = true,
 } = Astro.props
 
 const siteUrl = Astro.site ? new URL(path, Astro.site).toString() : site.url
@@ -37,7 +39,6 @@ const combinedHtmlClass = ['no-js', 'rmn-nav-ribbon-bg-blur', htmlClass]
 const navItems = [
 	{ label: 'Home', href: '/remarqueeble/' },
 	{ label: 'Demo', href: '/remarqueeble/demo/' },
-	{ label: 'Playground', href: '/remarqueeble/playground/' },
 	{ label: 'Licence', href: '/remarqueeble/license/' },
 	{
 		label: 'GitHub',
@@ -86,17 +87,21 @@ const navItems = [
 	</head>
 	<body class={bodyClass}>
 		<SiteNavHeader />
-		<header>
-			<h1>
-				<a href="/remarqueeble/" aria-labelledby="site-title-readable">
-					<span id="site-title-readable" class="sr-only">
-						<mark>{site.readableTitle}</mark>
-					</span>
-					<mark aria-hidden="true">{site.title}</mark>
-				</a>
-			</h1>
-			<HeaderNav items={navItems} />
-		</header>
+		{
+			showHeader && (
+				<header>
+					<h1>
+						<a href="/remarqueeble/" aria-labelledby="site-title-readable">
+							<span id="site-title-readable" class="sr-only">
+								<mark>{site.readableTitle}</mark>
+							</span>
+							<mark aria-hidden="true">{site.title}</mark>
+						</a>
+					</h1>
+					<HeaderNav items={navItems} />
+				</header>
+			)
+		}
 		<slot />
 		<SiteNavFooter>
 			<a href="/remarqueeble/">{site.title}</a>
