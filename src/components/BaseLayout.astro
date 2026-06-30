@@ -6,6 +6,11 @@ import HeaderNav from './HeaderNav.astro'
 import { site } from '../data/site'
 import '../assets/css/style.css'
 
+interface Breadcrumb {
+	label: string
+	href?: string
+}
+
 interface Props {
 	title?: string
 	description?: string
@@ -13,6 +18,7 @@ interface Props {
 	htmlClass?: string
 	bodyClass?: string
 	showHeader?: boolean
+	breadcrumbs?: Breadcrumb[]
 }
 
 const {
@@ -22,6 +28,7 @@ const {
 	htmlClass = '',
 	bodyClass = '',
 	showHeader = true,
+	breadcrumbs,
 } = Astro.props
 
 const siteUrl = Astro.site ? new URL(path, Astro.site).toString() : site.url
@@ -33,6 +40,14 @@ const readableDocumentTitle =
 	title === site.title
 		? site.readableTitle
 		: `${title} // ${site.readableTitle}`
+const breadcrumbItems =
+	breadcrumbs ??
+	(title === site.title
+		? [{ label: site.readableTitle, href: '/remarqueeble/' }]
+		: [
+				{ label: site.readableTitle, href: '/remarqueeble/' },
+				{ label: title, href: path },
+			])
 const combinedHtmlClass = ['no-js', 'rmn-nav-ribbon-bg-blur', htmlClass]
 	.filter(Boolean)
 	.join(' ')
@@ -104,9 +119,18 @@ const navItems = [
 			)
 		}
 		<slot />
-		<SiteNavFooter>
-			<a href="/remarqueeble/">{site.title}</a>
-		</SiteNavFooter>
+		<div class="rmn-nav__content">
+			<ul class="rmn-breadcrumbs">
+				{
+					breadcrumbItems.map(item => (
+						<li>
+							{item.href ? <a href={item.href}>{item.label}</a> : item.label}
+						</li>
+					))
+				}
+			</ul>
+		</div>
+		<SiteNavFooter />
 		<script>
 			import '../lib/auto'
 		</script>
