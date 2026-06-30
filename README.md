@@ -36,22 +36,37 @@ By Rémino Rem
 Register the custom elements automatically from a CDN:
 
 ```html
-<script
-    type="module"
-    src="https://unpkg.com/remarqueeble/dist/remarqueeble-auto.min.js"></script>
+<script src="https://unpkg.com/remarqueeble"></script>
 ```
 
 Mirrors:
 
-- https://unpkg.com/remarqueeble/dist/remarqueeble-auto.min.js
-- https://cdn.jsdelivr.net/npm/remarqueeble/dist/remarqueeble-auto.min.js
+- https://unpkg.com/remarqueeble
+- https://cdn.jsdelivr.net/npm/remarqueeble
 
 Use a pinned version in production:
 
 ```html
-<script
-    type="module"
-    src="https://unpkg.com/remarqueeble@0.2.0/dist/remarqueeble-auto.min.js"></script>
+<script src="https://unpkg.com/remarqueeble@0.3.0"></script>
+```
+
+If you want the API instead of auto-registration, load the global build:
+
+```html
+<script src="https://unpkg.com/remarqueeble@0.3.0/dist/remarqueeble.min.js"></script>
+<script>
+    remarqueeble.defineRemarqueebleElements()
+</script>
+```
+
+Or import the minified ES module directly:
+
+```html
+<script type="module">
+    import { defineRemarqueebleElements } from 'https://unpkg.com/remarqueeble@0.3.0/dist/remarqueeble.min.mjs'
+
+    defineRemarqueebleElements()
+</script>
 ```
 
 ### npm
@@ -78,6 +93,9 @@ defineRemarqueebleElements()
 
 TypeScript declarations are included with the package.
 
+Bundlers normally minify production builds for you, so npm users should prefer
+the package exports above instead of importing files from `dist/` directly.
+
 ### Direct download
 
 Download the package tarball or individual files from npm/CDN:
@@ -87,6 +105,16 @@ Download the package tarball or individual files from npm/CDN:
 - https://cdn.jsdelivr.net/npm/remarqueeble/dist/
 
 The browser-ready auto-registration file is `dist/remarqueeble-auto.min.js`.
+
+Distribution files:
+
+- `dist/remarqueeble.mjs`: ES module library API.
+- `dist/remarqueeble.cjs`: CommonJS library API.
+- `dist/remarqueeble.min.mjs`: minified ES module library API.
+- `dist/remarqueeble.min.js`: minified classic browser global.
+- `dist/remarqueeble-auto.mjs`: ES module auto-registration entry.
+- `dist/remarqueeble-auto.cjs`: CommonJS auto-registration entry.
+- `dist/remarqueeble-auto.min.js`: minified classic browser auto-registration.
 
 [Back to top](#)
 

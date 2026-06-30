@@ -3,7 +3,7 @@
 		"name": "Rémino Rem",
 		"url": "https://remino.net/"
 	},
-	"browser": "dist/remarqueeble.cjs",
+	"browser": "./dist/remarqueeble-auto.min.js",
 	"description": "Custom element tribute to the cursed glory of marquee.",
 	"devDependencies": {
 		"@astrojs/check": "^0.9.4",
@@ -31,6 +31,8 @@
 	"exports": {
 		".": {
 			"types": "./dist/remarqueeble.d.ts",
+			"unpkg": "./dist/remarqueeble-auto.min.js",
+			"browser": "./dist/remarqueeble-auto.min.js",
 			"import": "./dist/remarqueeble.mjs",
 			"require": "./dist/remarqueeble.cjs"
 		},
@@ -53,6 +55,8 @@
 	"main": "dist/remarqueeble.cjs",
 	"module": "dist/remarqueeble.mjs",
 	"name": "remarqueeble",
+	"unpkg": "./dist/remarqueeble-auto.min.js",
+	"jsdelivr": "./dist/remarqueeble-auto.min.js",
 	"sideEffects": [
 		"./dist/remarqueeble-auto.*",
 		"./src/lib/auto.ts"
