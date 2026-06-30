@@ -1,4 +1,4 @@
-/*! remarqueeble v0.2.0 | (c) 2026 Rémino Rem <https://remino.net/> | ISC Licence */
+/*! remarqueeble v0.3.0 | (c) 2026 Rémino Rem <https://remino.net/> | ISC Licence */
 //#region src/lib/remarqueeble.ts
 var DEFAULT_DIRECTION = "left";
 var DEFAULT_BEHAVIOR = "scroll";

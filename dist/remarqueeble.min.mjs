@@ -1,4 +1,4 @@
-/*! remarqueeble v0.2.0 | (c) 2026 Rémino Rem <https://remino.net/> | ISC Licence */
+/*! remarqueeble v0.3.0 | (c) 2026 Rémino Rem <https://remino.net/> | ISC Licence */
 //#region src/lib/remarqueeble.ts
 var e = "direction", t = "behavior", n = "scrollamount", r = "scrolldelay", i = "truespeed", a = "loop", o = "bgcolor", s = "width", c = "height", l = "hspace", u = "vspace", d = "--attr-width", f = "--attr-height", p = "--attr-hspace", m = "--attr-vspace", h = "--attr-bgcolor", g = "--animation-duration", _ = "--animation-direction", v = "--animation-iteration-count", y = "--animation-play-state", b = "--animation-timing-function", x = "--translate-x-end", S = "--translate-x-start", C = "--translate-y-end", w = "--translate-y-start", T = globalThis.HTMLElement ?? class {}, E = (e) => {
 	if (e === null) return null;
