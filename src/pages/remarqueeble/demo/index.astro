@@ -11,7 +11,7 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 	path="/remarqueeble/demo/"
 	bodyClass="demo-page"
 	showHeader={false}>
-	<main>
+	<main class="playground-layout">
 		<section
 			id="playground-display"
 			class="playground-display"
@@ -21,158 +21,139 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 		</section>
 
 		<section class="playground-controls" aria-label="Demo controls">
-			<menu class="playground-controls-menu">
-				<li>
-					<a href="/remarqueeble/">Back to Remarqueeble</a>
-				</li>
-				<li>
-					<button type="button" data-fullscreen>Full Screen</button>
-				</li>
-				<li>
-					<button type="button" data-settings>Settings</button>
-				</li>
-			</menu>
+			<form data-playground>
+				<h2>Demo</h2>
 
-			<dialog data-settings-dialog>
-				<form method="dialog" data-playground>
-					<h2>Demo</h2>
+				<label>
+					<span>Show</span>
+					<select name="show">
+						<option value="re-marquee">re-marquee</option>
+						<option value="marquee">marquee</option>
+						<option value="both">both</option>
+					</select>
+				</label>
 
-					<label>
-						<span>Show</span>
-						<select name="show">
-							<option value="re-marquee">re-marquee</option>
-							<option value="marquee">marquee</option>
-							<option value="both">both</option>
-						</select>
-					</label>
+				<label>
+					<span>Behavior</span>
+					<select name="behavior">
+						<option value="scroll">scroll</option>
+						<option value="alternate">alternate</option>
+						<option value="slide">slide</option>
+					</select>
+				</label>
 
-					<label>
-						<span>Behavior</span>
-						<select name="behavior">
-							<option value="scroll">scroll</option>
-							<option value="alternate">alternate</option>
-							<option value="slide">slide</option>
-						</select>
-					</label>
+				<label>
+					<span>Direction</span>
+					<select name="direction">
+						<option value="left">left</option>
+						<option value="right">right</option>
+						<option value="up">up</option>
+						<option value="down">down</option>
+					</select>
+				</label>
 
-					<label>
-						<span>Direction</span>
-						<select name="direction">
-							<option value="left">left</option>
-							<option value="right">right</option>
-							<option value="up">up</option>
-							<option value="down">down</option>
-						</select>
-					</label>
+				<label>
+					<span>Loop</span>
+					<input name="loop" type="number" min="-1" step="1" placeholder="-1" />
+				</label>
 
-					<label>
-						<span>Loop</span>
-						<input
-							name="loop"
-							type="number"
-							min="-1"
-							step="1"
-							placeholder="-1"
-						/>
-					</label>
+				<label>
+					<span>Scrollamount</span>
+					<input
+						data-setting-control="range"
+						name="scrollamountRange"
+						type="range"
+						min="0"
+						max="30"
+						step="1"
+						value="6"
+					/>
+					<input
+						data-setting-control="number"
+						name="scrollamount"
+						type="number"
+						min="0"
+						max="30"
+						step="1"
+						value="6"
+					/>
+				</label>
 
-					<label>
-						<span>Scrollamount</span>
-						<input
-							data-setting-control="range"
-							name="scrollamountRange"
-							type="range"
-							min="0"
-							max="30"
-							step="1"
-							value="6"
-						/>
-						<input
-							data-setting-control="number"
-							name="scrollamount"
-							type="number"
-							min="0"
-							max="30"
-							step="1"
-							value="6"
-						/>
-					</label>
+				<label>
+					<span>Scrolldelay</span>
+					<input
+						data-setting-control="range"
+						name="scrolldelayRange"
+						type="range"
+						min="0"
+						max="500"
+						step="5"
+						value="85"
+					/>
+					<input
+						data-setting-control="number"
+						name="scrolldelay"
+						type="number"
+						min="0"
+						max="500"
+						step="5"
+						value="85"
+					/>
+				</label>
 
-					<label>
-						<span>Scrolldelay</span>
-						<input
-							data-setting-control="range"
-							name="scrolldelayRange"
-							type="range"
-							min="0"
-							max="500"
-							step="5"
-							value="85"
-						/>
-						<input
-							data-setting-control="number"
-							name="scrolldelay"
-							type="number"
-							min="0"
-							max="500"
-							step="5"
-							value="85"
-						/>
-					</label>
+				<label>
+					<span>Width</span>
+					<input name="width" type="text" value="100%" />
+				</label>
 
-					<label>
-						<span>Width</span>
-						<input name="width" type="text" value="100%" />
-					</label>
+				<label>
+					<span>Height</span>
+					<input name="height" type="text" value="" placeholder="auto" />
+				</label>
 
-					<label>
-						<span>Height</span>
-						<input name="height" type="text" value="" placeholder="auto" />
-					</label>
+				<label>
+					<span>Bgcolor</span>
+					<input
+						name="bgcolor"
+						type="text"
+						value=""
+						placeholder="transparent"
+					/>
+				</label>
 
-					<label>
-						<span>Bgcolor</span>
-						<input
-							name="bgcolor"
-							type="text"
-							value=""
-							placeholder="transparent"
-						/>
-					</label>
+				<label>
+					<span>Hspace</span>
+					<input name="hspace" type="text" value="" placeholder="0" />
+				</label>
 
-					<label>
-						<span>Hspace</span>
-						<input name="hspace" type="text" value="" placeholder="0" />
-					</label>
+				<label>
+					<span>Vspace</span>
+					<input name="vspace" type="text" value="" placeholder="0" />
+				</label>
 
-					<label>
-						<span>Vspace</span>
-						<input name="vspace" type="text" value="" placeholder="0" />
-					</label>
+				<label class="checkbox-control">
+					<input name="truespeed" type="checkbox" />
+					<span>truespeed</span>
+				</label>
 
-					<label class="checkbox-control">
-						<input name="truespeed" type="checkbox" />
-						<span>truespeed</span>
-					</label>
+				<label>
+					<span>Content</span>
+					<textarea name="content" rows="4"></textarea>
+				</label>
 
-					<label>
-						<span>Content</span>
-						<textarea name="content" rows="4"></textarea>
-					</label>
+				<label>
+					<span>Code</span>
+					<textarea data-code readonly rows="6" spellcheck="false"></textarea>
+				</label>
 
-					<label>
-						<span>Code</span>
-						<textarea data-code readonly rows="6" spellcheck="false"></textarea>
-					</label>
-
-					<footer class="playground-controls-footer">
-						<menu>
-							<li><button type="button" data-copy>Copy</button></li>
-							<li><button type="submit" value="cancel">Close</button></li>
-						</menu>
-					</footer>
-				</form>
-			</dialog>
+				<footer class="playground-controls-footer">
+					<menu>
+						<li><a href="/remarqueeble/">Back</a></li>
+						<li><button type="button" data-fullscreen>Full Screen</button></li>
+						<li><button type="button" data-copy>Copy</button></li>
+					</menu>
+				</footer>
+			</form>
 		</section>
 	</main>
 

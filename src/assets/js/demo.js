@@ -3,9 +3,7 @@ const display = document.querySelector('#playground-display')
 const preview = document.querySelector('[data-preview]')
 const code = document.querySelector('[data-code]')
 const copyButton = document.querySelector('[data-copy]')
-const settingsButton = document.querySelector('[data-settings]')
 const fullscreenButton = document.querySelector('[data-fullscreen]')
-const settingsDialog = document.querySelector('[data-settings-dialog]')
 const settingsHashKey = 'settings'
 const defaultValues = {
 	behavior: 'scroll',
@@ -211,24 +209,14 @@ form?.addEventListener('change', event => {
 	syncPairedInput(event.target)
 	render()
 })
+form?.addEventListener('submit', event => {
+	event.preventDefault()
+})
 if (form) {
 	getControl('content').value = defaultValues.content
 	readStateFromHash()
 	syncPairedControls()
 }
-settingsButton?.addEventListener('click', () => {
-	if (!settingsDialog) return
-
-	if (settingsDialog.open) {
-		settingsDialog.close()
-		return
-	}
-
-	settingsDialog.showModal()
-})
-settingsDialog?.addEventListener('close', () => {
-	settingsButton?.focus()
-})
 fullscreenButton?.addEventListener('click', async () => {
 	if (!display) return
 
