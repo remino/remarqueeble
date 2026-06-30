@@ -53,18 +53,12 @@ re-marquee {
 
 .preview-item {
 	display: grid;
-	gap: 0.5rem;
 	min-inline-size: 0;
 }
 
 .preview-item h3 {
 	font-size: 1rem;
 	margin: 0;
-}
-
-.preview-item marquee,
-.preview-item re-marquee {
-	min-block-size: 2rem;
 }
 
 .playground-controls-menu {
