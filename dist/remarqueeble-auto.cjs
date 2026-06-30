@@ -1,5 +1,4 @@
 /*! remarqueeble v0.2.0 | (c) 2026 Rémino Rem <https://remino.net/> | ISC Licence */
-Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 //#region src/lib/remarqueeble.ts
 var DEFAULT_DIRECTION = "left";
 var DEFAULT_BEHAVIOR = "scroll";
@@ -305,4 +304,3 @@ var defineRemarqueebleElements = () => {
 //#region src/lib/auto.ts
 defineRemarqueebleElements();
 //#endregion
-exports.defineRemarqueebleElements = defineRemarqueebleElements;

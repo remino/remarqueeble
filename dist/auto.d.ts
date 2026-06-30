@@ -1,1 +1,1 @@
-export { defineRemarqueebleElements } from './remarqueeble';
+export {};

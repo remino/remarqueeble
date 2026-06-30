@@ -304,4 +304,3 @@ var defineRemarqueebleElements = () => {
 //#region src/lib/auto.ts
 defineRemarqueebleElements();
 //#endregion
-export { defineRemarqueebleElements };

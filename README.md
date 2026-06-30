@@ -52,6 +52,13 @@ import { defineRemarqueebleElements } from 'remarqueeble'
 defineRemarqueebleElements()
 ```
 
+For a plain browser script that registers the elements automatically, use the
+auto bundle:
+
+```html
+<script src="./dist/remarqueeble-auto.min.js"></script>
+```
+
 Then use either element name:
 
 ```html

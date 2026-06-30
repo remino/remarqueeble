@@ -3,7 +3,7 @@
 		"name": "Rémino Rem",
 		"url": "https://remino.net/"
 	},
-	"browser": "dist/remarqueeble.umd.js",
+	"browser": "dist/remarqueeble.cjs",
 	"description": "Custom element tribute to the cursed glory of marquee.",
 	"dependencies": {
 		"@remino/astro-image-variants": "^0.1.1",
@@ -55,6 +55,10 @@
 	"main": "dist/remarqueeble.cjs",
 	"module": "dist/remarqueeble.mjs",
 	"name": "remarqueeble",
+	"sideEffects": [
+		"./dist/remarqueeble-auto.*",
+		"./src/lib/auto.ts"
+	],
 	"scripts": {
 		"build": "npm run js:build && npm run site:assets && astro build",
 		"dev": "astro dev",
