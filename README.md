@@ -15,6 +15,9 @@ By Rémino Rem
 <!-- mtoc-start -->
 
 - [Installation](#installation)
+    - [HTML (CDN)](#html-cdn)
+    - [npm](#npm)
+    - [Direct download](#direct-download)
 - [Usage](#usage)
 - [Attributes](#attributes)
 - [API](#api)
@@ -28,23 +31,44 @@ By Rémino Rem
 
 ## Installation
 
+### HTML (CDN)
+
+Register the custom elements automatically from a CDN:
+
+```html
+<script
+    type="module"
+    src="https://unpkg.com/remarqueeble/dist/remarqueeble-auto.min.js"></script>
+```
+
+Mirrors:
+
+- https://unpkg.com/remarqueeble/dist/remarqueeble-auto.min.js
+- https://cdn.jsdelivr.net/npm/remarqueeble/dist/remarqueeble-auto.min.js
+
+Use a pinned version in production:
+
+```html
+<script
+    type="module"
+    src="https://unpkg.com/remarqueeble@0.2.0/dist/remarqueeble-auto.min.js"></script>
+```
+
+### npm
+
+Install the package first:
+
 ```sh
 npm install remarqueeble
 ```
 
-[Back to top](#)
-
----
-
-## Usage
-
-Register the custom elements automatically:
+Then register the custom elements automatically:
 
 ```js
 import 'remarqueeble/auto'
 ```
 
-Or register them explicitly:
+Or import the explicit API:
 
 ```js
 import { defineRemarqueebleElements } from 'remarqueeble'
@@ -52,14 +76,25 @@ import { defineRemarqueebleElements } from 'remarqueeble'
 defineRemarqueebleElements()
 ```
 
-For a plain browser script that registers the elements automatically, use the
-auto bundle:
+TypeScript declarations are included with the package.
 
-```html
-<script src="./dist/remarqueeble-auto.min.js"></script>
-```
+### Direct download
 
-Then use either element name:
+Download the package tarball or individual files from npm/CDN:
+
+- https://www.npmjs.com/package/remarqueeble
+- https://unpkg.com/remarqueeble/dist/
+- https://cdn.jsdelivr.net/npm/remarqueeble/dist/
+
+The browser-ready auto-registration file is `dist/remarqueeble-auto.min.js`.
+
+[Back to top](#)
+
+---
+
+## Usage
+
+After registration, use either element name:
 
 ```html
 <re-marquee>Default marquee behaviour.</re-marquee>
