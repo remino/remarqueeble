@@ -2,11 +2,18 @@
 
 <!-- mtoc-start -->
 
+- [v0.4.0](#v040)
 - [v0.3.0](#v030)
 - [v0.2.0](#v020)
 - [v0.1.0](#v010)
 
 <!-- mtoc-end -->
+
+## v0.4.0
+
+- Library
+    - Keep CDN and browser defaults on the auto-registration build while preserving explicit API imports for ESM and CommonJS.
+    - Remove the extra non-auto minified browser distribution files.
 
 ## v0.3.0
 

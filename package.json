@@ -32,7 +32,6 @@
 		".": {
 			"types": "./dist/remarqueeble.d.ts",
 			"unpkg": "./dist/remarqueeble-auto.min.js",
-			"browser": "./dist/remarqueeble-auto.min.js",
 			"import": "./dist/remarqueeble.mjs",
 			"require": "./dist/remarqueeble.cjs"
 		},

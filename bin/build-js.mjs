@@ -55,21 +55,6 @@ await buildLibrary({
 })
 
 await buildLibrary({
-	entry: resolve(root, 'src/lib/remarqueeble.ts'),
-	fileName: () => 'remarqueeble.min.mjs',
-	formats: ['es'],
-	minify: true,
-})
-
-await buildLibrary({
-	entry: resolve(root, 'src/lib/remarqueeble.ts'),
-	fileName: () => 'remarqueeble.min.js',
-	formats: ['iife'],
-	minify: true,
-	name: 'remarqueeble',
-})
-
-await buildLibrary({
 	entry: resolve(root, 'src/lib/auto.ts'),
 	fileName: format =>
 		format === 'es' ? 'remarqueeble-auto.mjs' : 'remarqueeble-auto.cjs',

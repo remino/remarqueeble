@@ -50,20 +50,11 @@ Use a pinned version in production:
 <script src="https://unpkg.com/remarqueeble@0.3.0"></script>
 ```
 
-If you want the API instead of auto-registration, load the global build:
-
-```html
-<script src="https://unpkg.com/remarqueeble@0.3.0/dist/remarqueeble.min.js"></script>
-<script>
-    remarqueeble.defineRemarqueebleElements()
-</script>
-```
-
-Or import the minified ES module directly:
+If you want the API instead of auto-registration, import the ES module directly:
 
 ```html
 <script type="module">
-    import { defineRemarqueebleElements } from 'https://unpkg.com/remarqueeble@0.3.0/dist/remarqueeble.min.mjs'
+    import { defineRemarqueebleElements } from 'https://unpkg.com/remarqueeble@0.3.0/dist/remarqueeble.mjs'
 
     defineRemarqueebleElements()
 </script>
@@ -110,8 +101,6 @@ Distribution files:
 
 - `dist/remarqueeble.mjs`: ES module library API.
 - `dist/remarqueeble.cjs`: CommonJS library API.
-- `dist/remarqueeble.min.mjs`: minified ES module library API.
-- `dist/remarqueeble.min.js`: minified classic browser global.
 - `dist/remarqueeble-auto.mjs`: ES module auto-registration entry.
 - `dist/remarqueeble-auto.cjs`: CommonJS auto-registration entry.
 - `dist/remarqueeble-auto.min.js`: minified classic browser auto-registration.
