@@ -133,7 +133,7 @@ const createPreviewItem = tagName => {
 	const marquee = document.createElement(tagName)
 
 	wrapper.className = 'preview-item'
-	label.textContent = `<${tagName}>`
+	label.innerHTML = `<code>&lt;${tagName}&gt;</code>`
 	marquee.textContent = getValue('content')
 	applyAttributes(marquee)
 	wrapper.append(label, marquee)

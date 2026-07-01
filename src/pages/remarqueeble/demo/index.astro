@@ -12,6 +12,29 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 	bodyClass="demo-page"
 	showHeader={false}>
 	<main class="playground-layout">
+		<header class="playground-header">
+			<hgroup>
+				<h1>
+					<a href="/remarqueeble/" aria-labelledby="site-title-readable">
+						<span id="site-title-readable" class="sr-only">
+							<mark>{site.readableTitle}</mark>
+						</span>
+						<mark aria-hidden="true">{site.title}</mark>
+					</a>
+				</h1>
+				<h2>demo</h2>
+			</hgroup>
+
+			<nav aria-label="Demo navigation">
+				<ul>
+					<li><a role="button" href="/remarqueeble/">Back</a></li>
+					<li>
+						<button type="button" data-fullscreen>Full Screen</button>
+					</li>
+				</ul>
+			</nav>
+		</header>
+
 		<section
 			id="playground-display"
 			class="playground-display"
@@ -21,39 +44,16 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 			<div class="code-preview">
 				<label>
 					<span class="code-preview-header">
-						<span>Code</span>
-						<button type="button" data-copy>Copy</button>
+						<span><strong>Code</strong></span>
 					</span>
 					<textarea data-code readonly rows="6" spellcheck="false"></textarea>
+					<button type="button" data-copy>Copy</button>
 				</label>
 			</div>
 		</section>
 
 		<section class="playground-controls" aria-label="Demo controls">
 			<form data-playground>
-				<header class="playground-controls-header">
-					<hgroup>
-						<h1>
-							<a href="/remarqueeble/" aria-labelledby="site-title-readable">
-								<span id="site-title-readable" class="sr-only">
-									<mark>{site.readableTitle}</mark>
-								</span>
-								<mark aria-hidden="true">{site.title}</mark>
-							</a>
-						</h1>
-						<h2>demo</h2>
-					</hgroup>
-
-					<nav aria-label="Demo navigation">
-						<ul>
-							<li><a role="button" href="/remarqueeble/">Back</a></li>
-							<li>
-								<button type="button" data-fullscreen>Full Screen</button>
-							</li>
-						</ul>
-					</nav>
-				</header>
-
 				<details open>
 					<summary>Playback</summary>
 
@@ -94,11 +94,6 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 							step="1"
 							placeholder="-1"
 						/>
-					</label>
-
-					<label class="checkbox-control">
-						<input name="truespeed" type="checkbox" />
-						<span>truespeed</span>
 					</label>
 				</details>
 
@@ -148,6 +143,11 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 							value="85"
 						/>
 					</label>
+
+					<label class="checkbox-control">
+						<input name="truespeed" type="checkbox" />
+						<span>truespeed</span>
+					</label>
 				</details>
 
 				<details>
@@ -188,7 +188,7 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 					<summary>Content</summary>
 
 					<label>
-						<span>Content</span>
+						<span>Marquee Content</span>
 						<textarea name="content" rows="4"></textarea>
 					</label>
 				</details>

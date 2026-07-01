@@ -7,19 +7,19 @@
 
 .playground-layout {
 	align-items: stretch;
+	block-size: calc(100dvb - var(--rmn-ribbon-push, 0px));
 	display: grid;
-	gap: var(--dress-m-b) var(--dress-m-i);
+	gap: 0 var(--dress-m-i);
+	grid-template-areas:
+		'header header'
+		'display controls';
 	grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.48fr);
-	grid-template-rows: minmax(0, 1fr);
-	min-block-size: calc(100dvb - var(--rmn-ribbon-push, 0px));
+	grid-template-rows: auto minmax(0, 1fr);
 }
 
 .playground-display,
 .playground-controls {
 	box-sizing: border-box;
-	max-block-size: calc(
-		100dvb - var(--dress-m-b) * 2 - var(--rmn-ribbon-push, 0px)
-	);
 	min-block-size: 0;
 	overflow: auto;
 }
@@ -34,6 +34,7 @@
 	align-content: stretch;
 	display: grid;
 	gap: var(--dress-m-b) var(--dress-m-i);
+	grid-area: display;
 	grid-template-rows: minmax(0, 1fr) auto;
 
 	&:fullscreen {
@@ -53,7 +54,7 @@
 	border: var(--dress-bs) dashed;
 	box-sizing: border-box;
 	display: grid;
-	gap: 1rem;
+	gap: var(--dress-m-b) var(--dress-m-i);
 	min-block-size: 0;
 	min-inline-size: 0;
 	padding: var(--dress-p-b) var(--dress-p-i);
@@ -61,6 +62,7 @@
 
 .preview-item {
 	display: grid;
+	gap: var(--dress-m-b) var(--dress-m-i);
 	min-inline-size: 0;
 
 	h2 {
@@ -74,6 +76,18 @@
 
 	label {
 		display: block;
+		position: relative;
+
+		button {
+			inset: 0 0 auto auto;
+			position: absolute;
+			z-index: 10;
+		}
+
+		> span {
+			margin-block: calc(var(--dress-m-b) / 2);
+			padding-block: calc(var(--dress-p-b) / 2);
+		}
 	}
 
 	textarea {
@@ -84,10 +98,17 @@
 
 .playground-controls {
 	align-content: start;
+	grid-area: controls;
 	min-inline-size: 0;
 
 	form {
+		display: grid;
 		margin-block: 0;
+		gap: var(--dress-m-b);
+
+		details {
+			margin: 0;
+		}
 	}
 
 	input,
@@ -125,11 +146,16 @@
 	}
 }
 
-.playground-controls-header {
-	display: grid;
+.playground-header {
+	align-items: center;
+	display: flex;
+	flex-flow: row wrap;
 	gap: calc(var(--dress-m-b) / 2) calc(var(--dress-m-i) / 2);
+	grid-area: header;
 	inline-size: 100%;
+	justify-content: space-between;
 	margin: 0;
+	margin-block-start: var(--dress-m-b);
 	padding: 0;
 
 	&::after {
@@ -156,6 +182,10 @@
 		display: flex;
 		flex-flow: row wrap;
 		gap: calc(var(--dress-m-b) / 2) calc(var(--dress-m-i) / 2);
+	}
+
+	nav {
+		margin-inline-start: auto;
 	}
 
 	li {
@@ -186,12 +216,17 @@
 
 @media (max-width: 56rem) {
 	.playground-layout {
+		block-size: auto;
+		grid-template-areas:
+			'header'
+			'display'
+			'controls';
 		grid-template-columns: 1fr;
+		grid-template-rows: auto;
 	}
 
 	.playground-display,
 	.playground-controls {
-		max-block-size: none;
 		overflow: visible;
 	}
 
