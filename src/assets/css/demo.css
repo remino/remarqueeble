@@ -122,6 +122,22 @@
 		width: 1rem;
 	}
 
+	input[type='color'] {
+		block-size: calc(var(--dress-m-b) / 2 + 1lh);
+		inline-size: 4rem;
+	}
+
+	label:has([data-color-picker]) {
+		align-items: center;
+		display: grid;
+		gap: 0.35rem 0.75rem;
+		grid-template-columns: minmax(0, 1fr) auto;
+
+		> span {
+			grid-column: 1 / -1;
+		}
+	}
+
 	label:has([data-setting-control='number']):has(
 			[data-setting-control='range']
 		) {

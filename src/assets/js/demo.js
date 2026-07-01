@@ -55,6 +55,34 @@ const escapeHtml = value =>
 
 const escapeAttribute = value => escapeHtml(value).replaceAll('"', '&quot;')
 
+const stripHexColorPrefix = value => value.replace(/^#/, '').trim()
+
+const isHexColor = value => /^[\da-f]{3}(?:[\da-f]{3})?$/iu.test(value)
+
+const normalizeHexColorValue = (value, fallback = '') => {
+	const hex = stripHexColorPrefix(value)
+
+	if (/^[\da-f]{3}$/iu.test(hex)) {
+		return hex
+			.split('')
+			.map(character => character.repeat(2))
+			.join('')
+			.toLowerCase()
+	}
+
+	if (/^[\da-f]{6}$/iu.test(hex)) {
+		return hex.toLowerCase()
+	}
+
+	return fallback
+}
+
+const readHexColorValue = name => {
+	const value = normalizeHexColorValue(getValue(name))
+
+	return value ? `#${value}` : ''
+}
+
 const sanitizeContentHtml = value =>
 	DOMPurify.sanitize(value, {
 		ALLOWED_ATTR: ['aria-label', 'class', 'title'],
@@ -131,7 +159,8 @@ const getAttributes = () => {
 	const attributes = []
 
 	for (const name of textAttributes) {
-		const value = getValue(name).trim()
+		const value =
+			name === 'bgcolor' ? readHexColorValue(name) : getValue(name).trim()
 		if (!value) continue
 		if (getDefaultValue(name) === value) continue
 		attributes.push([name, value])
@@ -148,7 +177,12 @@ const getStyleDeclarations = () =>
 	styleProperties
 		.map(([name, property, normalize]) => {
 			const rawValue = getValue(name).trim()
-			const value = normalize ? normalize(rawValue) : rawValue
+			const value =
+				name === 'color'
+					? readHexColorValue(name)
+					: normalize
+						? normalize(rawValue)
+						: rawValue
 
 			return value && CSS.supports(property, value) ? [property, value] : null
 		})
@@ -269,6 +303,49 @@ const render = ({ syncHash = true } = {}) => {
 	}
 }
 
+const setupColorInputs = () => {
+	document.querySelectorAll('[data-color-hex]').forEach(hexInput => {
+		if (!(hexInput instanceof HTMLInputElement) || !hexInput.name) return
+
+		const colorInput = document.querySelector(
+			`[data-color-picker="${hexInput.name}"]`
+		)
+
+		if (!(colorInput instanceof HTMLInputElement)) return
+
+		const syncColorInput = () => {
+			const normalized = normalizeHexColorValue(
+				hexInput.value,
+				stripHexColorPrefix(colorInput.value)
+			)
+
+			colorInput.value = `#${normalized || '000000'}`
+		}
+
+		colorInput.addEventListener('input', () => {
+			hexInput.value = stripHexColorPrefix(colorInput.value).toLowerCase()
+			render()
+		})
+
+		hexInput.addEventListener('input', () => {
+			const hex = stripHexColorPrefix(hexInput.value)
+
+			if (hex !== hexInput.value) {
+				hexInput.value = hex
+			}
+
+			if (isHexColor(hex)) {
+				colorInput.value = `#${normalizeHexColorValue(
+					hex,
+					stripHexColorPrefix(colorInput.value)
+				)}`
+			}
+		})
+
+		syncColorInput()
+	})
+}
+
 const togglePreviewFullscreen = async () => {
 	if (!preview) return
 
@@ -295,6 +372,7 @@ if (form) {
 	getControl('content').value = defaultValues.content
 	readStateFromHash()
 	syncPairedControls()
+	setupColorInputs()
 }
 fullscreenButton?.addEventListener('click', async () => {
 	await togglePreviewFullscreen()

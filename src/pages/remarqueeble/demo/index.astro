@@ -166,11 +166,17 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 					<label>
 						<span>Bgcolor</span>
 						<input
+							data-color-hex
 							name="bgcolor"
+							inputmode="text"
+							maxlength="6"
+							pattern="[0-9a-fA-F]{3}|[0-9a-fA-F]{6}"
+							spellcheck="false"
 							type="text"
 							value=""
 							placeholder="transparent"
 						/>
+						<input data-color-picker="bgcolor" type="color" value="#000000" />
 					</label>
 
 					<label>
@@ -203,11 +209,17 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 					<label>
 						<span>Color</span>
 						<input
+							data-color-hex
 							name="color"
+							inputmode="text"
+							maxlength="6"
+							pattern="[0-9a-fA-F]{3}|[0-9a-fA-F]{6}"
+							spellcheck="false"
 							type="text"
 							value=""
 							placeholder="currentColor"
 						/>
+						<input data-color-picker="color" type="color" value="#000000" />
 					</label>
 				</details>
 
