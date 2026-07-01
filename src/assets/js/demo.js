@@ -5,6 +5,7 @@ const preview = document.querySelector('[data-preview]')
 const code = document.querySelector('[data-code]')
 const copyButton = document.querySelector('[data-copy]')
 const fullscreenButton = document.querySelector('[data-fullscreen]')
+const resetButton = document.querySelector('[data-reset]')
 const defaultValues = {
 	behavior: 'scroll',
 	content:
@@ -346,6 +347,16 @@ const setupColorInputs = () => {
 	})
 }
 
+const resetSettings = () => {
+	if (!form) return
+
+	form.reset()
+	getControl('content').value = defaultValues.content
+	syncPairedControls()
+	setupColorInputs()
+	render()
+}
+
 const togglePreviewFullscreen = async () => {
 	if (!preview) return
 
@@ -376,6 +387,9 @@ if (form) {
 }
 fullscreenButton?.addEventListener('click', async () => {
 	await togglePreviewFullscreen()
+})
+resetButton?.addEventListener('click', () => {
+	resetSettings()
 })
 preview?.addEventListener('dblclick', async event => {
 	if (event.target !== preview) return
