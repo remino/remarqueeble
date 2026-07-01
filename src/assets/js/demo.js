@@ -4,7 +4,6 @@ const preview = document.querySelector('[data-preview]')
 const code = document.querySelector('[data-code]')
 const copyButton = document.querySelector('[data-copy]')
 const fullscreenButton = document.querySelector('[data-fullscreen]')
-const settingsHashKey = 'settings'
 const defaultValues = {
 	behavior: 'scroll',
 	content:
@@ -142,45 +141,53 @@ const createPreviewItem = tagName => {
 	return wrapper
 }
 
-const getSettingState = () => {
-	const state = {}
+const getSettingEntries = () => {
+	const entries = []
 
 	for (const name of settingNames) {
 		const value = readSetting(name)
 		if (value === getDefaultValue(name)) continue
 		if (!value && !getDefaultValue(name)) continue
-		state[name] = value
+		entries.push([name, value])
 	}
 
-	return state
+	return entries
 }
 
 const writeStateToHash = () => {
-	const state = getSettingState()
+	const params = new URLSearchParams(getSettingEntries())
 	const url = new URL(window.location.href)
 
-	if (Object.keys(state).length === 0) {
-		url.hash = ''
-	} else {
-		url.hash = `${settingsHashKey}=${encodeURIComponent(JSON.stringify(state))}`
-	}
+	url.hash = params.size === 0 ? '' : params.toString()
 
 	window.history.replaceState(null, '', url)
 }
 
 const readStateFromHash = () => {
-	if (!window.location.hash.startsWith(`#${settingsHashKey}=`)) return
+	const hash = window.location.hash.slice(1)
+	if (!hash) return
 
-	try {
-		const raw = window.location.hash.slice(settingsHashKey.length + 2)
-		const state = JSON.parse(decodeURIComponent(raw))
+	if (hash.startsWith('settings=')) {
+		try {
+			const raw = hash.slice('settings='.length)
+			const state = JSON.parse(decodeURIComponent(raw))
 
-		for (const [name, value] of Object.entries(state)) {
-			if (!settingNames.includes(name)) continue
-			writeSetting(name, String(value))
+			for (const [name, value] of Object.entries(state)) {
+				if (!settingNames.includes(name)) continue
+				writeSetting(name, String(value))
+			}
+		} catch {
+			window.history.replaceState(null, '', window.location.pathname)
 		}
-	} catch {
-		window.history.replaceState(null, '', window.location.pathname)
+
+		return
+	}
+
+	const params = new URLSearchParams(hash)
+
+	for (const name of settingNames) {
+		if (!params.has(name)) continue
+		writeSetting(name, params.get(name) ?? '')
 	}
 }
 
