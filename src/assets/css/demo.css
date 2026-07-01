@@ -80,6 +80,10 @@ re-marquee {
 	margin-block-start: 0;
 }
 
+.playground-controls details > label {
+	display: block;
+}
+
 .playground-controls input,
 .playground-controls select,
 .playground-controls textarea {
