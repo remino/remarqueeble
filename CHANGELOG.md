@@ -2,12 +2,20 @@
 
 <!-- mtoc-start -->
 
+- [HEAD](#head)
 - [v0.4.0](#v040)
 - [v0.3.0](#v030)
 - [v0.2.0](#v020)
 - [v0.1.0](#v010)
 
 <!-- mtoc-end -->
+
+## HEAD
+
+- Site
+    - Refine the Demo layout with a full-width header, clearer preview and code areas, and a separate controls column.
+    - Store Demo settings as individual hash parameters instead of a JSON-encoded hash value.
+    - Add preview-stage fullscreen toggling from the Full Screen button or a double click/tap on blank preview space.
 
 ## v0.4.0
 
