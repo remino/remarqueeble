@@ -28,7 +28,27 @@ const textAttributes = [
 	'hspace',
 	'vspace',
 ]
-const settingNames = ['show', ...textAttributes, 'truespeed', 'content']
+const styleProperties = [
+	[
+		'fontSize',
+		'font-size',
+		value => {
+			const number = Number(value)
+
+			return Number.isFinite(number) && number >= 8 && number <= 96
+				? `${number}px`
+				: ''
+		},
+	],
+	['color', 'color'],
+]
+const settingNames = [
+	'show',
+	...textAttributes,
+	...styleProperties.map(([name]) => name),
+	'truespeed',
+	'content',
+]
 
 const escapeHtml = value =>
 	value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -124,8 +144,26 @@ const getAttributes = () => {
 	return attributes
 }
 
+const getStyleDeclarations = () =>
+	styleProperties
+		.map(([name, property, normalize]) => {
+			const rawValue = getValue(name).trim()
+			const value = normalize ? normalize(rawValue) : rawValue
+
+			return value && CSS.supports(property, value) ? [property, value] : null
+		})
+		.filter(Boolean)
+
+const getStyleAttributeValue = () =>
+	getStyleDeclarations()
+		.map(([property, value]) => `${property}: ${value}`)
+		.join('; ')
+
 const getCode = tagName => {
-	const attributes = getAttributes()
+	const attributes = [
+		...getAttributes(),
+		...(getStyleAttributeValue() ? [['style', getStyleAttributeValue()]] : []),
+	]
 		.map(([name, value]) =>
 			value ? `${name}="${escapeAttribute(value)}"` : name
 		)
@@ -143,6 +181,10 @@ const applyAttributes = element => {
 		} else {
 			element.setAttribute(name, '')
 		}
+	}
+
+	for (const [property, value] of getStyleDeclarations()) {
+		element.style.setProperty(property, value)
 	}
 }
 
