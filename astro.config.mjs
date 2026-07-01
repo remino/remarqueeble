@@ -24,4 +24,9 @@ export default defineConfig({
 	build: {
 		assets: 'remarqueeble',
 	},
+	vite: {
+		build: {
+			assetsInlineLimit: 0,
+		},
+	},
 })
