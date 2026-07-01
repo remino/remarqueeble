@@ -33,17 +33,17 @@
 	display: grid;
 	gap: 1rem;
 	grid-template-rows: minmax(0, 1fr) auto;
-}
 
-.playground-display:fullscreen {
-	background: var(--dress-bg);
-	box-sizing: border-box;
-	inline-size: 100%;
-	padding: var(--dress-m-b) var(--dress-m-i);
-}
+	&:fullscreen {
+		background: var(--dress-bg);
+		box-sizing: border-box;
+		inline-size: 100%;
+		padding: var(--dress-m-b) var(--dress-m-i);
+	}
 
-.playground-display h2 {
-	margin-block-start: 0;
+	h2 {
+		margin-block-start: 0;
+	}
 }
 
 .preview-stage {
@@ -60,122 +60,104 @@
 .preview-item {
 	display: grid;
 	min-inline-size: 0;
-}
 
-.preview-item h2 {
-	font-size: 1rem;
-	margin: 0;
+	h2 {
+		font-size: 1rem;
+		margin: 0;
+	}
 }
 
 .code-preview {
 	min-inline-size: 0;
-}
 
-.code-preview label {
-	display: block;
-}
+	label {
+		display: block;
+	}
 
-.code-preview-header {
-	align-items: center;
-	display: flex;
-	gap: 0.5rem;
-	justify-content: space-between;
-}
-
-.code-preview-header button {
-	margin-block: 0;
-}
-
-.code-preview textarea {
-	box-sizing: border-box;
-	inline-size: 100%;
+	textarea {
+		box-sizing: border-box;
+		inline-size: 100%;
+	}
 }
 
 .playground-controls {
 	align-content: start;
 	min-inline-size: 0;
-}
 
-.playground-controls form {
-	margin-block: 0;
+	form {
+		margin-block: 0;
+	}
+
+	details > label {
+		display: block;
+	}
+
+	input,
+	select,
+	textarea {
+		box-sizing: border-box;
+		inline-size: 100%;
+	}
+
+	label:has([data-setting-control='number']):has(
+			[data-setting-control='range']
+		) {
+		align-items: center;
+		display: grid;
+		gap: 0.35rem 0.75rem;
+		grid-template-columns: minmax(0, 2fr) minmax(5rem, 1fr);
+
+		> span {
+			grid-column: 1 / -1;
+		}
+
+		> [data-setting-control='range'] {
+			grid-column: 1;
+			grid-row: 2;
+		}
+
+		> [data-setting-control='number'] {
+			grid-column: 2;
+			grid-row: 2;
+		}
+	}
 }
 
 .playground-controls-header {
 	display: grid;
 	gap: 0.5rem;
-}
 
-.playground-controls-header h1,
-.playground-controls-header h2 {
-	margin-block: 0;
-}
+	h1,
+	h2 {
+		margin-block: 0;
+	}
 
-.playground-controls-header h2 {
-	font-size: 1rem;
-}
+	h2 {
+		font-size: 1rem;
+	}
 
-.playground-controls-header li {
-	display: block;
-}
+	li {
+		display: block;
+	}
 
-.playground-controls-header menu {
-	display: flex;
-	flex-flow: row wrap;
-	gap: 0.5rem;
-	margin: 0;
-	padding: 0;
-}
+	menu {
+		display: flex;
+		flex-flow: row wrap;
+		gap: 0.5rem;
+		margin: 0;
+		padding: 0;
+	}
 
-.playground-controls-header a {
-	border: solid var(--dress-bs) var(--dress-dt);
-	color: var(--dress-fg);
-	display: inline-block;
-	line-height: var(--dress-lh);
-	margin-block: calc(var(--dress-m-b) / 4);
-	padding-block: calc(var(--dress-m-b) / 4 - var(--dress-bs));
-	padding-inline: calc(var(--dress-m-i) / 2 - var(--dress-bs));
-	text-decoration: none;
-}
-
-.playground-controls details > label {
-	display: block;
-}
-
-.playground-controls input,
-.playground-controls select,
-.playground-controls textarea {
-	box-sizing: border-box;
-	inline-size: 100%;
-}
-
-.playground-controls
-	label:has([data-setting-control='number']):has(
-		[data-setting-control='range']
-	) {
-	align-items: center;
-	display: grid;
-	gap: 0.35rem 0.75rem;
-	grid-template-columns: minmax(0, 2fr) minmax(5rem, 1fr);
-}
-
-.playground-controls
-	label:has([data-setting-control='number']):has([data-setting-control='range'])
-	> span {
-	grid-column: 1 / -1;
-}
-
-.playground-controls
-	label:has([data-setting-control='number']):has([data-setting-control='range'])
-	> [data-setting-control='range'] {
-	grid-column: 1;
-	grid-row: 2;
-}
-
-.playground-controls
-	label:has([data-setting-control='number']):has([data-setting-control='range'])
-	> [data-setting-control='number'] {
-	grid-column: 2;
-	grid-row: 2;
+	a {
+		border: solid var(--dress-bs) var(--dress-dt);
+		color: var(--dress-fg);
+		display: inline-block;
+		line-height: var(--dress-lh);
+		margin-block: calc(var(--dress-m-b) / 4);
+		padding-block: calc(var(--dress-m-b) / 4 - var(--dress-bs));
+		padding-inline: calc(var(--dress-m-i) / 2 - var(--dress-bs));
+		text-decoration: none;
+	}
 }
 
 .checkbox-control {
@@ -183,10 +165,21 @@
 	display: grid;
 	gap: 0.5rem;
 	grid-template-columns: auto 1fr;
+
+	input {
+		inline-size: auto;
+	}
 }
 
-.checkbox-control input {
-	inline-size: auto;
+.code-preview-header {
+	align-items: center;
+	display: flex;
+	gap: 0.5rem;
+	justify-content: space-between;
+
+	button {
+		margin-block: 0;
+	}
 }
 
 @media (max-width: 56rem) {
