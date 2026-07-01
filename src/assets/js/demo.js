@@ -1,5 +1,4 @@
 const form = document.querySelector('[data-playground]')
-const display = document.querySelector('#playground-display')
 const preview = document.querySelector('[data-preview]')
 const code = document.querySelector('[data-code]')
 const copyButton = document.querySelector('[data-copy]')
@@ -208,6 +207,17 @@ const render = ({ syncHash = true } = {}) => {
 	}
 }
 
+const togglePreviewFullscreen = async () => {
+	if (!preview) return
+
+	if (document.fullscreenElement) {
+		await document.exitFullscreen()
+		return
+	}
+
+	await preview.requestFullscreen()
+}
+
 form?.addEventListener('input', event => {
 	syncPairedInput(event.target)
 	render()
@@ -225,14 +235,12 @@ if (form) {
 	syncPairedControls()
 }
 fullscreenButton?.addEventListener('click', async () => {
-	if (!display) return
+	await togglePreviewFullscreen()
+})
+preview?.addEventListener('dblclick', async event => {
+	if (event.target !== preview) return
 
-	if (document.fullscreenElement) {
-		await document.exitFullscreen()
-		return
-	}
-
-	await display.requestFullscreen()
+	await togglePreviewFullscreen()
 })
 document.addEventListener('fullscreenchange', () => {
 	fullscreenButton?.setAttribute(
