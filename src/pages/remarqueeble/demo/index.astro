@@ -2,7 +2,6 @@
 import BaseLayout from '../../../components/BaseLayout.astro'
 import { site } from '../../../data/site'
 import '../../../assets/css/demo.css'
-import demoScriptUrl from '../../../assets/js/demo.js?url'
 ---
 
 <BaseLayout
@@ -236,5 +235,5 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 		</section>
 	</main>
 
-	<script slot="scripts" type="module" src={demoScriptUrl}></script>
+	<script src="../../../assets/js/demo.js"></script>
 </BaseLayout>
