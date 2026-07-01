@@ -18,11 +18,32 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 			aria-labelledby="display-heading">
 			<h1 id="display-heading" class="sr-only">Demo</h1>
 			<div class="preview-stage" data-preview></div>
+			<div class="code-preview">
+				<label>
+					<span class="code-preview-header">
+						<span>Code</span>
+						<button type="button" data-copy>Copy</button>
+					</span>
+					<textarea data-code readonly rows="6" spellcheck="false"></textarea>
+				</label>
+			</div>
 		</section>
 
 		<section class="playground-controls" aria-label="Demo controls">
 			<form data-playground>
-				<h2>Demo</h2>
+				<header class="playground-controls-header">
+					<hgroup>
+						<h1>Remarqueeble</h1>
+						<h2>Demo</h2>
+					</hgroup>
+
+					<nav aria-label="Demo navigation">
+						<menu>
+							<li><a href="/remarqueeble/">Back</a></li>
+							<li><button type="button" data-fullscreen>Full Screen</button></li>
+						</menu>
+					</nav>
+				</header>
 
 				<details open>
 					<summary>Playback</summary>
@@ -163,22 +184,6 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 					</label>
 				</details>
 
-				<details>
-					<summary>Code</summary>
-
-					<label>
-						<span>Code</span>
-						<textarea data-code readonly rows="6" spellcheck="false"></textarea>
-					</label>
-				</details>
-
-				<footer class="playground-controls-footer">
-					<menu>
-						<li><a href="/remarqueeble/">Back</a></li>
-						<li><button type="button" data-fullscreen>Full Screen</button></li>
-						<li><button type="button" data-copy>Copy</button></li>
-					</menu>
-				</footer>
 			</form>
 		</section>
 	</main>
