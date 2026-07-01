@@ -16,6 +16,10 @@
     - Refine the Demo layout with a full-width header, clearer preview and code areas, and a separate controls column.
     - Store Demo settings as individual hash parameters instead of a JSON-encoded hash value.
     - Add preview-stage fullscreen toggling from the Full Screen button or a double click/tap on blank preview space.
+    - Allow basic sanitized HTML in Demo content using DOMPurify.
+    - Add Demo style controls for font size, text colour, and background colour.
+    - Add a Demo reset button.
+    - Keep built Demo CSS external so published styles match the development server when using nested CSS.
 
 ## v0.4.0
 
