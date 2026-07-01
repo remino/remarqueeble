@@ -33,15 +33,24 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 			<form data-playground>
 				<header class="playground-controls-header">
 					<hgroup>
-						<h1>Remarqueeble</h1>
-						<h2>Demo</h2>
+						<h1>
+							<a href="/remarqueeble/" aria-labelledby="site-title-readable">
+								<span id="site-title-readable" class="sr-only">
+									<mark>{site.readableTitle}</mark>
+								</span>
+								<mark aria-hidden="true">{site.title}</mark>
+							</a>
+						</h1>
+						<h2>demo</h2>
 					</hgroup>
 
 					<nav aria-label="Demo navigation">
-						<menu>
-							<li><a href="/remarqueeble/">Back</a></li>
-							<li><button type="button" data-fullscreen>Full Screen</button></li>
-						</menu>
+						<ul>
+							<li><a role="button" href="/remarqueeble/">Back</a></li>
+							<li>
+								<button type="button" data-fullscreen>Full Screen</button>
+							</li>
+						</ul>
 					</nav>
 				</header>
 
@@ -175,7 +184,7 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 					</label>
 				</details>
 
-				<details open>
+				<details>
 					<summary>Content</summary>
 
 					<label>
@@ -183,7 +192,6 @@ import demoScriptUrl from '../../../assets/js/demo.js?url'
 						<textarea name="content" rows="4"></textarea>
 					</label>
 				</details>
-
 			</form>
 		</section>
 	</main>
