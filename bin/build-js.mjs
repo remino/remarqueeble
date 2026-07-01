@@ -1,4 +1,11 @@
-import { readdir, readFile, rm, writeFile } from 'node:fs/promises'
+import {
+	copyFile,
+	mkdir,
+	readdir,
+	readFile,
+	rm,
+	writeFile,
+} from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { build } from 'vite'
 
@@ -46,6 +53,12 @@ const ensureBanner = async filePath => {
 }
 
 await rm(resolve(root, 'dist'), { force: true, recursive: true })
+await mkdir(resolve(root, 'dist'), { recursive: true })
+
+await copyFile(
+	resolve(root, 'src/lib/lite.css'),
+	resolve(root, 'dist/lite.css')
+)
 
 await buildLibrary({
 	entry: resolve(root, 'src/lib/remarqueeble.ts'),
@@ -72,6 +85,6 @@ await buildLibrary({
 const distFiles = await readdir(resolve(root, 'dist'))
 await Promise.all(
 	distFiles
-		.filter(fileName => /\.(?:cjs|mjs|js)$/.test(fileName))
+		.filter(fileName => /\.(?:cjs|css|mjs|js)$/.test(fileName))
 		.map(fileName => ensureBanner(resolve(root, 'dist', fileName)))
 )

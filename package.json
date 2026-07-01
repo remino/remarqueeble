@@ -40,7 +40,8 @@
 			"types": "./dist/auto.d.ts",
 			"import": "./dist/remarqueeble-auto.mjs",
 			"require": "./dist/remarqueeble-auto.cjs"
-		}
+		},
+		"./lite.css": "./dist/lite.css"
 	},
 	"files": [
 		"dist/*"
@@ -59,6 +60,7 @@
 	"jsdelivr": "./dist/remarqueeble-auto.min.js",
 	"sideEffects": [
 		"./dist/remarqueeble-auto.*",
+		"./dist/lite.css",
 		"./src/assets/js/demo.js",
 		"./src/lib/auto.ts"
 	],

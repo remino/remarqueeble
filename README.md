@@ -21,6 +21,7 @@ By Rémino Rem
 - [Usage](#usage)
 - [Attributes](#attributes)
 - [API](#api)
+- [Remarquee Lite](#remarquee-lite)
 - [Development](#development)
 - [Contributing](#contributing)
 - [Licence](#licence)
@@ -150,6 +151,34 @@ const marquee = document.querySelector('re-marquee')
 marquee.stop()
 marquee.start()
 ```
+
+[Back to top](#)
+
+---
+
+## Remarquee Lite
+
+For a CSS-only marquee, import `remarqueeble/lite.css` or load
+`dist/lite.css` directly:
+
+```html
+<link rel="stylesheet" href="https://unpkg.com/remarqueeble/dist/lite.css" />
+
+<div class="re-marquee" style="--re-marquee-duration: 12s;">
+    <div class="re-marquee__track">CSS-only marquee</div>
+</div>
+```
+
+The lite CSS follows the simpler pure-CSS pattern and does not require
+duplicated content. It does not emulate legacy `<marquee>` measurement,
+`behavior`, `scrollamount`, `scrolldelay`, or finite `loop` handling.
+
+Optional classes:
+
+- `re-marquee--reverse`: scroll in the opposite direction.
+- `re-marquee--vertical`: scroll vertically.
+- `re-marquee--paused`: pause the animation.
+- `re-marquee--pause-on-hover`: pause while hovered.
 
 [Back to top](#)
 
