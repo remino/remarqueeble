@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify'
+
 const form = document.querySelector('[data-playground]')
 const preview = document.querySelector('[data-preview]')
 const code = document.querySelector('[data-code]')
@@ -32,6 +34,24 @@ const escapeHtml = value =>
 	value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 
 const escapeAttribute = value => escapeHtml(value).replaceAll('"', '&quot;')
+
+const sanitizeContentHtml = value =>
+	DOMPurify.sanitize(value, {
+		ALLOWED_ATTR: ['aria-label', 'class', 'title'],
+		ALLOWED_TAGS: [
+			'b',
+			'br',
+			'code',
+			'em',
+			'i',
+			'mark',
+			's',
+			'small',
+			'span',
+			'strong',
+			'u',
+		],
+	})
 
 const getControl = name => form?.elements.namedItem(name)
 
@@ -111,7 +131,7 @@ const getCode = tagName => {
 		)
 		.join(' ')
 	const openTag = attributes ? `<${tagName} ${attributes}>` : `<${tagName}>`
-	const content = escapeHtml(getValue('content').trim())
+	const content = sanitizeContentHtml(getValue('content').trim())
 
 	return `${openTag}${content}</${tagName}>`
 }
@@ -133,7 +153,7 @@ const createPreviewItem = tagName => {
 
 	wrapper.className = 'preview-item'
 	label.innerHTML = `<code>&lt;${tagName}&gt;</code>`
-	marquee.textContent = getValue('content')
+	marquee.innerHTML = sanitizeContentHtml(getValue('content'))
 	applyAttributes(marquee)
 	wrapper.append(label, marquee)
 
