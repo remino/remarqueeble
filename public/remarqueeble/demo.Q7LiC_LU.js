@@ -1,8 +1,11 @@
+import DOMPurify from 'dompurify'
+
 const form = document.querySelector('[data-playground]')
 const preview = document.querySelector('[data-preview]')
 const code = document.querySelector('[data-code]')
 const copyButton = document.querySelector('[data-copy]')
 const fullscreenButton = document.querySelector('[data-fullscreen]')
+const resetButton = document.querySelector('[data-reset]')
 const defaultValues = {
 	behavior: 'scroll',
 	content:
@@ -26,12 +29,78 @@ const textAttributes = [
 	'hspace',
 	'vspace',
 ]
-const settingNames = ['show', ...textAttributes, 'truespeed', 'content']
+const styleProperties = [
+	[
+		'fontSize',
+		'font-size',
+		value => {
+			const number = Number(value)
+
+			return Number.isFinite(number) && number >= 8 && number <= 96
+				? `${number}px`
+				: ''
+		},
+	],
+	['color', 'color'],
+]
+const settingNames = [
+	'show',
+	...textAttributes,
+	...styleProperties.map(([name]) => name),
+	'truespeed',
+	'content',
+]
 
 const escapeHtml = value =>
 	value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 
 const escapeAttribute = value => escapeHtml(value).replaceAll('"', '&quot;')
+
+const stripHexColorPrefix = value => value.replace(/^#/, '').trim()
+
+const isHexColor = value => /^[\da-f]{3}(?:[\da-f]{3})?$/iu.test(value)
+
+const normalizeHexColorValue = (value, fallback = '') => {
+	const hex = stripHexColorPrefix(value)
+
+	if (/^[\da-f]{3}$/iu.test(hex)) {
+		return hex
+			.split('')
+			.map(character => character.repeat(2))
+			.join('')
+			.toLowerCase()
+	}
+
+	if (/^[\da-f]{6}$/iu.test(hex)) {
+		return hex.toLowerCase()
+	}
+
+	return fallback
+}
+
+const readHexColorValue = name => {
+	const value = normalizeHexColorValue(getValue(name))
+
+	return value ? `#${value}` : ''
+}
+
+const sanitizeContentHtml = value =>
+	DOMPurify.sanitize(value, {
+		ALLOWED_ATTR: ['aria-label', 'class', 'title'],
+		ALLOWED_TAGS: [
+			'b',
+			'br',
+			'code',
+			'em',
+			'i',
+			'mark',
+			's',
+			'small',
+			'span',
+			'strong',
+			'u',
+		],
+	})
 
 const getControl = name => form?.elements.namedItem(name)
 
@@ -91,7 +160,8 @@ const getAttributes = () => {
 	const attributes = []
 
 	for (const name of textAttributes) {
-		const value = getValue(name).trim()
+		const value =
+			name === 'bgcolor' ? readHexColorValue(name) : getValue(name).trim()
 		if (!value) continue
 		if (getDefaultValue(name) === value) continue
 		attributes.push([name, value])
@@ -104,14 +174,37 @@ const getAttributes = () => {
 	return attributes
 }
 
+const getStyleDeclarations = () =>
+	styleProperties
+		.map(([name, property, normalize]) => {
+			const rawValue = getValue(name).trim()
+			const value =
+				name === 'color'
+					? readHexColorValue(name)
+					: normalize
+						? normalize(rawValue)
+						: rawValue
+
+			return value && CSS.supports(property, value) ? [property, value] : null
+		})
+		.filter(Boolean)
+
+const getStyleAttributeValue = () =>
+	getStyleDeclarations()
+		.map(([property, value]) => `${property}: ${value}`)
+		.join('; ')
+
 const getCode = tagName => {
-	const attributes = getAttributes()
+	const attributes = [
+		...getAttributes(),
+		...(getStyleAttributeValue() ? [['style', getStyleAttributeValue()]] : []),
+	]
 		.map(([name, value]) =>
 			value ? `${name}="${escapeAttribute(value)}"` : name
 		)
 		.join(' ')
 	const openTag = attributes ? `<${tagName} ${attributes}>` : `<${tagName}>`
-	const content = escapeHtml(getValue('content').trim())
+	const content = sanitizeContentHtml(getValue('content').trim())
 
 	return `${openTag}${content}</${tagName}>`
 }
@@ -124,6 +217,10 @@ const applyAttributes = element => {
 			element.setAttribute(name, '')
 		}
 	}
+
+	for (const [property, value] of getStyleDeclarations()) {
+		element.style.setProperty(property, value)
+	}
 }
 
 const createPreviewItem = tagName => {
@@ -133,7 +230,7 @@ const createPreviewItem = tagName => {
 
 	wrapper.className = 'preview-item'
 	label.innerHTML = `<code>&lt;${tagName}&gt;</code>`
-	marquee.textContent = getValue('content')
+	marquee.innerHTML = sanitizeContentHtml(getValue('content'))
 	applyAttributes(marquee)
 	wrapper.append(label, marquee)
 
@@ -207,6 +304,59 @@ const render = ({ syncHash = true } = {}) => {
 	}
 }
 
+const setupColorInputs = () => {
+	document.querySelectorAll('[data-color-hex]').forEach(hexInput => {
+		if (!(hexInput instanceof HTMLInputElement) || !hexInput.name) return
+
+		const colorInput = document.querySelector(
+			`[data-color-picker="${hexInput.name}"]`
+		)
+
+		if (!(colorInput instanceof HTMLInputElement)) return
+
+		const syncColorInput = () => {
+			const normalized = normalizeHexColorValue(
+				hexInput.value,
+				stripHexColorPrefix(colorInput.value)
+			)
+
+			colorInput.value = `#${normalized || '000000'}`
+		}
+
+		colorInput.addEventListener('input', () => {
+			hexInput.value = stripHexColorPrefix(colorInput.value).toLowerCase()
+			render()
+		})
+
+		hexInput.addEventListener('input', () => {
+			const hex = stripHexColorPrefix(hexInput.value)
+
+			if (hex !== hexInput.value) {
+				hexInput.value = hex
+			}
+
+			if (isHexColor(hex)) {
+				colorInput.value = `#${normalizeHexColorValue(
+					hex,
+					stripHexColorPrefix(colorInput.value)
+				)}`
+			}
+		})
+
+		syncColorInput()
+	})
+}
+
+const resetSettings = () => {
+	if (!form) return
+
+	form.reset()
+	getControl('content').value = defaultValues.content
+	syncPairedControls()
+	setupColorInputs()
+	render()
+}
+
 const togglePreviewFullscreen = async () => {
 	if (!preview) return
 
@@ -233,9 +383,13 @@ if (form) {
 	getControl('content').value = defaultValues.content
 	readStateFromHash()
 	syncPairedControls()
+	setupColorInputs()
 }
 fullscreenButton?.addEventListener('click', async () => {
 	await togglePreviewFullscreen()
+})
+resetButton?.addEventListener('click', () => {
+	resetSettings()
 })
 preview?.addEventListener('dblclick', async event => {
 	if (event.target !== preview) return
