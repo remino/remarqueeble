@@ -59,6 +59,7 @@
 	"jsdelivr": "./dist/remarqueeble-auto.min.js",
 	"sideEffects": [
 		"./dist/remarqueeble-auto.*",
+		"./src/assets/js/demo.js",
 		"./src/lib/auto.ts"
 	],
 	"scripts": {
