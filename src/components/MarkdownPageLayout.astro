@@ -6,13 +6,12 @@ interface Props {
 	description?: string
 	path?: string
 	bodyClass?: string
+	mainClass?: string
 }
 
-const { title, description, path, bodyClass } = Astro.props as Props
+const { title, description, path, bodyClass, mainClass } = Astro.props as Props
 ---
 
-<BaseLayout {title} {description} {path} {bodyClass}>
-	<main>
-		<slot />
-	</main>
+<BaseLayout {title} {description} {path} {bodyClass} {mainClass}>
+	<slot />
 </BaseLayout>

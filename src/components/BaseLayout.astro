@@ -17,6 +17,7 @@ interface Props {
 	path?: string
 	htmlClass?: string
 	bodyClass?: string
+	mainClass?: string
 	showHeader?: boolean
 	breadcrumbs?: Breadcrumb[]
 }
@@ -27,6 +28,7 @@ const {
 	path = '/remarqueeble/',
 	htmlClass = '',
 	bodyClass = '',
+	mainClass = '',
 	showHeader = true,
 	breadcrumbs,
 } = Astro.props
@@ -119,7 +121,9 @@ const navItems = [
 				</header>
 			)
 		}
-		<slot />
+		<main class={mainClass || undefined}>
+			<slot />
+		</main>
 		<div class="rmn-nav__content">
 			<ul class="rmn-breadcrumbs">
 				{
