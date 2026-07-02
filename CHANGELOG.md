@@ -2,7 +2,6 @@
 
 <!-- mtoc-start -->
 
-- [HEAD](#head)
 - [v0.4.0](#v040)
 - [v0.3.0](#v030)
 - [v0.2.0](#v020)
@@ -10,22 +9,31 @@
 
 <!-- mtoc-end -->
 
-## HEAD
-
-- Site
-    - Refine the Demo layout with a full-width header, clearer preview and code areas, and a separate controls column.
-    - Store Demo settings as individual hash parameters instead of a JSON-encoded hash value.
-    - Add preview-stage fullscreen toggling from the Full Screen button or a double click/tap on blank preview space.
-    - Allow basic sanitized HTML in Demo content using DOMPurify.
-    - Add Demo style controls for font size, text colour, and background colour.
-    - Add a Demo reset button.
-    - Keep built Demo CSS external so published styles match the development server when using nested CSS.
-
 ## v0.4.0
 
 - Library
-    - Keep CDN and browser defaults on the auto-registration build while preserving explicit API imports for ESM and CommonJS.
+    - Keep CDN and browser defaults on the auto-registration build while
+      preserving explicit API imports for ESM and CommonJS.
     - Remove the extra non-auto minified browser distribution files.
+    - Register `<re-marquee>` and `<re-marquee-ble>` with distinct constructors
+      to avoid browser `NotSupportedError` failures.
+- Site
+    - Refine the Playground layout with a full-width header, clearer preview and
+      code areas, and a separate controls column.
+    - Store Playground settings as individual hash parameters instead of a
+      JSON-encoded hash value.
+    - Add preview-stage fullscreen toggling from the Full Screen button or a
+      double click/tap on blank preview space.
+    - Allow basic sanitized HTML in Playground content using DOMPurify.
+    - Add Playground style controls for font size, text colour, and background
+      colour.
+    - Add a Playground reset button.
+    - Add Shiki-highlighted generated code output with a reusable
+      `<code-viewer>` custom element.
+    - Move page `<main>` markup into `BaseLayout` with an optional `mainClass`
+      prop.
+    - Keep built Playground CSS external so published styles match the
+      development server when using nested CSS.
 
 ## v0.3.0
 
