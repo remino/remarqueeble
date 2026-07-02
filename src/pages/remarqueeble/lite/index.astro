@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../../components/BaseLayout.astro'
+import { site } from '../../../data/site'
+import LiteContent from '../../../content/lite.md'
+import '../../../lib/lite.css'
+---
+
+<BaseLayout
+	title="Lite"
+	description={site.description}
+	path="/remarqueeble/lite/"
+	bodyClass="lite-page">
+	<style is:global>
+		.lite-lane {
+			background: var(--dress-bg-2);
+			border: var(--dress-bs) solid var(--dress-dt);
+			box-sizing: border-box;
+			margin-block: var(--dress-m-b);
+			overflow: hidden;
+			padding: var(--dress-p-b);
+		}
+
+		.lite-lane > .re-marquee {
+			inline-size: 100%;
+		}
+
+		.lite-note {
+			margin-block-start: 0;
+		}
+	</style>
+
+	<main>
+		<LiteContent />
+	</main>
+</BaseLayout>
