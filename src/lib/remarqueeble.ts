@@ -406,15 +406,19 @@ export class RemarqueebleElement extends HTMLElementBase {
 	}
 }
 
+class ReMarqueeElement extends RemarqueebleElement {}
+
+class ReMarqueeBleElement extends RemarqueebleElement {}
+
 export const defineRemarqueebleElements = (): void => {
 	if (typeof customElements === 'undefined') return
 
 	if (!customElements.get('re-marquee')) {
-		customElements.define('re-marquee', RemarqueebleElement)
+		customElements.define('re-marquee', ReMarqueeElement)
 	}
 
 	if (!customElements.get('re-marquee-ble')) {
-		customElements.define('re-marquee-ble', RemarqueebleElement)
+		customElements.define('re-marquee-ble', ReMarqueeBleElement)
 	}
 }
 

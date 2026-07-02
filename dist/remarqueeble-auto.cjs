@@ -295,10 +295,12 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		return this.hasAttribute(ATTR_LOOP) && Number.isFinite(this.loop) && this.loop > 0;
 	}
 };
+var ReMarqueeElement = class extends RemarqueebleElement {};
+var ReMarqueeBleElement = class extends RemarqueebleElement {};
 var defineRemarqueebleElements = () => {
 	if (typeof customElements === "undefined") return;
-	if (!customElements.get("re-marquee")) customElements.define("re-marquee", RemarqueebleElement);
-	if (!customElements.get("re-marquee-ble")) customElements.define("re-marquee-ble", RemarqueebleElement);
+	if (!customElements.get("re-marquee")) customElements.define("re-marquee", ReMarqueeElement);
+	if (!customElements.get("re-marquee-ble")) customElements.define("re-marquee-ble", ReMarqueeBleElement);
 };
 //#endregion
 //#region src/lib/auto.ts
