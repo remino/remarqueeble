@@ -74,25 +74,35 @@
 .code-preview {
 	min-inline-size: 0;
 
-	label {
-		display: block;
+	.code-preview-header {
+		align-items: center;
+		display: flex;
+		gap: calc(var(--dress-m-i) / 2);
+		justify-content: space-between;
+		margin-block: calc(var(--dress-m-b) / 2);
 		position: relative;
 
 		button {
-			inset: 0 0 auto auto;
-			position: absolute;
-			z-index: 10;
-		}
-
-		> span {
-			margin-block: calc(var(--dress-m-b) / 2);
-			padding-block: calc(var(--dress-p-b) / 2);
+			margin-block: 0;
 		}
 	}
 
-	textarea {
-		box-sizing: border-box;
+	code-viewer {
+		display: block;
 		inline-size: 100%;
+
+		pre {
+			box-sizing: border-box;
+			inline-size: 100%;
+			margin-block: 0;
+			overflow-x: auto;
+			padding: var(--dress-p-b) var(--dress-p-i);
+			white-space: pre;
+
+			code {
+				font: inherit;
+			}
+		}
 	}
 }
 
@@ -219,17 +229,6 @@
 	}
 }
 
-.code-preview-header {
-	align-items: center;
-	display: flex;
-	gap: 0.5rem;
-	justify-content: space-between;
-
-	button {
-		margin-block: 0;
-	}
-}
-
 @media (max-width: 56rem) {
 	.playground-layout {
 		block-size: auto;
@@ -248,6 +247,5 @@
 
 	.playground-display {
 		grid-template-rows: auto auto;
-		min-block-size: min(28rem, 52dvb);
 	}
 }

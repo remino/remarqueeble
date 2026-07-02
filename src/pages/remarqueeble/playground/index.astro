@@ -42,13 +42,11 @@ import '../../../assets/css/demo.css'
 			<h1 id="display-heading" class="sr-only">Playground</h1>
 			<div class="preview-stage" data-preview></div>
 			<div class="code-preview">
-				<label>
-					<span class="code-preview-header">
-						<span><strong>Code</strong></span>
-					</span>
-					<textarea data-code readonly rows="6" spellcheck="false"></textarea>
+				<div class="code-preview-header">
+					<strong>Code</strong>
 					<button type="button" data-copy>Copy</button>
-				</label>
+				</div>
+				<code-viewer></code-viewer>
 			</div>
 		</section>
 

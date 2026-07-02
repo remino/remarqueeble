@@ -1,11 +1,16 @@
 import DOMPurify from 'dompurify'
+import { createHighlighterCore } from 'shiki/core'
+import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
+import html from 'shiki/langs/html.mjs'
+import githubDark from 'shiki/themes/github-dark.mjs'
 
 const form = document.querySelector('[data-playground]')
 const preview = document.querySelector('[data-preview]')
-const code = document.querySelector('[data-code]')
+const code = document.querySelector('code-viewer')
 const copyButton = document.querySelector('[data-copy]')
 const fullscreenButton = document.querySelector('[data-fullscreen]')
 const resetButton = document.querySelector('[data-reset]')
+const CODE_VIEWER_TAG_NAME = 'code-viewer'
 const defaultValues = {
 	behavior: 'scroll',
 	content:
@@ -50,11 +55,86 @@ const settingNames = [
 	'truespeed',
 	'content',
 ]
+const highlighter = createHighlighterCore({
+	engine: createJavaScriptRegexEngine(),
+	langs: [html],
+	themes: [githubDark],
+})
 
 const escapeHtml = value =>
 	value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 
 const escapeAttribute = value => escapeHtml(value).replaceAll('"', '&quot;')
+
+const highlightCode = async value => {
+	const shiki = await highlighter
+
+	return shiki
+		.codeToHtml(value, {
+			lang: 'html',
+			theme: 'github-dark',
+		})
+		.replace('class="shiki ', 'class="astro-code ')
+}
+
+class CodeViewer extends HTMLElement {
+	mutationObserver = new MutationObserver(() => {
+		this.source = this.textContent ?? ''
+	})
+	renderId = 0
+	sourceValue = ''
+
+	connectedCallback() {
+		this.removeAttribute('data-source')
+
+		if (!this.sourceValue) {
+			this.sourceValue = this.textContent ?? ''
+		}
+
+		this.observeSource()
+		this.render()
+	}
+
+	disconnectedCallback() {
+		this.mutationObserver.disconnect()
+	}
+
+	get source() {
+		return this.sourceValue
+	}
+
+	set source(value) {
+		this.sourceValue = value
+		this.render()
+	}
+
+	observeSource() {
+		this.mutationObserver.observe(this, {
+			characterData: true,
+			childList: true,
+			subtree: true,
+		})
+	}
+
+	async render() {
+		const currentRenderId = ++this.renderId
+		const highlighted = await highlightCode(this.sourceValue)
+
+		if (!this.isConnected || currentRenderId !== this.renderId) return
+
+		this.removeAttribute('data-source')
+		this.mutationObserver.disconnect()
+		this.innerHTML = highlighted
+		this.observeSource()
+	}
+}
+
+if (
+	typeof customElements !== 'undefined' &&
+	!customElements.get(CODE_VIEWER_TAG_NAME)
+) {
+	customElements.define(CODE_VIEWER_TAG_NAME, CodeViewer)
+}
 
 const stripHexColorPrefix = value => value.replace(/^#/, '').trim()
 
@@ -297,7 +377,10 @@ const render = ({ syncHash = true } = {}) => {
 	preview.replaceChildren(
 		...tagNames.map(tagName => createPreviewItem(tagName))
 	)
-	code.value = tagNames.map(tagName => getCode(tagName)).join('\n')
+
+	const source = tagNames.map(tagName => getCode(tagName)).join('\n')
+
+	code.textContent = source
 
 	if (syncHash) {
 		writeStateToHash()
@@ -403,9 +486,10 @@ document.addEventListener('fullscreenchange', () => {
 	)
 })
 copyButton?.addEventListener('click', async () => {
-	if (!code?.value) return
+	const source = code?.source
+	if (!source) return
 
-	await navigator.clipboard.writeText(code.value)
+	await navigator.clipboard.writeText(source)
 	copyButton.textContent = 'Copied'
 	setTimeout(() => {
 		copyButton.textContent = 'Copy'
