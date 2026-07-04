@@ -14,6 +14,7 @@
 	animation-play-state: var(--re-marquee-play-state);
 	display: inline-block;
 	min-inline-size: max-content;
+	padding-inline-start: 100%;
 	will-change: transform;
 }
 
@@ -39,6 +40,7 @@
 	display: inline-flex;
 	flex-direction: column;
 	min-inline-size: auto;
+	padding-inline-start: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -53,7 +55,7 @@
 
 @keyframes re-marquee-scroll {
 	from {
-		transform: translateX(clamp(100%, 40rem, 100vw));
+		transform: translateX(var(--re-marquee-start-pos, 0));
 	}
 
 	to {
@@ -63,7 +65,7 @@
 
 @keyframes re-marquee-scroll-y {
 	from {
-		transform: translateY(clamp(100%, 40rem, 100vh));
+		transform: translateY(var(--re-marquee-start-pos, 100vh));
 	}
 
 	to {

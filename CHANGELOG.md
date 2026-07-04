@@ -12,8 +12,11 @@
 
 ## HEAD
 
+- Library
+    - Fix Lite marquee start position on wide containers.
 - Site
     - Add documentation for `--re-marquee-timing-function` in Lite.
+    - Add documentation for `--re-marquee-start-pos` in Lite.
 
 ## v0.4.0
 

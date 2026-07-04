@@ -34,6 +34,7 @@ CSS variables:
 - `--re-marquee-duration`: animation duration. Defaults to `20s`.
 - `--re-marquee-timing-function`: animation timing function. Defaults to
   `linear`.
+- `--re-marquee-start-pos`: starting transform position. Defaults to `0`.
 - `--re-marquee-end-pos`: ending transform position. Defaults to `-100%`.
 
 ```html
