@@ -8,6 +8,7 @@ A CSS-only marquee with simple class names and no JavaScript.
 - [Default](#default)
 - [Reverse](#reverse)
 - [Vertical](#vertical)
+- [Stepped timing](#stepped-timing)
 - [Pause on hover](#pause-on-hover)
 - [Paused](#paused)
 
@@ -28,9 +29,16 @@ duplicated content. It does not emulate legacy `<marquee>` measurement,
 Optional classes: `re-marquee--reverse`, `re-marquee--vertical`,
 `re-marquee--paused`, and `re-marquee--pause-on-hover`.
 
+CSS variables:
+
+- `--re-marquee-duration`: animation duration. Defaults to `20s`.
+- `--re-marquee-timing-function`: animation timing function. Defaults to
+  `linear`.
+- `--re-marquee-end-pos`: ending transform position. Defaults to `-100%`.
+
 ```html
 <div class="re-marquee" style="--re-marquee-duration: 12s;">
-	<div class="re-marquee__track">CSS-only marquee</div>
+    <div class="re-marquee__track">CSS-only marquee</div>
 </div>
 ```
 
@@ -54,11 +62,11 @@ Single-line motion with the base timing.
 
 ```html
 <div class="re-marquee" style="--re-marquee-duration: 14s;">
-	<div class="re-marquee__track">
-		<span>Fresh build</span>
-		<strong>CSS-only</strong>
-		<span>no JS required</span>
-	</div>
+    <div class="re-marquee__track">
+        <span>Fresh build</span>
+        <strong>CSS-only</strong>
+        <span>no JS required</span>
+    </div>
 </div>
 ```
 
@@ -82,11 +90,11 @@ The same structure, but running in the opposite direction.
 
 ```html
 <div class="re-marquee re-marquee--reverse" style="--re-marquee-duration: 18s;">
-	<div class="re-marquee__track">
-		<span>Right to left</span>
-		<span>left to right</span>
-		<em>reverse flow</em>
-	</div>
+    <div class="re-marquee__track">
+        <span>Right to left</span>
+        <span>left to right</span>
+        <em>reverse flow</em>
+    </div>
 </div>
 ```
 
@@ -110,13 +118,46 @@ A taller lane with stacked content.
 </div>
 
 ```html
-<div class="re-marquee re-marquee--vertical" style="--re-marquee-duration: 16s; block-size: 12rem;">
-	<div class="re-marquee__track">
-		<span>Alpha</span>
-		<span>Beta</span>
-		<span>Gamma</span>
-		<span>Delta</span>
+<div
+    class="re-marquee re-marquee--vertical"
+    style="--re-marquee-duration: 16s; block-size: 12rem;">
+    <div class="re-marquee__track">
+        <span>Alpha</span>
+        <span>Beta</span>
+        <span>Gamma</span>
+        <span>Delta</span>
+    </div>
+</div>
+```
+
+[Back to top](#)
+
+---
+
+## Stepped timing
+
+Use any CSS animation timing function, including `steps()`, for chunkier
+legacy-style motion.
+
+<div class="lite-lane">
+	<div class="re-marquee" style="--re-marquee-duration: 10s; --re-marquee-timing-function: steps(24, end);">
+		<div class="re-marquee__track">
+			<span>Stepped motion</span>
+			<strong>steps(24, end)</strong>
+			<span>CSS timing</span>
+		</div>
 	</div>
+</div>
+
+```html
+<div
+    class="re-marquee"
+    style="--re-marquee-duration: 10s; --re-marquee-timing-function: steps(24, end);">
+    <div class="re-marquee__track">
+        <span>Stepped motion</span>
+        <strong>steps(24, end)</strong>
+        <span>CSS timing</span>
+    </div>
 </div>
 ```
 
@@ -139,12 +180,14 @@ Hover the lane to freeze it.
 </div>
 
 ```html
-<div class="re-marquee re-marquee--pause-on-hover" style="--re-marquee-duration: 11s;">
-	<div class="re-marquee__track">
-		<span>Hover me</span>
-		<span>and I stop</span>
-		<span>moving</span>
-	</div>
+<div
+    class="re-marquee re-marquee--pause-on-hover"
+    style="--re-marquee-duration: 11s;">
+    <div class="re-marquee__track">
+        <span>Hover me</span>
+        <span>and I stop</span>
+        <span>moving</span>
+    </div>
 </div>
 ```
 
@@ -168,11 +211,11 @@ A static state for holding a frame in place.
 
 ```html
 <div class="re-marquee re-marquee--paused" style="--re-marquee-duration: 11s;">
-	<div class="re-marquee__track">
-		<span>Paused</span>
-		<span>on purpose</span>
-		<mark>still visible</mark>
-	</div>
+    <div class="re-marquee__track">
+        <span>Paused</span>
+        <span>on purpose</span>
+        <mark>still visible</mark>
+    </div>
 </div>
 ```
 

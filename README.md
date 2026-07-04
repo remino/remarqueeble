@@ -158,8 +158,8 @@ marquee.start()
 
 ## Remarquee Lite
 
-For a CSS-only marquee, import `remarqueeble/lite.css` or load
-`dist/lite.css` directly:
+For a CSS-only marquee, import `remarqueeble/lite.css` or load `dist/lite.css`
+directly:
 
 ```html
 <link rel="stylesheet" href="https://unpkg.com/remarqueeble/dist/lite.css" />
@@ -179,6 +179,13 @@ Optional classes:
 - `re-marquee--vertical`: scroll vertically.
 - `re-marquee--paused`: pause the animation.
 - `re-marquee--pause-on-hover`: pause while hovered.
+
+CSS variables:
+
+- `--re-marquee-duration`: animation duration. Defaults to `20s`.
+- `--re-marquee-timing-function`: animation timing function. Defaults to
+  `linear`, and accepts values such as `steps(24, end)`.
+- `--re-marquee-end-pos`: ending transform position. Defaults to `-100%`.
 
 [Back to top](#)
 

@@ -2,12 +2,18 @@
 
 <!-- mtoc-start -->
 
+- [HEAD](#head)
 - [v0.4.0](#v040)
 - [v0.3.0](#v030)
 - [v0.2.0](#v020)
 - [v0.1.0](#v010)
 
 <!-- mtoc-end -->
+
+## HEAD
+
+- Site
+    - Add documentation for `--re-marquee-timing-function` in Lite.
 
 ## v0.4.0
 
