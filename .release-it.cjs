@@ -10,10 +10,11 @@ module.exports = {
 		assets: ['dist/*'],
 		autoGenerate: true,
 		release: true,
+		tokenRef: 'RELEASE_IT_GITHUB_TOKEN',
 	},
 	hooks: {
 		'before:init': [
-			'node -e "if (!process.env.GITHUB_TOKEN) { console.error(\'GITHUB_TOKEN is required for automated GitHub releases.\'); process.exit(1) }"',
+			'node -e "if (!process.env.RELEASE_IT_GITHUB_TOKEN) { console.error(\'RELEASE_IT_GITHUB_TOKEN is required for automated GitHub releases.\'); process.exit(1) }"',
 			'npm test',
 			'npm run typecheck',
 			'npm run format:check',

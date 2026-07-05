@@ -223,7 +223,7 @@ If docs publishing fails after the package release, rerun it directly:
 npm run docs:publish
 ```
 
-Before running a real release, make sure `GITHUB_TOKEN` is set and
+Before running a real release, make sure `RELEASE_IT_GITHUB_TOKEN` is set and
 `npm whoami --registry https://registry.npmjs.org/` passes. Release-it prompts
 for an npm OTP when npm requires one.
 
