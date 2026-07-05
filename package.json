@@ -21,8 +21,10 @@
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-astro": "^1.7.0",
 		"globals": "^17.7.0",
+		"husky": "^9.1.7",
 		"jasmine": "^6.3.0",
 		"lightningcss": "^1.32.0",
+		"lint-staged": "^16.4.0",
 		"prettier": "^3.7.4",
 		"prettier-plugin-astro": "^0.14.1",
 		"release-it": "^20.2.1",
@@ -83,6 +85,8 @@
 		"lib:build": "npm run js:build",
 		"lint": "eslint --fix .",
 		"lint:check": "eslint .",
+		"precommit": "lint-staged",
+		"prepare": "husky",
 		"preview": "astro preview",
 		"release": "release-it",
 		"release:dry-run": "release-it --dry-run --verbose",
@@ -93,5 +97,12 @@
 	},
 	"type": "module",
 	"types": "dist/remarqueeble.d.ts",
+	"lint-staged": {
+		"*.{js,mjs,cjs,ts,astro}": [
+			"prettier --write",
+			"eslint --fix"
+		],
+		"*.{css,md,json,yml,yaml}": "prettier --write"
+	},
 	"version": "0.4.0"
 }
