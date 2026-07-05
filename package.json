@@ -72,6 +72,7 @@
 		"./dist/remarqueeble-auto.*",
 		"./dist/lite.css",
 		"./dist/lite.min.css",
+		"./src/assets/js/copy-buttons.js",
 		"./src/assets/js/demo.js",
 		"./src/lib/auto.ts"
 	],
