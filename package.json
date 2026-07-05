@@ -25,6 +25,7 @@
 		"lightningcss": "^1.32.0",
 		"prettier": "^3.7.4",
 		"prettier-plugin-astro": "^0.14.1",
+		"release-it": "^20.2.1",
 		"shiki": "^4.3.0",
 		"tsx": "^4.22.4",
 		"typescript": "^5.9.3",
@@ -83,11 +84,12 @@
 		"lint": "eslint --fix .",
 		"lint:check": "eslint .",
 		"preview": "astro preview",
+		"release": "release-it",
+		"release:dry-run": "release-it --dry-run --verbose",
 		"site:assets": "true",
 		"start": "npm run dev",
 		"test": "tsx ./node_modules/jasmine/bin/jasmine.js",
-		"typecheck": "astro check && tsc --noEmit",
-		"version": "npm run build && git add dist"
+		"typecheck": "astro check && tsc --noEmit"
 	},
 	"type": "module",
 	"types": "dist/remarqueeble.d.ts",

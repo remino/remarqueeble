@@ -21,6 +21,8 @@
 - Site
     - Add documentation for `--re-marquee-timing-function` in Lite.
     - Add documentation for `--re-marquee-start-pos` in Lite.
+- Development
+    - Add guarded local release automation using `release-it`.
 
 ## v0.4.0
 

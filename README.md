@@ -208,6 +208,19 @@ npm run build
 The library source lives in `src/lib`. The documentation site is built with
 Astro and lives in the rest of `src`.
 
+Release automation is available through `release-it`:
+
+```sh
+npm run release:dry-run
+npm run release
+```
+
+Docs deployment remains separate:
+
+```sh
+npm run docs:publish
+```
+
 ---
 
 ## Contributing
