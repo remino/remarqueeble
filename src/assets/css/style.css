@@ -4,6 +4,38 @@ main {
 	margin-block-end: var(--rmn-ribbon-push, 0px);
 }
 
+pre.astro-code,
+.code-block {
+	position: relative;
+
+	.copy {
+		inset: 0 0 auto auto;
+		margin: 0;
+		position: absolute;
+		transform: scale(0.8);
+		transform-origin: 100% 0;
+		transition: opacity var(--dress-ad) var(--dress-at);
+
+		@media print {
+			display: none;
+		}
+	}
+
+	@media (pointer: fine) {
+		.copy {
+			opacity: 0;
+
+			&:focus {
+				opacity: 1;
+			}
+		}
+
+		&:hover .copy {
+			opacity: 1;
+		}
+	}
+}
+
 .sr-only {
 	block-size: 1px;
 	border: 0;
