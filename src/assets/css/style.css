@@ -4,9 +4,14 @@ main {
 	margin-block-end: var(--rmn-ribbon-push, 0px);
 }
 
-pre.astro-code,
 .code-block {
+	margin-block-end: var(--dress-m-be);
+	margin-block-start: var(--dress-m-bs);
 	position: relative;
+
+	> pre {
+		margin-block: 0;
+	}
 
 	.copy {
 		inset: 0 0 auto auto;
