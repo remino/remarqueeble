@@ -105,6 +105,8 @@ Distribution files:
 - `dist/remarqueeble-auto.mjs`: ES module auto-registration entry.
 - `dist/remarqueeble-auto.cjs`: CommonJS auto-registration entry.
 - `dist/remarqueeble-auto.min.js`: minified classic browser auto-registration.
+- `dist/lite.css`: CSS-only marquee styles.
+- `dist/lite.min.css`: minified CSS-only marquee styles.
 
 [Back to top](#)
 
@@ -159,7 +161,7 @@ marquee.start()
 ## Remarquee Lite
 
 For a CSS-only marquee, import `remarqueeble/lite.css` or load `dist/lite.css`
-directly:
+directly. For direct CDN usage, `dist/lite.min.css` is also available.
 
 ```html
 <link rel="stylesheet" href="https://unpkg.com/remarqueeble/dist/lite.css" />

@@ -22,6 +22,7 @@
 		"eslint-plugin-astro": "^1.7.0",
 		"globals": "^17.7.0",
 		"jasmine": "^6.3.0",
+		"lightningcss": "^1.32.0",
 		"prettier": "^3.7.4",
 		"prettier-plugin-astro": "^0.14.1",
 		"shiki": "^4.3.0",
@@ -42,7 +43,8 @@
 			"import": "./dist/remarqueeble-auto.mjs",
 			"require": "./dist/remarqueeble-auto.cjs"
 		},
-		"./lite.css": "./dist/lite.css"
+		"./lite.css": "./dist/lite.css",
+		"./lite.min.css": "./dist/lite.min.css"
 	},
 	"files": [
 		"dist/*"
@@ -62,6 +64,7 @@
 	"sideEffects": [
 		"./dist/remarqueeble-auto.*",
 		"./dist/lite.css",
+		"./dist/lite.min.css",
 		"./src/assets/js/demo.js",
 		"./src/lib/auto.ts"
 	],

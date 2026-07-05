@@ -7,6 +7,7 @@ import {
 	writeFile,
 } from 'node:fs/promises'
 import { resolve } from 'node:path'
+import { browserslistToTargets, Features, transform } from 'lightningcss'
 import { build } from 'vite'
 
 const root = process.cwd()
@@ -52,12 +53,36 @@ const ensureBanner = async filePath => {
 	await writeFile(filePath, `${banner}\n${file}`)
 }
 
+const cssTargets = browserslistToTargets([
+	'chrome 95',
+	'edge 95',
+	'firefox 91',
+	'ios_saf 15.4',
+	'safari 15.4',
+])
+
+const minifyCss = css =>
+	Buffer.from(
+		transform({
+			code: Buffer.from(css),
+			filename: 'lite.css',
+			// In Lightning CSS, include means "always run this transform".
+			include: Features.Nesting,
+			minify: true,
+			targets: cssTargets,
+		}).code
+	).toString()
+
 await rm(resolve(root, 'dist'), { force: true, recursive: true })
 await mkdir(resolve(root, 'dist'), { recursive: true })
 
 await copyFile(
 	resolve(root, 'src/lib/lite.css'),
 	resolve(root, 'dist/lite.css')
+)
+await writeFile(
+	resolve(root, 'dist/lite.min.css'),
+	minifyCss(await readFile(resolve(root, 'src/lib/lite.css'), 'utf8'))
 )
 
 await buildLibrary({

@@ -13,6 +13,8 @@
 ## HEAD
 
 - Library
+    - Add a minified `dist/lite.min.css` build and package export using
+      Lightning CSS.
     - Fix Lite marquee start position on wide containers.
 - Site
     - Add documentation for `--re-marquee-timing-function` in Lite.

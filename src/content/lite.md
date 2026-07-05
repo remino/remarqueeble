@@ -16,7 +16,8 @@ A CSS-only marquee with simple class names and no JavaScript.
 
 ## Use it
 
-Import `remarqueeble/lite.css` or load `dist/lite.css` directly.
+Import `remarqueeble/lite.css` or load `dist/lite.css` directly. For direct CDN
+usage, `dist/lite.min.css` is also available.
 
 ```html
 <link rel="stylesheet" href="https://unpkg.com/remarqueeble/dist/lite.css" />
