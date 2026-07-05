@@ -208,14 +208,15 @@ npm run build
 The library source lives in `src/lib`. The documentation site is built with
 Astro and lives in the rest of `src`.
 
-Release automation is available through `release-it`:
+Release automation is available through `release-it`. A release runs checks,
+builds, publishes the GitHub release and npm package, then publishes docs:
 
 ```sh
 npm run release:dry-run
 npm run release
 ```
 
-Docs deployment remains separate:
+If docs publishing fails after the package release, rerun it directly:
 
 ```sh
 npm run docs:publish

@@ -21,6 +21,7 @@ module.exports = {
 		],
 		'before:release':
 			'npm pack --dry-run --cache /private/tmp/remarqueeble-npm-cache',
+		'after:release': 'npm run docs:publish',
 	},
 	npm: {
 		publish: true,
