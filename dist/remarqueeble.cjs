@@ -251,6 +251,10 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		this.style.setProperty(CSS_VAR_ANIMATION_PLAY_STATE, this.running ? "running" : "paused");
 	}
 	syncAnimation(hostSize, trackSize) {
+		if (this.scrollAmount === 0) {
+			this.syncStaticAnimation();
+			return;
+		}
 		const startPosition = this.behavior === "alternate" ? this.getAlternateStartPosition(hostSize, trackSize) : this.getStartPosition(hostSize, trackSize);
 		const endPosition = this.behavior === "slide" ? this.getSlideEndPosition(hostSize, trackSize) : this.behavior === "alternate" ? this.getFlushEndPosition(hostSize, trackSize) : this.getOffEndPosition(hostSize, trackSize);
 		const distance = Math.abs(endPosition - startPosition);
@@ -274,6 +278,18 @@ var RemarqueebleElement = class extends HTMLElementBase {
 			this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, "0px");
 		}
 		this.restartAnimation();
+	}
+	syncStaticAnimation() {
+		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, "0ms");
+		this.style.setProperty(CSS_VAR_ANIMATION_DIRECTION, "normal");
+		this.style.setProperty(CSS_VAR_ANIMATION_ITERATION_COUNT, "1");
+		this.style.setProperty(CSS_VAR_ANIMATION_TIMING_FUNCTION, "linear");
+		this.style.setProperty(CSS_VAR_TRANSLATE_X_START, "0px");
+		this.style.setProperty(CSS_VAR_TRANSLATE_X_END, "0px");
+		this.style.setProperty(CSS_VAR_TRANSLATE_Y_START, "0px");
+		this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, "0px");
+		this.track.style.animationName = "none";
+		this.track.style.transform = "translate(0px, 0px)";
 	}
 	getCssIterationCount() {
 		if (this.behavior === "slide" && !this.hasAttribute(ATTR_LOOP)) return "1";

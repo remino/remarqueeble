@@ -16,6 +16,7 @@
     - Add a minified `dist/lite.min.css` build and package export using
       Lightning CSS.
     - Fix Lite marquee start position on wide containers.
+    - Match native `<marquee>` by freezing when `scrollamount` is `0`.
 - Site
     - Add documentation for `--re-marquee-timing-function` in Lite.
     - Add documentation for `--re-marquee-start-pos` in Lite.

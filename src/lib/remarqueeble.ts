@@ -330,6 +330,11 @@ export class RemarqueebleElement extends HTMLElementBase {
 	}
 
 	private syncAnimation(hostSize: number, trackSize: number): void {
+		if (this.scrollAmount === 0) {
+			this.syncStaticAnimation()
+			return
+		}
+
 		const startPosition =
 			this.behavior === 'alternate'
 				? this.getAlternateStartPosition(hostSize, trackSize)
@@ -373,6 +378,20 @@ export class RemarqueebleElement extends HTMLElementBase {
 		}
 
 		this.restartAnimation()
+	}
+
+	private syncStaticAnimation(): void {
+		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, '0ms')
+		this.style.setProperty(CSS_VAR_ANIMATION_DIRECTION, 'normal')
+		this.style.setProperty(CSS_VAR_ANIMATION_ITERATION_COUNT, '1')
+		this.style.setProperty(CSS_VAR_ANIMATION_TIMING_FUNCTION, 'linear')
+		this.style.setProperty(CSS_VAR_TRANSLATE_X_START, '0px')
+		this.style.setProperty(CSS_VAR_TRANSLATE_X_END, '0px')
+		this.style.setProperty(CSS_VAR_TRANSLATE_Y_START, '0px')
+		this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, '0px')
+
+		this.track.style.animationName = 'none'
+		this.track.style.transform = 'translate(0px, 0px)'
 	}
 
 	private getCssIterationCount(): string {
