@@ -3,6 +3,8 @@
 A tiny custom element tribute to the cursed glory of `<marquee>`, exposed as
 `<re-marquee>` and `<re-marquee-ble>`.
 
+Remarqueeble v0.5.0
+
 By Rémino Rem  
 <https://remino.net/>
 
@@ -48,14 +50,14 @@ Mirrors:
 Use a pinned version in production:
 
 ```html
-<script src="https://unpkg.com/remarqueeble@0.3.0"></script>
+<script src="https://unpkg.com/remarqueeble@0.5.0"></script>
 ```
 
 If you want the API instead of auto-registration, import the ES module directly:
 
 ```html
 <script type="module">
-    import { defineRemarqueebleElements } from 'https://unpkg.com/remarqueeble@0.3.0/dist/remarqueeble.mjs'
+    import { defineRemarqueebleElements } from 'https://unpkg.com/remarqueeble@0.5.0/dist/remarqueeble.mjs'
 
     defineRemarqueebleElements()
 </script>

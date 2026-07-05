@@ -21,8 +21,9 @@ module.exports = {
 		],
 		'after:bump': [
 			'node bin/release-changelog.mjs promote ${version}',
+			'node bin/release-readme.mjs update ${version}',
 			'npm run build',
-			'git add package.json package-lock.json CHANGELOG.md dist',
+			'git add package.json package-lock.json CHANGELOG.md README.md dist',
 		],
 		'before:release':
 			'npm pack --dry-run --cache /private/tmp/remarqueeble-npm-cache',
