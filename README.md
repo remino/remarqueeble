@@ -175,6 +175,9 @@ The lite CSS follows the simpler pure-CSS pattern and does not require
 duplicated content. It does not emulate legacy `<marquee>` measurement,
 `behavior`, `scrollamount`, `scrolldelay`, or finite `loop` handling.
 
+When `prefers-reduced-motion: reduce` is active, animation is disabled and the
+content is shown statically.
+
 Optional classes:
 
 - `re-marquee--reverse`: scroll in the opposite direction.

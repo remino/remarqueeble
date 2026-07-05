@@ -50,6 +50,9 @@
 
 	.re-marquee__track {
 		animation: none;
+		padding-inline-start: 0;
+		transform: none;
+		will-change: auto;
 	}
 }
 

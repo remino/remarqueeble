@@ -15,6 +15,7 @@
 - Library
     - Add a minified `dist/lite.min.css` build and package export using
       Lightning CSS.
+    - Show Lite content statically under `prefers-reduced-motion: reduce`.
     - Fix Lite marquee start position on wide containers.
     - Match native `<marquee>` by freezing when `scrollamount` is `0`.
 - Site
