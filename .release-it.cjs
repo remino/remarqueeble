@@ -18,7 +18,7 @@ module.exports = {
 			'npm pack --dry-run --cache /private/tmp/remarqueeble-npm-cache',
 		'after:release': [
 			'gh release create v${version} dist/* --generate-notes --verify-tag --title v${version}',
-			'npm publish --access public',
+			'npm publish --access public --registry https://registry.npmjs.org/',
 			'npm run docs:publish',
 		],
 	},

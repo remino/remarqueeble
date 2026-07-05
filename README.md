@@ -223,8 +223,8 @@ If docs publishing fails after the package release, rerun it directly:
 npm run docs:publish
 ```
 
-Before running a real release, make sure `gh auth status` and `npm whoami` both
-pass.
+Before running a real release, make sure `gh auth status` and
+`npm whoami --registry https://registry.npmjs.org/` both pass.
 
 ---
 
