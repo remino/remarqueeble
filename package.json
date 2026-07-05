@@ -62,6 +62,9 @@
 	"main": "dist/remarqueeble.cjs",
 	"module": "dist/remarqueeble.mjs",
 	"name": "remarqueeble",
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	},
 	"unpkg": "./dist/remarqueeble-auto.min.js",
 	"jsdelivr": "./dist/remarqueeble-auto.min.js",
 	"sideEffects": [

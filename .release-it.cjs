@@ -6,9 +6,18 @@ module.exports = {
 		tagAnnotation: 'Release ${version}',
 		tagName: 'v${version}',
 	},
-	github: false,
+	github: {
+		assets: ['dist/*'],
+		autoGenerate: true,
+		release: true,
+	},
 	hooks: {
-		'before:init': ['npm test', 'npm run typecheck', 'npm run format:check'],
+		'before:init': [
+			'node -e "if (!process.env.GITHUB_TOKEN) { console.error(\'GITHUB_TOKEN is required for automated GitHub releases.\'); process.exit(1) }"',
+			'npm test',
+			'npm run typecheck',
+			'npm run format:check',
+		],
 		'after:bump': [
 			'node bin/release-changelog.mjs promote ${version}',
 			'npm run build',
@@ -16,13 +25,10 @@ module.exports = {
 		],
 		'before:release':
 			'npm pack --dry-run --cache /private/tmp/remarqueeble-npm-cache',
-		'after:release': [
-			'gh release create v${version} dist/* --generate-notes --verify-tag --title v${version}',
-			'npm publish --access public --registry https://registry.npmjs.org/',
-			'npm run docs:publish',
-		],
+		'after:github:release': 'npm run docs:publish',
 	},
 	npm: {
-		publish: false,
+		publish: true,
+		publishArgs: ['--access', 'public'],
 	},
 }
