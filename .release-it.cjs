@@ -6,12 +6,7 @@ module.exports = {
 		tagAnnotation: 'Release ${version}',
 		tagName: 'v${version}',
 	},
-	github: {
-		assets: ['dist/*'],
-		release: true,
-		releaseName: 'v${version}',
-		releaseNotes: 'node bin/release-changelog.mjs notes ${version}',
-	},
+	github: false,
 	hooks: {
 		'before:init': ['npm test', 'npm run typecheck', 'npm run format:check'],
 		'after:bump': [
@@ -21,7 +16,10 @@ module.exports = {
 		],
 		'before:release':
 			'npm pack --dry-run --cache /private/tmp/remarqueeble-npm-cache',
-		'after:release': 'npm run docs:publish',
+		'after:release': [
+			'gh release create v${version} dist/* --generate-notes --verify-tag --title v${version}',
+			'npm run docs:publish',
+		],
 	},
 	npm: {
 		publish: true,

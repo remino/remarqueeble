@@ -209,7 +209,8 @@ The library source lives in `src/lib`. The documentation site is built with
 Astro and lives in the rest of `src`.
 
 Release automation is available through `release-it`. A release runs checks,
-builds, publishes the GitHub release and npm package, then publishes docs:
+builds, publishes the npm package, creates a GitHub release with `gh`, uploads
+`dist/*`, then publishes docs:
 
 ```sh
 npm run release:dry-run
@@ -221,6 +222,9 @@ If docs publishing fails after the package release, rerun it directly:
 ```sh
 npm run docs:publish
 ```
+
+Before running a real release, make sure `gh auth status` and `npm whoami` both
+pass.
 
 ---
 
