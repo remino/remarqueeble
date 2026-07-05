@@ -3,6 +3,7 @@
 <!-- mtoc-start -->
 
 - [HEAD](#head)
+- [v0.5.0](#v050)
 - [v0.4.0](#v040)
 - [v0.3.0](#v030)
 - [v0.2.0](#v020)
@@ -11,6 +12,8 @@
 <!-- mtoc-end -->
 
 ## HEAD
+
+## v0.5.0
 
 - Library
     - Add a minified `dist/lite.min.css` build and package export using

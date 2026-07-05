@@ -1,4 +1,4 @@
-/*! remarqueeble v0.4.0 | (c) 2026 Rémino Rem <https://remino.net/> | ISC Licence */
+/*! remarqueeble v0.5.0 | (c) 2026 Rémino Rem <https://remino.net/> | ISC Licence */
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 //#region src/lib/remarqueeble.ts
 var DEFAULT_DIRECTION = "left";
