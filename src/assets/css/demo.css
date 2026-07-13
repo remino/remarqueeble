@@ -235,6 +235,7 @@
 		grid-template-areas:
 			'header'
 			'display'
+			'code'
 			'controls';
 		grid-template-columns: 1fr;
 	}
@@ -245,6 +246,20 @@
 	}
 
 	.playground-display {
-		grid-template-rows: auto auto;
+		display: contents;
+	}
+
+	.preview-stage {
+		background: var(--dress-bg);
+		grid-area: display;
+		max-block-size: min(40dvb, 18rem);
+		overflow: auto;
+		position: sticky;
+		top: 0;
+		z-index: 1;
+	}
+
+	.code-preview {
+		grid-area: code;
 	}
 }
