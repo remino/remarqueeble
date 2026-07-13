@@ -3,6 +3,7 @@
 <!-- mtoc-start -->
 
 - [HEAD](#head)
+- [v0.6.0](#v060)
 - [v0.5.0](#v050)
 - [v0.4.0](#v040)
 - [v0.3.0](#v030)
@@ -12,6 +13,8 @@
 <!-- mtoc-end -->
 
 ## HEAD
+
+## v0.6.0
 
 - Library
     - Add an `animate` attribute with `always`, `overflow`, and `never` modes.
