@@ -132,6 +132,7 @@ After registration, use either element name:
 <mark aria-label="Remarqueeble">&lt;re-marquee&gt;ble</mark> follows the legacy
 marquee attribute names where practical:
 
+- `animate`: `always`, `overflow`, or `never`. Defaults to `always`.
 - `behavior`: `scroll`, `slide`, or `alternate`.
 - `direction`: `left`, `right`, `up`, or `down`.
 - `scrollamount`: step size in pixels.

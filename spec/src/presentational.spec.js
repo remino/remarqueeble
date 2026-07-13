@@ -48,7 +48,7 @@ describe('src/lib/remarqueeble.ts', () => {
 		}
 	}
 
-	const installElementShim = () => {
+	const installElementShim = sizes => {
 		globalThis.requestAnimationFrame = callback => {
 			callback()
 			return 1
@@ -56,8 +56,8 @@ describe('src/lib/remarqueeble.ts', () => {
 
 		globalThis.HTMLElement = class {
 			attributes = new Map()
-			clientHeight = 50
-			clientWidth = 100
+			clientHeight = sizes.hostHeight
+			clientWidth = sizes.hostWidth
 			isConnected = true
 			shadowTrack = null
 			style = createStyle()
@@ -65,8 +65,8 @@ describe('src/lib/remarqueeble.ts', () => {
 			attachShadow() {
 				this.shadowTrack = {
 					addEventListener() {},
-					offsetHeight: 20,
-					offsetWidth: 40,
+					offsetHeight: sizes.trackHeight,
+					offsetWidth: sizes.trackWidth,
 					style: createStyle(),
 				}
 
@@ -90,8 +90,14 @@ describe('src/lib/remarqueeble.ts', () => {
 		}
 	}
 
-	const createMarquee = async attributes => {
-		installElementShim()
+	const createMarquee = async (attributes, sizes = {}) => {
+		installElementShim({
+			hostHeight: 50,
+			hostWidth: 100,
+			trackHeight: 20,
+			trackWidth: 40,
+			...sizes,
+		})
 
 		const { RemarqueebleElement } = await import(
 			`../../src/lib/remarqueeble.ts?presentational-spec=${Date.now()}-${Math.random()}`
@@ -212,6 +218,70 @@ describe('src/lib/remarqueeble.ts', () => {
 			expect(marquee.style.getPropertyValue('--animation-duration')).toBe(
 				'480ms'
 			)
+		})
+	})
+
+	describe('animate attribute', () => {
+		it('keeps the default behavior animated even when content fits', async () => {
+			const marquee = await createMarquee({})
+
+			expect(marquee.shadowTrack.style.animationName).toBe('')
+			expect(marquee.shadowTrack.style.transform).toBe('')
+			expect(
+				marquee.style.getPropertyValue('--animation-timing-function')
+			).toBe('steps(24, end)')
+		})
+
+		it('keeps animate always animated even when content fits', async () => {
+			const marquee = await createMarquee({ animate: 'always' })
+
+			expect(marquee.shadowTrack.style.animationName).toBe('')
+			expect(marquee.shadowTrack.style.transform).toBe('')
+			expect(
+				marquee.style.getPropertyValue('--animation-timing-function')
+			).toBe('steps(24, end)')
+		})
+
+		it('freezes at rest when animate is never', async () => {
+			const marquee = await createMarquee({ animate: 'never' })
+
+			expect(marquee.shadowTrack.style.animationName).toBe('none')
+			expect(marquee.shadowTrack.style.transform).toBe('translate(0px, 0px)')
+			expect(marquee.style.getPropertyValue('--animation-duration')).toBe('0ms')
+		})
+
+		it('freezes at rest when animate overflow content fits', async () => {
+			const marquee = await createMarquee({ animate: 'overflow' })
+
+			expect(marquee.shadowTrack.style.animationName).toBe('none')
+			expect(marquee.shadowTrack.style.transform).toBe('translate(0px, 0px)')
+			expect(marquee.style.getPropertyValue('--animation-duration')).toBe('0ms')
+		})
+
+		it('animates when animate overflow content exceeds the host', async () => {
+			const marquee = await createMarquee(
+				{ animate: 'overflow' },
+				{ trackWidth: 140 }
+			)
+
+			expect(marquee.shadowTrack.style.animationName).toBe('')
+			expect(marquee.shadowTrack.style.transform).toBe('')
+			expect(
+				marquee.style.getPropertyValue('--animation-timing-function')
+			).toBe('steps(40, end)')
+		})
+
+		it('uses height to decide vertical animate overflow', async () => {
+			const marquee = await createMarquee(
+				{ animate: 'overflow', direction: 'up' },
+				{ trackHeight: 75 }
+			)
+
+			expect(marquee.shadowTrack.style.animationName).toBe('')
+			expect(marquee.shadowTrack.style.transform).toBe('')
+			expect(
+				marquee.style.getPropertyValue('--animation-timing-function')
+			).toBe('steps(21, end)')
 		})
 	})
 })

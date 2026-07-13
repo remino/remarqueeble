@@ -1,5 +1,6 @@
 const DEFAULT_DIRECTION = 'left'
 const DEFAULT_BEHAVIOR = 'scroll'
+const DEFAULT_ANIMATE = 'always'
 const DEFAULT_SCROLL_AMOUNT = 6
 const DEFAULT_SCROLL_DELAY = 85
 const MIN_SCROLL_DELAY = 60
@@ -7,6 +8,7 @@ const DEFAULT_VERTICAL_HEIGHT = '200px'
 const DEFAULT_HOST_WIDTH = 'calc(100% - (var(--attr-hspace, 0px) * 2))'
 const ATTR_DIRECTION = 'direction'
 const ATTR_BEHAVIOR = 'behavior'
+const ATTR_ANIMATE = 'animate'
 const ATTR_SCROLL_AMOUNT = 'scrollamount'
 const ATTR_SCROLL_DELAY = 'scrolldelay'
 const ATTR_TRUE_SPEED = 'truespeed'
@@ -101,6 +103,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 	static observedAttributes = [
 		ATTR_DIRECTION,
 		ATTR_BEHAVIOR,
+		ATTR_ANIMATE,
 		ATTR_SCROLL_AMOUNT,
 		ATTR_SCROLL_DELAY,
 		ATTR_TRUE_SPEED,
@@ -330,7 +333,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 	}
 
 	private syncAnimation(hostSize: number, trackSize: number): void {
-		if (this.scrollAmount === 0) {
+		if (!this.shouldAnimate(hostSize, trackSize) || this.scrollAmount === 0) {
 			this.syncStaticAnimation()
 			return
 		}
@@ -378,6 +381,18 @@ export class RemarqueebleElement extends HTMLElementBase {
 		}
 
 		this.restartAnimation()
+	}
+
+	private shouldAnimate(hostSize: number, trackSize: number): boolean {
+		if (this.animationMode === 'never') return false
+		if (this.animationMode === 'overflow') return trackSize > hostSize
+		return true
+	}
+
+	private get animationMode(): string {
+		const value = this.getAttribute(ATTR_ANIMATE)
+		if (value === 'overflow' || value === 'never') return value
+		return DEFAULT_ANIMATE
 	}
 
 	private syncStaticAnimation(): void {

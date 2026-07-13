@@ -33,6 +33,8 @@ export declare class RemarqueebleElement extends HTMLElementBase {
     private getAlternateStartPosition;
     private syncAnimationPlayState;
     private syncAnimation;
+    private shouldAnimate;
+    private get animationMode();
     private syncStaticAnimation;
     private getCssIterationCount;
     private handleAnimationEnd;

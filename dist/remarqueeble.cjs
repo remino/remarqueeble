@@ -3,6 +3,7 @@ Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 //#region src/lib/remarqueeble.ts
 var DEFAULT_DIRECTION = "left";
 var DEFAULT_BEHAVIOR = "scroll";
+var DEFAULT_ANIMATE = "always";
 var DEFAULT_SCROLL_AMOUNT = 6;
 var DEFAULT_SCROLL_DELAY = 85;
 var MIN_SCROLL_DELAY = 60;
@@ -10,6 +11,7 @@ var DEFAULT_VERTICAL_HEIGHT = "200px";
 var DEFAULT_HOST_WIDTH = "calc(100% - (var(--attr-hspace, 0px) * 2))";
 var ATTR_DIRECTION = "direction";
 var ATTR_BEHAVIOR = "behavior";
+var ATTR_ANIMATE = "animate";
 var ATTR_SCROLL_AMOUNT = "scrollamount";
 var ATTR_SCROLL_DELAY = "scrolldelay";
 var ATTR_TRUE_SPEED = "truespeed";
@@ -81,6 +83,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	static observedAttributes = [
 		ATTR_DIRECTION,
 		ATTR_BEHAVIOR,
+		ATTR_ANIMATE,
 		ATTR_SCROLL_AMOUNT,
 		ATTR_SCROLL_DELAY,
 		ATTR_TRUE_SPEED,
@@ -251,7 +254,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		this.style.setProperty(CSS_VAR_ANIMATION_PLAY_STATE, this.running ? "running" : "paused");
 	}
 	syncAnimation(hostSize, trackSize) {
-		if (this.scrollAmount === 0) {
+		if (!this.shouldAnimate(hostSize, trackSize) || this.scrollAmount === 0) {
 			this.syncStaticAnimation();
 			return;
 		}
@@ -278,6 +281,16 @@ var RemarqueebleElement = class extends HTMLElementBase {
 			this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, "0px");
 		}
 		this.restartAnimation();
+	}
+	shouldAnimate(hostSize, trackSize) {
+		if (this.animationMode === "never") return false;
+		if (this.animationMode === "overflow") return trackSize > hostSize;
+		return true;
+	}
+	get animationMode() {
+		const value = this.getAttribute(ATTR_ANIMATE);
+		if (value === "overflow" || value === "never") return value;
+		return DEFAULT_ANIMATE;
 	}
 	syncStaticAnimation() {
 		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, "0ms");

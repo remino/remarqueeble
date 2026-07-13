@@ -12,6 +12,7 @@ const fullscreenButton = document.querySelector('[data-fullscreen]')
 const resetButton = document.querySelector('[data-reset]')
 const CODE_VIEWER_TAG_NAME = 'code-viewer'
 const defaultValues = {
+	animate: 'always',
 	behavior: 'scroll',
 	content:
 		'Default marquee behaviour. Nisi nisi anim enim consequat pariatur reprehenderit.',
@@ -23,6 +24,7 @@ const defaultValues = {
 	width: '100%',
 }
 const textAttributes = [
+	'animate',
 	'behavior',
 	'direction',
 	'loop',

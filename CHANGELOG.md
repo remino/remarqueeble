@@ -13,6 +13,11 @@
 
 ## HEAD
 
+- Library
+    - Add an `animate` attribute with `always`, `overflow`, and `never` modes.
+- Site
+    - Add the `animate` attribute to the documentation and Playground.
+
 ## v0.5.0
 
 - Library
