@@ -232,12 +232,20 @@
 @media (max-width: 56rem) {
 	.playground-layout {
 		block-size: auto;
+		gap: var(--dress-m-b) 0;
 		grid-template-areas:
 			'header'
 			'display'
 			'code'
 			'controls';
 		grid-template-columns: 1fr;
+	}
+
+	.playground-header {
+		nav {
+			flex-basis: 100%;
+			margin-inline-start: 0;
+		}
 	}
 
 	.playground-display,

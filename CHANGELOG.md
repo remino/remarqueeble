@@ -20,6 +20,7 @@
     - Add the `animate` attribute to the documentation and Playground.
     - Allow CSS length values in the Playground `scrollamount` control.
     - Keep the Playground demo stage sticky on narrow displays.
+    - Keep narrow Playground header actions left-aligned with the sticky stage.
 
 ## v0.5.0
 
