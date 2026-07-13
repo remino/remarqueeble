@@ -1,6 +1,7 @@
 import {
 	parseLegacyColor,
 	parsePresentationalDimension,
+	parseScrollAmount,
 } from '../../src/lib/remarqueeble.ts'
 
 describe('src/lib/remarqueeble.ts', () => {
@@ -33,6 +34,7 @@ describe('src/lib/remarqueeble.ts', () => {
 
 		return {
 			animationName: '',
+			inlineSize: '',
 			transform: '',
 			getPropertyValue(name) {
 				return properties.get(name) || ''
@@ -59,6 +61,7 @@ describe('src/lib/remarqueeble.ts', () => {
 			clientHeight = sizes.hostHeight
 			clientWidth = sizes.hostWidth
 			isConnected = true
+			shadowScrollAmountProbe = null
 			shadowTrack = null
 			style = createStyle()
 
@@ -69,10 +72,23 @@ describe('src/lib/remarqueeble.ts', () => {
 					offsetWidth: sizes.trackWidth,
 					style: createStyle(),
 				}
+				this.shadowScrollAmountProbe = {
+					getBoundingClientRect: () => {
+						const value = this.shadowScrollAmountProbe.style.inlineSize
+						const width =
+							sizes.scrollAmountWidths[value] ?? Number.parseFloat(value)
+
+						return { width }
+					},
+					style: createStyle(),
+				}
 
 				return {
 					innerHTML: '',
-					querySelector: () => this.shadowTrack,
+					querySelector: selector =>
+						selector === '.scrollamount-probe'
+							? this.shadowScrollAmountProbe
+							: this.shadowTrack,
 				}
 			}
 
@@ -94,6 +110,7 @@ describe('src/lib/remarqueeble.ts', () => {
 		installElementShim({
 			hostHeight: 50,
 			hostWidth: 100,
+			scrollAmountWidths: {},
 			trackHeight: 20,
 			trackWidth: 40,
 			...sizes,
@@ -146,6 +163,33 @@ describe('src/lib/remarqueeble.ts', () => {
 		})
 	})
 
+	describe('parseScrollAmount()', () => {
+		it('returns null for missing and blank values', () => {
+			expect(parseScrollAmount(null)).toBeNull()
+			expect(parseScrollAmount('')).toBeNull()
+			expect(parseScrollAmount('  ')).toBeNull()
+		})
+
+		it('converts non-negative numeric values to px', () => {
+			expect(parseScrollAmount('12')).toBe('12px')
+			expect(parseScrollAmount('0.5')).toBe('0.5px')
+			expect(parseScrollAmount('0')).toBe('0px')
+		})
+
+		it('returns null for negative numeric values', () => {
+			expect(parseScrollAmount('-1')).toBeNull()
+		})
+
+		it('returns supported CSS dimensions unchanged', () => {
+			globalThis.CSS = {
+				supports: (property, value) =>
+					property === 'width' && value === 'calc(1em + 2px)',
+			}
+
+			expect(parseScrollAmount('calc(1em + 2px)')).toBe('calc(1em + 2px)')
+		})
+	})
+
 	describe('parseLegacyColor()', () => {
 		it('returns null for missing and blank values', () => {
 			expect(parseLegacyColor(null)).toBeNull()
@@ -191,6 +235,21 @@ describe('src/lib/remarqueeble.ts', () => {
 			expect(
 				marquee.style.getPropertyValue('--animation-timing-function')
 			).toBe('steps(140, end)')
+		})
+
+		it('resolves CSS scrollamount values before computing steps', async () => {
+			globalThis.CSS = {
+				supports: (property, value) =>
+					property === 'width' && value === 'calc(1em + 2px)',
+			}
+			const marquee = await createMarquee(
+				{ scrollamount: 'calc(1em + 2px)' },
+				{ scrollAmountWidths: { 'calc(1em + 2px)': 10 } }
+			)
+
+			expect(
+				marquee.style.getPropertyValue('--animation-timing-function')
+			).toBe('steps(14, end)')
 		})
 
 		it('falls back to the default scrollamount for negative values', async () => {

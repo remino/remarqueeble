@@ -15,8 +15,10 @@
 
 - Library
     - Add an `animate` attribute with `always`, `overflow`, and `never` modes.
+    - Allow `scrollamount` to use CSS length values.
 - Site
     - Add the `animate` attribute to the documentation and Playground.
+    - Allow CSS length values in the Playground `scrollamount` control.
     - Keep the Playground demo stage sticky on narrow displays.
 
 ## v0.5.0

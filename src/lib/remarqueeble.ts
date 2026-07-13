@@ -2,6 +2,7 @@ const DEFAULT_DIRECTION = 'left'
 const DEFAULT_BEHAVIOR = 'scroll'
 const DEFAULT_ANIMATE = 'always'
 const DEFAULT_SCROLL_AMOUNT = 6
+const DEFAULT_SCROLL_AMOUNT_LENGTH = `${DEFAULT_SCROLL_AMOUNT}px`
 const DEFAULT_SCROLL_DELAY = 85
 const MIN_SCROLL_DELAY = 60
 const DEFAULT_VERTICAL_HEIGHT = '200px'
@@ -45,6 +46,19 @@ export const parsePresentationalDimension = (
 
 	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) {
 		return `${trimmed}px`
+	}
+
+	return globalThis.CSS?.supports('width', trimmed) ? trimmed : null
+}
+
+export const parseScrollAmount = (value: string | null): string | null => {
+	if (value === null) return null
+
+	const trimmed = value.trim()
+	if (trimmed === '') return null
+
+	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) {
+		return Number(trimmed) >= 0 ? `${trimmed}px` : null
 	}
 
 	return globalThis.CSS?.supports('width', trimmed) ? trimmed : null
@@ -116,6 +130,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 	]
 
 	private readonly track: HTMLElement
+	private readonly scrollAmountProbe: HTMLElement
 	private running = false
 
 	constructor() {
@@ -155,6 +170,16 @@ export class RemarqueebleElement extends HTMLElementBase {
 					will-change: transform;
 				}
 
+				.scrollamount-probe {
+					block-size: 0;
+					display: block;
+					inline-size: ${DEFAULT_SCROLL_AMOUNT_LENGTH};
+					overflow: hidden;
+					pointer-events: none;
+					position: absolute;
+					visibility: hidden;
+				}
+
 				@keyframes remarqueeble-motion {
 					from {
 						transform: translate(
@@ -173,12 +198,20 @@ export class RemarqueebleElement extends HTMLElementBase {
 			</style>
 
 			<span class="track"><slot></slot></span>
+			<span class="scrollamount-probe" aria-hidden="true"></span>
 		`
 
 		const track = shadowRoot.querySelector<HTMLElement>('.track')
 		if (!track) throw new Error('Remarqueeble track element was not created.')
+		const scrollAmountProbe = shadowRoot.querySelector<HTMLElement>(
+			'.scrollamount-probe'
+		)
+		if (!scrollAmountProbe) {
+			throw new Error('Remarqueeble scrollamount probe was not created.')
+		}
 
 		this.track = track
+		this.scrollAmountProbe = scrollAmountProbe
 		this.track.addEventListener('animationend', () => this.handleAnimationEnd())
 	}
 
@@ -219,9 +252,15 @@ export class RemarqueebleElement extends HTMLElementBase {
 	}
 
 	get scrollAmount(): number {
-		const raw = this.getAttribute(ATTR_SCROLL_AMOUNT)
-		const value = raw === null || raw.trim() === '' ? NaN : Number(raw)
-		return Number.isFinite(value) && value >= 0 ? value : DEFAULT_SCROLL_AMOUNT
+		const value =
+			parseScrollAmount(this.getAttribute(ATTR_SCROLL_AMOUNT)) ??
+			DEFAULT_SCROLL_AMOUNT_LENGTH
+		this.scrollAmountProbe.style.inlineSize = value
+
+		const measured = this.scrollAmountProbe.getBoundingClientRect().width
+		return Number.isFinite(measured) && measured >= 0
+			? measured
+			: DEFAULT_SCROLL_AMOUNT
 	}
 
 	get scrollDelay(): number {

@@ -4,6 +4,7 @@ var DEFAULT_DIRECTION = "left";
 var DEFAULT_BEHAVIOR = "scroll";
 var DEFAULT_ANIMATE = "always";
 var DEFAULT_SCROLL_AMOUNT = 6;
+var DEFAULT_SCROLL_AMOUNT_LENGTH = `${DEFAULT_SCROLL_AMOUNT}px`;
 var DEFAULT_SCROLL_DELAY = 85;
 var MIN_SCROLL_DELAY = 60;
 var DEFAULT_VERTICAL_HEIGHT = "200px";
@@ -40,6 +41,13 @@ var parsePresentationalDimension = (value) => {
 	const trimmed = value.trim();
 	if (trimmed === "") return null;
 	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) return `${trimmed}px`;
+	return globalThis.CSS?.supports("width", trimmed) ? trimmed : null;
+};
+var parseScrollAmount = (value) => {
+	if (value === null) return null;
+	const trimmed = value.trim();
+	if (trimmed === "") return null;
+	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) return Number(trimmed) >= 0 ? `${trimmed}px` : null;
 	return globalThis.CSS?.supports("width", trimmed) ? trimmed : null;
 };
 var parseLegacyColor = (value) => {
@@ -94,6 +102,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		ATTR_VSPACE
 	];
 	track;
+	scrollAmountProbe;
 	running = false;
 	constructor() {
 		super();
@@ -130,6 +139,16 @@ var RemarqueebleElement = class extends HTMLElementBase {
 					will-change: transform;
 				}
 
+				.scrollamount-probe {
+					block-size: 0;
+					display: block;
+					inline-size: ${DEFAULT_SCROLL_AMOUNT_LENGTH};
+					overflow: hidden;
+					pointer-events: none;
+					position: absolute;
+					visibility: hidden;
+				}
+
 				@keyframes remarqueeble-motion {
 					from {
 						transform: translate(
@@ -148,10 +167,14 @@ var RemarqueebleElement = class extends HTMLElementBase {
 			</style>
 
 			<span class="track"><slot></slot></span>
+			<span class="scrollamount-probe" aria-hidden="true"></span>
 		`;
 		const track = shadowRoot.querySelector(".track");
 		if (!track) throw new Error("Remarqueeble track element was not created.");
+		const scrollAmountProbe = shadowRoot.querySelector(".scrollamount-probe");
+		if (!scrollAmountProbe) throw new Error("Remarqueeble scrollamount probe was not created.");
 		this.track = track;
+		this.scrollAmountProbe = scrollAmountProbe;
 		this.track.addEventListener("animationend", () => this.handleAnimationEnd());
 	}
 	connectedCallback() {
@@ -177,9 +200,10 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		return this.getAttribute(ATTR_BEHAVIOR) || DEFAULT_BEHAVIOR;
 	}
 	get scrollAmount() {
-		const raw = this.getAttribute(ATTR_SCROLL_AMOUNT);
-		const value = raw === null || raw.trim() === "" ? NaN : Number(raw);
-		return Number.isFinite(value) && value >= 0 ? value : DEFAULT_SCROLL_AMOUNT;
+		const value = parseScrollAmount(this.getAttribute(ATTR_SCROLL_AMOUNT)) ?? DEFAULT_SCROLL_AMOUNT_LENGTH;
+		this.scrollAmountProbe.style.inlineSize = value;
+		const measured = this.scrollAmountProbe.getBoundingClientRect().width;
+		return Number.isFinite(measured) && measured >= 0 ? measured : DEFAULT_SCROLL_AMOUNT;
 	}
 	get scrollDelay() {
 		const raw = this.getAttribute(ATTR_SCROLL_DELAY);
@@ -332,4 +356,4 @@ var defineRemarqueebleElements = () => {
 	if (!customElements.get("re-marquee-ble")) customElements.define("re-marquee-ble", ReMarqueeBleElement);
 };
 //#endregion
-export { RemarqueebleElement, defineRemarqueebleElements, parseLegacyColor, parsePresentationalDimension };
+export { RemarqueebleElement, defineRemarqueebleElements, parseLegacyColor, parsePresentationalDimension, parseScrollAmount };

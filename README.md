@@ -135,7 +135,8 @@ marquee attribute names where practical:
 - `animate`: `always`, `overflow`, or `never`. Defaults to `always`.
 - `behavior`: `scroll`, `slide`, or `alternate`.
 - `direction`: `left`, `right`, `up`, or `down`.
-- `scrollamount`: step size in pixels.
+- `scrollamount`: step size as a non-negative number or CSS length. Unitless
+  numbers are pixels.
 - `scrolldelay`: delay between steps in milliseconds.
 - `truespeed`: keeps delays under 60ms instead of clamping them.
 - `loop`: positive loop count, or `-1` for infinite scrolling.

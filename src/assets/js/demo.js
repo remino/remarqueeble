@@ -213,6 +213,15 @@ const writeSetting = (name, value) => {
 	}
 }
 
+const syncRangeValue = (rangeName, value) => {
+	const range = getControl(rangeName)
+	const number = Number(value)
+
+	if (range && Number.isFinite(number)) {
+		range.value = String(number)
+	}
+}
+
 const syncPairedInput = target => {
 	if (!(target instanceof HTMLInputElement)) return
 
@@ -221,7 +230,7 @@ const syncPairedInput = target => {
 	}
 
 	if (target.name === 'scrollamount') {
-		getControl('scrollamountRange').value = target.value
+		syncRangeValue('scrollamountRange', target.value)
 	}
 
 	if (target.name === 'scrolldelayRange') {
@@ -234,7 +243,7 @@ const syncPairedInput = target => {
 }
 
 const syncPairedControls = () => {
-	getControl('scrollamountRange').value = getValue('scrollamount')
+	syncRangeValue('scrollamountRange', getValue('scrollamount'))
 	getControl('scrolldelayRange').value = getValue('scrolldelay')
 }
 
