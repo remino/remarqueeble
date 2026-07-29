@@ -3,6 +3,7 @@
 <!-- mtoc-start -->
 
 - [HEAD](#head)
+- [v0.7.0](#v070)
 - [v0.6.0](#v060)
 - [v0.5.0](#v050)
 - [v0.4.0](#v040)
@@ -13,6 +14,8 @@
 <!-- mtoc-end -->
 
 ## HEAD
+
+## v0.7.0
 
 - Library
     - Add Lite CSS helper aliases for marquee-like directions and behavior,
