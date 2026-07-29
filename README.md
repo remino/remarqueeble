@@ -21,6 +21,7 @@ By Rémino Rem
     - [npm](#npm)
     - [Direct download](#direct-download)
 - [Usage](#usage)
+- [Feature Comparison](#feature-comparison)
 - [Attributes](#attributes)
 - [API](#api)
 - [Remarquee Lite](#remarquee-lite)
@@ -122,6 +123,29 @@ After registration, use either element name:
 <re-marquee>Default marquee behaviour.</re-marquee>
 <re-marquee-ble direction="right">Rightward marquee behaviour.</re-marquee-ble>
 ```
+
+[Back to top](#)
+
+---
+
+## Feature Comparison
+
+| Feature                           | `<re-marquee>`             | `.re-marquee`                 | `<marquee>`               |
+| --------------------------------- | -------------------------- | ----------------------------- | ------------------------- |
+| JavaScript required               | Yes                        | No                            | No                        |
+| Works in modern browsers          | Yes                        | Yes                           | Partial / legacy          |
+| Legacy marquee tag compatibility  | High                       | Low                           | Native                    |
+| `behavior="scroll"`               | Yes                        | Approximate                   | Yes                       |
+| `behavior="slide"`                | Yes                        | No                            | Yes                       |
+| `behavior="alternate"`            | Yes                        | Approximate                   | Yes                       |
+| `direction="left/right/up/down"`  | Yes                        | Yes                           | Yes                       |
+| `animate="always/overflow/never"` | Yes                        | Partial                       | No                        |
+| `scrollamount` / `scrolldelay`    | Yes                        | No                            | Yes                       |
+| Finite `loop` support             | Yes                        | Yes                           | Yes                       |
+| `start()` / `stop()` methods      | Yes                        | No                            | Yes                       |
+| CSS-only usage                    | No                         | Yes                           | No                        |
+| Reduced-motion static fallback    | Yes                        | Yes                           | Browser-dependent         |
+| Best use case                     | Modern marquee replacement | Lightweight decorative motion | Legacy compatibility only |
 
 [Back to top](#)
 

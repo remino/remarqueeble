@@ -29,6 +29,8 @@
       implementation CSS variables on the host element.
 - Site
     - Document the added Lite helper aliases in the README and Lite page.
+    - Add a README feature comparison table for `<re-marquee>`, `.re-marquee`,
+      and native `<marquee>`.
     - Add a `lite.css` mode to the Playground with generated Lite markup and a
       dedicated duration control.
     - Replace the Playground `Show` dropdown with separate display checkboxes
