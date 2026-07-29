@@ -146,8 +146,11 @@
 
 	.section-note {
 		font-size: 0.875rem;
-		margin-block: 0.5rem 0;
 		opacity: 0.8;
+
+		&::before {
+			content: '⚠️ ';
+		}
 	}
 
 	label:has([data-color-picker]) {
