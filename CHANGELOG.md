@@ -26,6 +26,8 @@
       that keep at least one preview mode enabled.
     - Include required CDN `<script>` and `<link>` tags in Playground code
       snippets for the selected custom-element and Lite CSS previews.
+    - Apply Playground `Box` controls to the Lite CSS preview and generated
+      `.re-marquee` snippet.
 
 ## v0.6.0
 

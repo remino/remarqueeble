@@ -200,6 +200,24 @@ const readHexColorValue = name => {
 	return value ? `#${value}` : ''
 }
 
+const parsePresentationalDimension = value => {
+	const trimmed = value.trim()
+
+	if (!trimmed) return ''
+
+	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) {
+		return `${trimmed}px`
+	}
+
+	return CSS.supports('width', trimmed) ? trimmed : ''
+}
+
+const parseLegacyColor = value => {
+	const trimmed = value.trim()
+
+	return trimmed && CSS.supports('background-color', trimmed) ? trimmed : ''
+}
+
 const sanitizeContentHtml = value =>
 	DOMPurify.sanitize(value, {
 		ALLOWED_ATTR: ['aria-label', 'class', 'title'],
@@ -352,6 +370,37 @@ const getStyleAttributeValue = () =>
 		.map(([property, value]) => `${property}: ${value}`)
 		.join('; ')
 
+const getLiteBoxStyleDeclarations = () => {
+	const declarations = []
+	const width = parsePresentationalDimension(getValue('width'))
+	const height = parsePresentationalDimension(getValue('height'))
+	const hspace = parsePresentationalDimension(getValue('hspace'))
+	const vspace = parsePresentationalDimension(getValue('vspace'))
+	const bgcolor = parseLegacyColor(readHexColorValue('bgcolor'))
+
+	if (width) {
+		declarations.push(['width', width])
+	}
+
+	if (height) {
+		declarations.push(['block-size', height])
+	}
+
+	if (hspace) {
+		declarations.push(['margin-inline', hspace])
+	}
+
+	if (vspace) {
+		declarations.push(['margin-block', vspace])
+	}
+
+	if (bgcolor) {
+		declarations.push(['background-color', bgcolor])
+	}
+
+	return declarations
+}
+
 const getLiteStyleDeclarations = () =>
 	liteStyleProperties
 		.map(([name, property, normalize]) => {
@@ -382,7 +431,11 @@ const getLiteClassNames = () => {
 }
 
 const getLiteStyleAttributeValue = () =>
-	[...getLiteStyleDeclarations(), ...getStyleDeclarations()]
+	[
+		...getLiteStyleDeclarations(),
+		...getLiteBoxStyleDeclarations(),
+		...getStyleDeclarations(),
+	]
 		.map(([property, value]) => `${property}: ${value}`)
 		.join('; ')
 
@@ -436,6 +489,7 @@ const applyLiteAttributes = element => {
 
 	for (const [property, value] of [
 		...getLiteStyleDeclarations(),
+		...getLiteBoxStyleDeclarations(),
 		...getStyleDeclarations(),
 	]) {
 		element.style.setProperty(property, value)
