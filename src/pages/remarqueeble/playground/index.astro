@@ -2,6 +2,7 @@
 import BaseLayout from '../../../components/BaseLayout.astro'
 import { site } from '../../../data/site'
 import '../../../assets/css/demo.css'
+import '../../../lib/lite.css'
 ---
 
 <BaseLayout
@@ -53,16 +54,28 @@ import '../../../assets/css/demo.css'
 	<section class="playground-controls" aria-label="Playground controls">
 		<form data-playground>
 			<details open>
-				<summary>Playback</summary>
+				<summary>Show</summary>
 
-				<label>
-					<span>Show</span>
-					<select name="show">
-						<option value="re-marquee">re-marquee</option>
-						<option value="marquee">marquee</option>
-						<option value="both">both</option>
-					</select>
-				</label>
+				<div class="checkbox-list" role="group" aria-label="Show previews">
+					<label class="checkbox-control">
+						<input name="showReMarquee" type="checkbox" checked />
+						<span>re-marquee</span>
+					</label>
+
+					<label class="checkbox-control">
+						<input name="showLite" type="checkbox" />
+						<span>lite.css</span>
+					</label>
+
+					<label class="checkbox-control">
+						<input name="showMarquee" type="checkbox" />
+						<span>marquee</span>
+					</label>
+				</div>
+			</details>
+
+			<details open>
+				<summary>Playback</summary>
 
 				<label>
 					<span>Animate</span>
@@ -141,6 +154,11 @@ import '../../../assets/css/demo.css'
 						step="5"
 						value="85"
 					/>
+				</label>
+
+				<label>
+					<span>Lite duration</span>
+					<input name="duration" type="text" value="" placeholder="20s" />
 				</label>
 
 				<label class="checkbox-control">

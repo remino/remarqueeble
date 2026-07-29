@@ -137,6 +137,12 @@
 		inline-size: 4rem;
 	}
 
+	.checkbox-list {
+		display: grid;
+		gap: 0.35rem;
+		min-inline-size: 0;
+	}
+
 	label:has([data-color-picker]) {
 		align-items: center;
 		display: grid;

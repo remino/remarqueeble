@@ -11,15 +11,23 @@ const copyButton = document.querySelector('[data-copy]')
 const fullscreenButton = document.querySelector('[data-fullscreen]')
 const resetButton = document.querySelector('[data-reset]')
 const CODE_VIEWER_TAG_NAME = 'code-viewer'
+const showModeControls = [
+	['showReMarquee', 're-marquee'],
+	['showLite', 'lite'],
+	['showMarquee', 'marquee'],
+]
 const defaultValues = {
 	animate: 'always',
 	behavior: 'scroll',
 	content:
 		'Default marquee behaviour. Nisi nisi anim enim consequat pariatur reprehenderit.',
 	direction: 'left',
+	duration: '',
 	scrollamount: '6',
 	scrolldelay: '85',
-	show: 're-marquee',
+	showLite: 'false',
+	showMarquee: 'false',
+	showReMarquee: 'true',
 	truespeed: 'false',
 	width: '100%',
 }
@@ -36,6 +44,16 @@ const textAttributes = [
 	'hspace',
 	'vspace',
 ]
+const liteStyleProperties = [
+	[
+		'duration',
+		'--re-marquee-duration',
+		value =>
+			value && CSS.supports('animation-duration', value.trim())
+				? value.trim()
+				: '',
+	],
+]
 const styleProperties = [
 	[
 		'fontSize',
@@ -51,8 +69,9 @@ const styleProperties = [
 	['color', 'color'],
 ]
 const settingNames = [
-	'show',
+	...showModeControls.map(([name]) => name),
 	...textAttributes,
+	...liteStyleProperties.map(([name]) => name),
 	...styleProperties.map(([name]) => name),
 	'truespeed',
 	'content',
@@ -190,6 +209,33 @@ const getValue = name => getControl(name)?.value ?? ''
 
 const getDefaultValue = name => defaultValues[name] ?? ''
 
+const getSelectedShowModes = () =>
+	showModeControls
+		.filter(([name]) => getControl(name)?.checked)
+		.map(([, mode]) => mode)
+
+const syncShowCheckboxAvailability = () => {
+	const selectedModes = getSelectedShowModes()
+
+	if (selectedModes.length === 0) {
+		writeSetting('showReMarquee', 'true')
+	}
+
+	const selectedControls = showModeControls
+		.map(([name]) => getControl(name))
+		.filter(control => control instanceof HTMLInputElement && control.checked)
+
+	const shouldDisableChecked = selectedControls.length <= 1
+
+	for (const [name] of showModeControls) {
+		const control = getControl(name)
+
+		if (!(control instanceof HTMLInputElement)) continue
+
+		control.disabled = shouldDisableChecked && control.checked
+	}
+}
+
 const readSetting = name => {
 	const control = getControl(name)
 
@@ -285,7 +331,41 @@ const getStyleAttributeValue = () =>
 		.map(([property, value]) => `${property}: ${value}`)
 		.join('; ')
 
-const getCode = tagName => {
+const getLiteStyleDeclarations = () =>
+	liteStyleProperties
+		.map(([name, property, normalize]) => {
+			const rawValue = getValue(name).trim()
+			const value = normalize ? normalize(rawValue) : rawValue
+
+			return value ? [property, value] : null
+		})
+		.filter(Boolean)
+
+const getLiteClassNames = () => {
+	const classNames = ['re-marquee']
+	const direction = getValue('direction') || defaultValues.direction
+	const behavior = getValue('behavior') || defaultValues.behavior
+	const animate = getValue('animate') || defaultValues.animate
+
+	classNames.push(`re-marquee--${direction}`)
+
+	if (behavior === 'alternate') {
+		classNames.push('re-marquee--alternate')
+	}
+
+	if (animate === 'never') {
+		classNames.push('re-marquee--paused')
+	}
+
+	return classNames
+}
+
+const getLiteStyleAttributeValue = () =>
+	[...getLiteStyleDeclarations(), ...getStyleDeclarations()]
+		.map(([property, value]) => `${property}: ${value}`)
+		.join('; ')
+
+const getElementCode = tagName => {
 	const attributes = [
 		...getAttributes(),
 		...(getStyleAttributeValue() ? [['style', getStyleAttributeValue()]] : []),
@@ -298,6 +378,22 @@ const getCode = tagName => {
 	const content = sanitizeContentHtml(getValue('content').trim())
 
 	return `${openTag}${content}</${tagName}>`
+}
+
+const getLiteCode = () => {
+	const attributes = [
+		['class', getLiteClassNames().join(' ')],
+		...(getLiteStyleAttributeValue()
+			? [['style', getLiteStyleAttributeValue()]]
+			: []),
+	]
+		.map(([name, value]) =>
+			value ? `${name}="${escapeAttribute(value)}"` : name
+		)
+		.join(' ')
+	const content = sanitizeContentHtml(getValue('content').trim())
+
+	return `<div ${attributes}><div class="re-marquee__track">${content}</div></div>`
 }
 
 const applyAttributes = element => {
@@ -314,14 +410,42 @@ const applyAttributes = element => {
 	}
 }
 
-const createPreviewItem = tagName => {
+const applyLiteAttributes = element => {
+	element.className = getLiteClassNames().join(' ')
+
+	for (const [property, value] of [
+		...getLiteStyleDeclarations(),
+		...getStyleDeclarations(),
+	]) {
+		element.style.setProperty(property, value)
+	}
+}
+
+const createPreviewItem = mode => {
 	const wrapper = document.createElement('div')
 	const label = document.createElement('h2')
-	const marquee = document.createElement(tagName)
+	const content = sanitizeContentHtml(getValue('content'))
 
 	wrapper.className = 'preview-item'
-	label.innerHTML = `<code>&lt;${tagName}&gt;</code>`
-	marquee.innerHTML = sanitizeContentHtml(getValue('content'))
+
+	if (mode === 'lite') {
+		const marquee = document.createElement('div')
+		const track = document.createElement('div')
+
+		label.innerHTML = `<code>lite.css</code>`
+		track.className = 're-marquee__track'
+		track.innerHTML = content
+		applyLiteAttributes(marquee)
+		marquee.append(track)
+		wrapper.append(label, marquee)
+
+		return wrapper
+	}
+
+	const marquee = document.createElement(mode)
+
+	label.innerHTML = `<code>&lt;${mode}&gt;</code>`
+	marquee.innerHTML = content
 	applyAttributes(marquee)
 	wrapper.append(label, marquee)
 
@@ -339,6 +463,20 @@ const getSettingEntries = () => {
 	}
 
 	return entries
+}
+
+const applyLegacyShowSetting = value => {
+	const showValue = String(value)
+
+	writeSetting(
+		'showReMarquee',
+		showValue === 're-marquee' || showValue === 'both' ? 'true' : 'false'
+	)
+	writeSetting('showLite', showValue === 'lite' ? 'true' : 'false')
+	writeSetting(
+		'showMarquee',
+		showValue === 'marquee' || showValue === 'both' ? 'true' : 'false'
+	)
 }
 
 const writeStateToHash = () => {
@@ -360,6 +498,10 @@ const readStateFromHash = () => {
 			const state = JSON.parse(decodeURIComponent(raw))
 
 			for (const [name, value] of Object.entries(state)) {
+				if (name === 'show') {
+					applyLegacyShowSetting(value)
+					continue
+				}
 				if (!settingNames.includes(name)) continue
 				writeSetting(name, String(value))
 			}
@@ -372,6 +514,10 @@ const readStateFromHash = () => {
 
 	const params = new URLSearchParams(hash)
 
+	if (params.has('show')) {
+		applyLegacyShowSetting(params.get('show') ?? '')
+	}
+
 	for (const name of settingNames) {
 		if (!params.has(name)) continue
 		writeSetting(name, params.get(name) ?? '')
@@ -381,15 +527,15 @@ const readStateFromHash = () => {
 const render = ({ syncHash = true } = {}) => {
 	if (!form || !preview || !code) return
 
-	const show = getValue('show')
-	const tagNames =
-		show === 'both' ? ['re-marquee', 'marquee'] : [show || 're-marquee']
+	syncShowCheckboxAvailability()
 
-	preview.replaceChildren(
-		...tagNames.map(tagName => createPreviewItem(tagName))
-	)
+	const modes = getSelectedShowModes()
 
-	const source = tagNames.map(tagName => getCode(tagName)).join('\n')
+	preview.replaceChildren(...modes.map(mode => createPreviewItem(mode)))
+
+	const source = modes
+		.map(mode => (mode === 'lite' ? getLiteCode() : getElementCode(mode)))
+		.join('\n')
 
 	code.textContent = source
 
@@ -448,6 +594,7 @@ const resetSettings = () => {
 	getControl('content').value = defaultValues.content
 	syncPairedControls()
 	setupColorInputs()
+	syncShowCheckboxAvailability()
 	render()
 }
 

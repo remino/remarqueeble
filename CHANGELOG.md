@@ -20,6 +20,10 @@
       `re-marquee--alternate`.
 - Site
     - Document the added Lite helper aliases in the README and Lite page.
+    - Add a `lite.css` mode to the Playground with generated Lite markup and a
+      dedicated duration control.
+    - Replace the Playground `Show` dropdown with separate display checkboxes
+      that keep at least one preview mode enabled.
 
 ## v0.6.0
 
