@@ -13,13 +13,18 @@ const resetButton = document.querySelector('[data-reset]')
 const CODE_VIEWER_TAG_NAME = 'code-viewer'
 const showModeControls = [
 	[
-		'showReMarquee',
+		'show-re-marquee',
 		're-marquee',
 		'<code>&lt;re-marquee&gt;</code> Custom Element',
 	],
-	['showLite', 'lite', '<code>.re-marquee</code> Lite CSS Class'],
-	['showMarquee', 'marquee', '<code>&lt;marquee&gt;</code> Native Element'],
+	['show-lite', 'lite', '<code>.re-marquee</code> Lite CSS Class'],
+	['show-marquee', 'marquee', '<code>&lt;marquee&gt;</code> Native Element'],
 ]
+const legacyShowModeNames = {
+	showReMarquee: 'show-re-marquee',
+	showLite: 'show-lite',
+	showMarquee: 'show-marquee',
+}
 const defaultValues = {
 	animate: 'always',
 	behavior: 'scroll',
@@ -29,9 +34,9 @@ const defaultValues = {
 	duration: '',
 	scrollamount: '6',
 	scrolldelay: '85',
-	showLite: 'false',
-	showMarquee: 'false',
-	showReMarquee: 'true',
+	'show-lite': 'false',
+	'show-marquee': 'false',
+	'show-re-marquee': 'true',
 	truespeed: 'false',
 	width: '100%',
 }
@@ -225,7 +230,7 @@ const syncShowCheckboxAvailability = () => {
 	const selectedModes = getSelectedShowModes()
 
 	if (selectedModes.length === 0) {
-		writeSetting('showReMarquee', 'true')
+		writeSetting('show-re-marquee', 'true')
 	}
 
 	const selectedControls = showModeControls
@@ -476,12 +481,12 @@ const applyLegacyShowSetting = value => {
 	const showValue = String(value)
 
 	writeSetting(
-		'showReMarquee',
+		'show-re-marquee',
 		showValue === 're-marquee' || showValue === 'both' ? 'true' : 'false'
 	)
-	writeSetting('showLite', showValue === 'lite' ? 'true' : 'false')
+	writeSetting('show-lite', showValue === 'lite' ? 'true' : 'false')
 	writeSetting(
-		'showMarquee',
+		'show-marquee',
 		showValue === 'marquee' || showValue === 'both' ? 'true' : 'false'
 	)
 }
@@ -509,8 +514,9 @@ const readStateFromHash = () => {
 					applyLegacyShowSetting(value)
 					continue
 				}
-				if (!settingNames.includes(name)) continue
-				writeSetting(name, String(value))
+				const nextName = legacyShowModeNames[name] ?? name
+				if (!settingNames.includes(nextName)) continue
+				writeSetting(nextName, String(value))
 			}
 		} catch {
 			window.history.replaceState(null, '', window.location.pathname)
@@ -526,8 +532,16 @@ const readStateFromHash = () => {
 	}
 
 	for (const name of settingNames) {
-		if (!params.has(name)) continue
-		writeSetting(name, params.get(name) ?? '')
+		const legacyName = Object.entries(legacyShowModeNames).find(
+			([, nextName]) => nextName === name
+		)?.[0]
+		if (params.has(name)) {
+			writeSetting(name, params.get(name) ?? '')
+			continue
+		}
+		if (legacyName && params.has(legacyName)) {
+			writeSetting(name, params.get(legacyName) ?? '')
+		}
 	}
 }
 
