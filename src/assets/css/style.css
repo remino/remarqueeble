@@ -53,3 +53,8 @@ main {
 	position: absolute;
 	white-space: nowrap;
 }
+
+th code {
+	background: transparent;
+	border-color: currentColor;
+}
