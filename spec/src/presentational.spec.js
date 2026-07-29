@@ -8,7 +8,8 @@ describe('src/lib/remarqueeble.ts', () => {
 	const originalCss = globalThis.CSS
 	const originalHTMLElement = globalThis.HTMLElement
 	const originalRequestAnimationFrame = globalThis.requestAnimationFrame
-	const originalResizeObserver = globalThis.ResizeObserver
+	const originalClearInterval = globalThis.clearInterval
+	const originalSetInterval = globalThis.setInterval
 
 	afterEach(() => {
 		if (originalCss === undefined) {
@@ -29,10 +30,16 @@ describe('src/lib/remarqueeble.ts', () => {
 			globalThis.requestAnimationFrame = originalRequestAnimationFrame
 		}
 
-		if (originalResizeObserver === undefined) {
-			delete globalThis.ResizeObserver
+		if (originalClearInterval === undefined) {
+			delete globalThis.clearInterval
 		} else {
-			globalThis.ResizeObserver = originalResizeObserver
+			globalThis.clearInterval = originalClearInterval
+		}
+
+		if (originalSetInterval === undefined) {
+			delete globalThis.setInterval
+		} else {
+			globalThis.setInterval = originalSetInterval
 		}
 	})
 
@@ -58,32 +65,22 @@ describe('src/lib/remarqueeble.ts', () => {
 	}
 
 	const installElementShim = sizes => {
-		const resizeObservers = []
+		let nextIntervalId = 1
+		const intervals = new Map()
 
 		globalThis.requestAnimationFrame = callback => {
 			callback()
 			return 1
 		}
 
-		globalThis.ResizeObserver = class {
-			constructor(callback) {
-				this.callback = callback
-				this.targets = new Set()
-				resizeObservers.push(this)
-			}
+		globalThis.setInterval = callback => {
+			const id = nextIntervalId++
+			intervals.set(id, callback)
+			return id
+		}
 
-			disconnect() {
-				this.targets.clear()
-			}
-
-			observe(target) {
-				this.targets.add(target)
-			}
-
-			trigger(target) {
-				if (!this.targets.has(target)) return
-				this.callback([{ target }])
-			}
+		globalThis.clearInterval = id => {
+			intervals.delete(id)
 		}
 
 		globalThis.HTMLElement = class {
@@ -135,7 +132,13 @@ describe('src/lib/remarqueeble.ts', () => {
 			}
 		}
 
-		return { resizeObservers }
+		return {
+			runIntervals() {
+				for (const callback of [...intervals.values()]) {
+					callback()
+				}
+			},
+		}
 	}
 
 	const createMarquee = async (attributes, sizes = {}) => {
@@ -158,7 +161,7 @@ describe('src/lib/remarqueeble.ts', () => {
 		}
 
 		marquee.connectedCallback()
-		marquee.__resizeObservers = shims.resizeObservers
+		marquee.__runIntervals = shims.runIntervals
 
 		return marquee
 	}
@@ -377,8 +380,71 @@ describe('src/lib/remarqueeble.ts', () => {
 		})
 	})
 
+	describe('behavior attribute', () => {
+		it('reverses direction cleanly in alternate mode instead of snapping back to the initial direction', async () => {
+			const marquee = await createMarquee(
+				{
+					behavior: 'alternate',
+					scrollamount: '10',
+				},
+				{ hostWidth: 100, trackWidth: 40 }
+			)
+
+			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
+				'60px'
+			)
+
+			marquee.__runIntervals()
+			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
+				'50px'
+			)
+
+			marquee.__runIntervals()
+			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
+				'40px'
+			)
+		})
+
+		it('stops slide flush with the start edge when the content fits inside the host', async () => {
+			const marquee = await createMarquee({
+				behavior: 'slide',
+				scrollamount: '10',
+			})
+
+			expect(marquee.style.getPropertyValue('--translate-x-end')).toBe('0px')
+
+			for (let index = 0; index < 10; index += 1) {
+				marquee.__runIntervals()
+			}
+
+			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
+				'0px'
+			)
+		})
+
+		it('stops slide at the furthest fully-revealed position when the content overflows the host', async () => {
+			const marquee = await createMarquee(
+				{
+					behavior: 'slide',
+					scrollamount: '10',
+				},
+				{ trackWidth: 140 }
+			)
+
+			expect(marquee.style.getPropertyValue('--translate-x-end')).toBe('-40px')
+
+			for (let index = 0; index < 14; index += 1) {
+				marquee.__runIntervals()
+			}
+
+			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
+				'-40px'
+			)
+		})
+	})
+
 	describe('layout changes', () => {
-		it('recomputes the animation when the host is resized', async () => {
+		it('recomputes the animation on the next tick after the host is resized', async () => {
 			const marquee = await createMarquee({})
 
 			expect(
@@ -386,13 +452,52 @@ describe('src/lib/remarqueeble.ts', () => {
 			).toBe('steps(24, end)')
 
 			marquee.clientWidth = 160
-			for (const observer of marquee.__resizeObservers) {
-				observer.trigger(marquee)
-			}
+			marquee.__runIntervals()
 
 			expect(
 				marquee.style.getPropertyValue('--animation-timing-function')
 			).toBe('steps(34, end)')
+		})
+
+		it('preserves the current animation progress when the host is resized', async () => {
+			const marquee = await createMarquee({})
+
+			marquee.currentPosition = 42
+			marquee.hasPosition = true
+			marquee.style.setProperty('--translate-current-x', '42px')
+			marquee.clientWidth = 160
+
+			marquee.__runIntervals()
+
+			expect(marquee.style.getPropertyValue('--animation-duration')).toBe(
+				'2890ms'
+			)
+			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
+				'36px'
+			)
+		})
+
+		it('keeps overflow animation running across repeated resizes', async () => {
+			const marquee = await createMarquee(
+				{ animate: 'overflow' },
+				{ hostWidth: 100, trackWidth: 140 }
+			)
+
+			expect(marquee.shadowTrack.style.animationName).toBe('')
+
+			marquee.clientWidth = 160
+			marquee.__runIntervals()
+
+			expect(marquee.shadowTrack.style.animationName).toBe('none')
+			expect(marquee.style.getPropertyValue('--animation-duration')).toBe('0ms')
+
+			marquee.clientWidth = 100
+			marquee.__runIntervals()
+
+			expect(marquee.shadowTrack.style.animationName).toBe('')
+			expect(marquee.style.getPropertyValue('--animation-duration')).toBe(
+				'3400ms'
+			)
 		})
 	})
 })

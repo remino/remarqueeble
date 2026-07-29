@@ -18,6 +18,8 @@
     - Add Lite CSS helper aliases for marquee-like directions and behavior,
       including `re-marquee--right`, `re-marquee--up`, `re-marquee--down`, and
       `re-marquee--alternate`.
+    - Refactor `<re-marquee>` to use an imperative scroll loop that picks up
+      resized geometry on the next tick without dedicated resize handling.
 - Site
     - Document the added Lite helper aliases in the README and Lite page.
     - Add a `lite.css` mode to the Playground with generated Lite markup and a

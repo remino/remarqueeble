@@ -29,6 +29,8 @@ const CSS_VAR_ANIMATION_DIRECTION = '--animation-direction'
 const CSS_VAR_ANIMATION_ITERATION_COUNT = '--animation-iteration-count'
 const CSS_VAR_ANIMATION_PLAY_STATE = '--animation-play-state'
 const CSS_VAR_ANIMATION_TIMING_FUNCTION = '--animation-timing-function'
+const CSS_VAR_CURRENT_X = '--translate-current-x'
+const CSS_VAR_CURRENT_Y = '--translate-current-y'
 const CSS_VAR_TRANSLATE_X_END = '--translate-x-end'
 const CSS_VAR_TRANSLATE_X_START = '--translate-x-start'
 const CSS_VAR_TRANSLATE_Y_END = '--translate-y-end'
@@ -78,6 +80,18 @@ type PresentationalHint = {
 	cssVar: string
 	parser: (value: string | null) => string | null
 	fallback?: (element: RemarqueebleElement) => string | null
+}
+
+type GeometryState = {
+	canAnimate: boolean
+	duration: number
+	endPosition: number
+	hostSize: number
+	iterationCount: string
+	startPosition: number
+	stepDelta: number
+	steps: number
+	trackSize: number
 }
 
 const ATTRIBUTE_HINTS: PresentationalHint[] = [
@@ -131,7 +145,11 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 	private readonly track: HTMLElement
 	private readonly scrollAmountProbe: HTMLElement
-	private readonly resizeObserver: ResizeObserver | null
+	private tickInterval: ReturnType<typeof setInterval> | null = null
+	private currentPosition = 0
+	private currentStepDelta = 0
+	private completedIterations = 0
+	private hasPosition = false
 	private running = false
 
 	constructor() {
@@ -160,14 +178,11 @@ export class RemarqueebleElement extends HTMLElementBase {
 				}
 
 				.track {
-					animation: remarqueeble-motion
-						var(${CSS_VAR_ANIMATION_DURATION}, 10s)
-						var(${CSS_VAR_ANIMATION_TIMING_FUNCTION}, linear)
-						var(${CSS_VAR_ANIMATION_ITERATION_COUNT}, infinite)
-						var(${CSS_VAR_ANIMATION_DIRECTION}, normal)
-						both;
-					animation-play-state: var(${CSS_VAR_ANIMATION_PLAY_STATE}, running);
 					display: inline-block;
+					transform: translate(
+						var(${CSS_VAR_CURRENT_X}, 0px),
+						var(${CSS_VAR_CURRENT_Y}, 0px)
+					);
 					will-change: transform;
 				}
 
@@ -213,21 +228,12 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 		this.track = track
 		this.scrollAmountProbe = scrollAmountProbe
-		this.resizeObserver =
-			typeof ResizeObserver === 'undefined'
-				? null
-				: new ResizeObserver(() => {
-						if (!this.isConnected) return
-						this.reset()
-					})
 		this.track.addEventListener('animationend', () => this.handleAnimationEnd())
 	}
 
 	connectedCallback(): void {
 		this.running = true
 		this.syncPresentationalHints()
-		this.resizeObserver?.observe(this)
-		this.resizeObserver?.observe(this.track)
 
 		requestAnimationFrame(() => {
 			if (!this.isConnected || !this.running) return
@@ -237,7 +243,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 	disconnectedCallback(): void {
 		this.running = false
-		this.resizeObserver?.disconnect()
+		this.clearTickInterval()
 	}
 
 	attributeChangedCallback(
@@ -250,6 +256,8 @@ export class RemarqueebleElement extends HTMLElementBase {
 		this.syncPresentationalHints()
 
 		if (this.isConnected) {
+			this.hasPosition = false
+			this.completedIterations = 0
 			this.reset()
 		}
 	}
@@ -307,6 +315,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 	stop(): void {
 		this.running = false
+		this.clearTickInterval()
 		this.syncAnimationPlayState()
 	}
 
@@ -336,10 +345,23 @@ export class RemarqueebleElement extends HTMLElementBase {
 	}
 
 	private reset(): void {
-		const hostSize = this.getHostSize()
-		const trackSize = this.getTrackSize()
+		const geometry = this.syncGeometry()
 
-		this.syncAnimation(hostSize, trackSize)
+		this.currentStepDelta = geometry.stepDelta
+		this.completedIterations = 0
+
+		if (!geometry.canAnimate) {
+			this.syncInactiveState()
+			this.ensureTicking()
+			return
+		}
+
+		this.currentPosition = geometry.startPosition
+		this.hasPosition = true
+
+		this.syncActiveState()
+		this.applyCurrentPosition()
+		this.restartTicking()
 	}
 
 	private getHostSize(): number {
@@ -365,7 +387,11 @@ export class RemarqueebleElement extends HTMLElementBase {
 	}
 
 	private getSlideEndPosition(hostSize: number, trackSize: number): number {
-		return this.directionSign < 0 ? 0 : hostSize - trackSize
+		if (this.directionSign < 0) {
+			return Math.min(0, hostSize - trackSize)
+		}
+
+		return Math.max(0, hostSize - trackSize)
 	}
 
 	private getAlternateStartPosition(
@@ -382,11 +408,11 @@ export class RemarqueebleElement extends HTMLElementBase {
 		)
 	}
 
-	private syncAnimation(hostSize: number, trackSize: number): void {
-		if (!this.shouldAnimate(hostSize, trackSize) || this.scrollAmount === 0) {
-			this.syncStaticAnimation()
-			return
-		}
+	private syncGeometry(): GeometryState {
+		const hostSize = this.getHostSize()
+		const trackSize = this.getTrackSize()
+		const canAnimate =
+			this.shouldAnimate(hostSize, trackSize) && this.scrollAmount !== 0
 
 		const startPosition =
 			this.behavior === 'alternate'
@@ -405,8 +431,9 @@ export class RemarqueebleElement extends HTMLElementBase {
 		)
 		const duration = Math.max(1, steps * this.scrollDelay)
 		const iterationCount = this.getCssIterationCount()
+		const stepDelta =
+			this.directionSign < 0 ? -this.scrollAmount : this.scrollAmount
 
-		this.track.style.removeProperty('transform')
 		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, `${duration}ms`)
 		this.style.setProperty(
 			CSS_VAR_ANIMATION_DIRECTION,
@@ -430,7 +457,17 @@ export class RemarqueebleElement extends HTMLElementBase {
 			this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, '0px')
 		}
 
-		this.restartAnimation()
+		return {
+			canAnimate,
+			duration,
+			endPosition,
+			hostSize,
+			iterationCount,
+			startPosition,
+			stepDelta,
+			steps,
+			trackSize,
+		}
 	}
 
 	private shouldAnimate(hostSize: number, trackSize: number): boolean {
@@ -446,6 +483,8 @@ export class RemarqueebleElement extends HTMLElementBase {
 	}
 
 	private syncStaticAnimation(): void {
+		this.clearTickInterval()
+		this.track.style.removeProperty('transform')
 		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, '0ms')
 		this.style.setProperty(CSS_VAR_ANIMATION_DIRECTION, 'normal')
 		this.style.setProperty(CSS_VAR_ANIMATION_ITERATION_COUNT, '1')
@@ -455,8 +494,13 @@ export class RemarqueebleElement extends HTMLElementBase {
 		this.style.setProperty(CSS_VAR_TRANSLATE_Y_START, '0px')
 		this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, '0px')
 
+		this.style.setProperty(CSS_VAR_CURRENT_X, '0px')
+		this.style.setProperty(CSS_VAR_CURRENT_Y, '0px')
 		this.track.style.animationName = 'none'
 		this.track.style.transform = 'translate(0px, 0px)'
+		this.currentPosition = 0
+		this.currentStepDelta = 0
+		this.hasPosition = false
 	}
 
 	private getCssIterationCount(): string {
@@ -473,10 +517,11 @@ export class RemarqueebleElement extends HTMLElementBase {
 		this.syncAnimationPlayState()
 	}
 
-	private restartAnimation(): void {
-		this.track.style.animationName = 'none'
-		void this.track.offsetWidth
-		this.track.style.removeProperty('animation-name')
+	private clearTickInterval(): void {
+		if (this.tickInterval === null) return
+
+		clearInterval(this.tickInterval)
+		this.tickInterval = null
 	}
 
 	private hasFiniteAnimation(): boolean {
@@ -487,6 +532,202 @@ export class RemarqueebleElement extends HTMLElementBase {
 			Number.isFinite(this.loop) &&
 			this.loop > 0
 		)
+	}
+
+	private ensureTicking(): void {
+		if (!this.running || this.tickInterval !== null) return
+
+		this.tickInterval = setInterval(() => {
+			this.tick()
+		}, this.scrollDelay)
+	}
+
+	private restartTicking(): void {
+		this.clearTickInterval()
+		this.ensureTicking()
+	}
+
+	private tick(): void {
+		if (!this.running) return
+
+		const geometry = this.syncGeometry()
+
+		if (!geometry.canAnimate) {
+			this.syncInactiveState()
+			return
+		}
+
+		this.syncActiveState()
+
+		if (!this.hasPosition) {
+			this.currentStepDelta = geometry.stepDelta
+			this.currentPosition = geometry.startPosition
+			this.completedIterations = 0
+			this.hasPosition = true
+		} else {
+			if (this.behavior === 'alternate') {
+				const sign = Math.sign(this.currentStepDelta || geometry.stepDelta) || 1
+				this.currentStepDelta = Math.abs(geometry.stepDelta) * sign
+			} else {
+				this.currentStepDelta = geometry.stepDelta
+			}
+
+			this.clampCurrentPosition(geometry)
+		}
+
+		if (this.behavior === 'alternate') {
+			this.stepAlternate(geometry.hostSize, geometry.trackSize)
+		} else {
+			this.stepLinear(geometry.hostSize, geometry.trackSize)
+		}
+
+		this.applyCurrentPosition()
+
+		if (!this.running) {
+			this.clearTickInterval()
+			this.syncAnimationPlayState()
+			return
+		}
+	}
+
+	private stepLinear(hostSize: number, trackSize: number): void {
+		const startPosition = this.getStartPosition(hostSize, trackSize)
+		const endPosition =
+			this.behavior === 'slide'
+				? this.getSlideEndPosition(hostSize, trackSize)
+				: this.getOffEndPosition(hostSize, trackSize)
+		const nextPosition = this.currentPosition + this.currentStepDelta
+
+		if (this.directionSign < 0) {
+			if (nextPosition > endPosition) {
+				this.currentPosition = nextPosition
+				return
+			}
+
+			const overflow = endPosition - nextPosition
+			this.completedIterations += 1
+
+			if (this.hasCompletedIterations()) {
+				this.currentPosition = endPosition
+				this.running = false
+				return
+			}
+
+			this.currentPosition =
+				this.behavior === 'slide' ? startPosition : startPosition - overflow
+			return
+		}
+
+		if (nextPosition < endPosition) {
+			this.currentPosition = nextPosition
+			return
+		}
+
+		const overflow = nextPosition - endPosition
+		this.completedIterations += 1
+
+		if (this.hasCompletedIterations()) {
+			this.currentPosition = endPosition
+			this.running = false
+			return
+		}
+
+		this.currentPosition =
+			this.behavior === 'slide' ? startPosition : startPosition + overflow
+	}
+
+	private stepAlternate(hostSize: number, trackSize: number): void {
+		const minPosition = Math.min(
+			this.getAlternateStartPosition(hostSize, trackSize),
+			this.getFlushEndPosition(hostSize, trackSize)
+		)
+		const maxPosition = Math.max(
+			this.getAlternateStartPosition(hostSize, trackSize),
+			this.getFlushEndPosition(hostSize, trackSize)
+		)
+		let nextPosition = this.currentPosition + this.currentStepDelta
+
+		while (nextPosition < minPosition || nextPosition > maxPosition) {
+			if (nextPosition < minPosition) {
+				const overflow = minPosition - nextPosition
+				nextPosition = minPosition + overflow
+			} else {
+				const overflow = nextPosition - maxPosition
+				nextPosition = maxPosition - overflow
+			}
+
+			this.currentStepDelta *= -1
+			this.completedIterations += 1
+
+			if (this.hasCompletedIterations()) {
+				this.currentPosition =
+					this.currentStepDelta > 0 ? minPosition : maxPosition
+				this.running = false
+				return
+			}
+		}
+
+		this.currentPosition = nextPosition
+	}
+
+	private hasCompletedIterations(): boolean {
+		return (
+			this.hasFiniteAnimation() &&
+			this.completedIterations >= Math.max(1, this.loop)
+		)
+	}
+
+	private syncInactiveState(): void {
+		this.track.style.removeProperty('transform')
+		this.track.style.animationName = 'none'
+		this.track.style.transform = 'translate(0px, 0px)'
+		this.style.setProperty(CSS_VAR_CURRENT_X, '0px')
+		this.style.setProperty(CSS_VAR_CURRENT_Y, '0px')
+		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, '0ms')
+		this.style.setProperty(CSS_VAR_ANIMATION_DIRECTION, 'normal')
+		this.style.setProperty(CSS_VAR_ANIMATION_ITERATION_COUNT, '1')
+		this.style.setProperty(CSS_VAR_ANIMATION_TIMING_FUNCTION, 'linear')
+		this.currentPosition = 0
+		this.currentStepDelta = 0
+		this.completedIterations = 0
+		this.hasPosition = false
+	}
+
+	private syncActiveState(): void {
+		this.track.style.animationName = ''
+		this.track.style.transform = ''
+	}
+
+	private clampCurrentPosition(geometry: GeometryState): void {
+		if (this.behavior === 'alternate') {
+			const minPosition = Math.min(geometry.startPosition, geometry.endPosition)
+			const maxPosition = Math.max(geometry.startPosition, geometry.endPosition)
+			this.currentPosition = Math.min(
+				maxPosition,
+				Math.max(minPosition, this.currentPosition)
+			)
+			return
+		}
+
+		if (this.behavior === 'slide') {
+			const minPosition = Math.min(geometry.startPosition, geometry.endPosition)
+			const maxPosition = Math.max(geometry.startPosition, geometry.endPosition)
+			this.currentPosition = Math.min(
+				maxPosition,
+				Math.max(minPosition, this.currentPosition)
+			)
+		}
+	}
+
+	private applyCurrentPosition(): void {
+		if (this.isVerticalDirection) {
+			this.style.setProperty(CSS_VAR_CURRENT_X, '0px')
+			this.style.setProperty(CSS_VAR_CURRENT_Y, `${this.currentPosition}px`)
+			return
+		}
+
+		this.style.setProperty(CSS_VAR_CURRENT_X, `${this.currentPosition}px`)
+		this.style.setProperty(CSS_VAR_CURRENT_Y, '0px')
 	}
 }
 

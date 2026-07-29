@@ -31,6 +31,8 @@ var CSS_VAR_ANIMATION_DIRECTION = "--animation-direction";
 var CSS_VAR_ANIMATION_ITERATION_COUNT = "--animation-iteration-count";
 var CSS_VAR_ANIMATION_PLAY_STATE = "--animation-play-state";
 var CSS_VAR_ANIMATION_TIMING_FUNCTION = "--animation-timing-function";
+var CSS_VAR_CURRENT_X = "--translate-current-x";
+var CSS_VAR_CURRENT_Y = "--translate-current-y";
 var CSS_VAR_TRANSLATE_X_END = "--translate-x-end";
 var CSS_VAR_TRANSLATE_X_START = "--translate-x-start";
 var CSS_VAR_TRANSLATE_Y_END = "--translate-y-end";
@@ -103,7 +105,11 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	];
 	track;
 	scrollAmountProbe;
-	resizeObserver;
+	tickInterval = null;
+	currentPosition = 0;
+	currentStepDelta = 0;
+	completedIterations = 0;
+	hasPosition = false;
 	running = false;
 	constructor() {
 		super();
@@ -129,14 +135,11 @@ var RemarqueebleElement = class extends HTMLElementBase {
 				}
 
 				.track {
-					animation: remarqueeble-motion
-						var(${CSS_VAR_ANIMATION_DURATION}, 10s)
-						var(${CSS_VAR_ANIMATION_TIMING_FUNCTION}, linear)
-						var(${CSS_VAR_ANIMATION_ITERATION_COUNT}, infinite)
-						var(${CSS_VAR_ANIMATION_DIRECTION}, normal)
-						both;
-					animation-play-state: var(${CSS_VAR_ANIMATION_PLAY_STATE}, running);
 					display: inline-block;
+					transform: translate(
+						var(${CSS_VAR_CURRENT_X}, 0px),
+						var(${CSS_VAR_CURRENT_Y}, 0px)
+					);
 					will-change: transform;
 				}
 
@@ -176,17 +179,11 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		if (!scrollAmountProbe) throw new Error("Remarqueeble scrollamount probe was not created.");
 		this.track = track;
 		this.scrollAmountProbe = scrollAmountProbe;
-		this.resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => {
-			if (!this.isConnected) return;
-			this.reset();
-		});
 		this.track.addEventListener("animationend", () => this.handleAnimationEnd());
 	}
 	connectedCallback() {
 		this.running = true;
 		this.syncPresentationalHints();
-		this.resizeObserver?.observe(this);
-		this.resizeObserver?.observe(this.track);
 		requestAnimationFrame(() => {
 			if (!this.isConnected || !this.running) return;
 			this.reset();
@@ -194,12 +191,16 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	}
 	disconnectedCallback() {
 		this.running = false;
-		this.resizeObserver?.disconnect();
+		this.clearTickInterval();
 	}
 	attributeChangedCallback(_name, oldValue, newValue) {
 		if (oldValue === newValue) return;
 		this.syncPresentationalHints();
-		if (this.isConnected) this.reset();
+		if (this.isConnected) {
+			this.hasPosition = false;
+			this.completedIterations = 0;
+			this.reset();
+		}
 	}
 	get direction() {
 		return this.getAttribute(ATTR_DIRECTION) || DEFAULT_DIRECTION;
@@ -238,6 +239,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	}
 	stop() {
 		this.running = false;
+		this.clearTickInterval();
 		this.syncAnimationPlayState();
 	}
 	syncPresentationalHints() {
@@ -256,9 +258,19 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		this.style.setProperty(hint.cssVar, value);
 	}
 	reset() {
-		const hostSize = this.getHostSize();
-		const trackSize = this.getTrackSize();
-		this.syncAnimation(hostSize, trackSize);
+		const geometry = this.syncGeometry();
+		this.currentStepDelta = geometry.stepDelta;
+		this.completedIterations = 0;
+		if (!geometry.canAnimate) {
+			this.syncInactiveState();
+			this.ensureTicking();
+			return;
+		}
+		this.currentPosition = geometry.startPosition;
+		this.hasPosition = true;
+		this.syncActiveState();
+		this.applyCurrentPosition();
+		this.restartTicking();
 	}
 	getHostSize() {
 		return this.isVerticalDirection ? this.clientHeight : this.clientWidth;
@@ -276,7 +288,8 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		return this.directionSign < 0 ? -trackSize : hostSize;
 	}
 	getSlideEndPosition(hostSize, trackSize) {
-		return this.directionSign < 0 ? 0 : hostSize - trackSize;
+		if (this.directionSign < 0) return Math.min(0, hostSize - trackSize);
+		return Math.max(0, hostSize - trackSize);
 	}
 	getAlternateStartPosition(hostSize, trackSize) {
 		return this.directionSign < 0 ? hostSize - trackSize : 0;
@@ -284,18 +297,17 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	syncAnimationPlayState() {
 		this.style.setProperty(CSS_VAR_ANIMATION_PLAY_STATE, this.running ? "running" : "paused");
 	}
-	syncAnimation(hostSize, trackSize) {
-		if (!this.shouldAnimate(hostSize, trackSize) || this.scrollAmount === 0) {
-			this.syncStaticAnimation();
-			return;
-		}
+	syncGeometry() {
+		const hostSize = this.getHostSize();
+		const trackSize = this.getTrackSize();
+		const canAnimate = this.shouldAnimate(hostSize, trackSize) && this.scrollAmount !== 0;
 		const startPosition = this.behavior === "alternate" ? this.getAlternateStartPosition(hostSize, trackSize) : this.getStartPosition(hostSize, trackSize);
 		const endPosition = this.behavior === "slide" ? this.getSlideEndPosition(hostSize, trackSize) : this.behavior === "alternate" ? this.getFlushEndPosition(hostSize, trackSize) : this.getOffEndPosition(hostSize, trackSize);
 		const distance = Math.abs(endPosition - startPosition);
 		const steps = Math.max(1, Math.ceil(distance / Math.max(1, this.scrollAmount)));
 		const duration = Math.max(1, steps * this.scrollDelay);
 		const iterationCount = this.getCssIterationCount();
-		this.track.style.removeProperty("transform");
+		const stepDelta = this.directionSign < 0 ? -this.scrollAmount : this.scrollAmount;
 		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, `${duration}ms`);
 		this.style.setProperty(CSS_VAR_ANIMATION_DIRECTION, this.behavior === "alternate" ? "alternate" : "normal");
 		this.style.setProperty(CSS_VAR_ANIMATION_ITERATION_COUNT, iterationCount);
@@ -311,7 +323,17 @@ var RemarqueebleElement = class extends HTMLElementBase {
 			this.style.setProperty(CSS_VAR_TRANSLATE_Y_START, "0px");
 			this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, "0px");
 		}
-		this.restartAnimation();
+		return {
+			canAnimate,
+			duration,
+			endPosition,
+			hostSize,
+			iterationCount,
+			startPosition,
+			stepDelta,
+			steps,
+			trackSize
+		};
 	}
 	shouldAnimate(hostSize, trackSize) {
 		if (this.animationMode === "never") return false;
@@ -324,6 +346,8 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		return DEFAULT_ANIMATE;
 	}
 	syncStaticAnimation() {
+		this.clearTickInterval();
+		this.track.style.removeProperty("transform");
 		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, "0ms");
 		this.style.setProperty(CSS_VAR_ANIMATION_DIRECTION, "normal");
 		this.style.setProperty(CSS_VAR_ANIMATION_ITERATION_COUNT, "1");
@@ -332,8 +356,13 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		this.style.setProperty(CSS_VAR_TRANSLATE_X_END, "0px");
 		this.style.setProperty(CSS_VAR_TRANSLATE_Y_START, "0px");
 		this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, "0px");
+		this.style.setProperty(CSS_VAR_CURRENT_X, "0px");
+		this.style.setProperty(CSS_VAR_CURRENT_Y, "0px");
 		this.track.style.animationName = "none";
 		this.track.style.transform = "translate(0px, 0px)";
+		this.currentPosition = 0;
+		this.currentStepDelta = 0;
+		this.hasPosition = false;
 	}
 	getCssIterationCount() {
 		if (this.behavior === "slide" && !this.hasAttribute(ATTR_LOOP)) return "1";
@@ -346,14 +375,146 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		this.running = false;
 		this.syncAnimationPlayState();
 	}
-	restartAnimation() {
-		this.track.style.animationName = "none";
-		this.track.offsetWidth;
-		this.track.style.removeProperty("animation-name");
+	clearTickInterval() {
+		if (this.tickInterval === null) return;
+		clearInterval(this.tickInterval);
+		this.tickInterval = null;
 	}
 	hasFiniteAnimation() {
 		if (this.behavior === "slide" && !this.hasAttribute(ATTR_LOOP)) return true;
 		return this.hasAttribute(ATTR_LOOP) && Number.isFinite(this.loop) && this.loop > 0;
+	}
+	ensureTicking() {
+		if (!this.running || this.tickInterval !== null) return;
+		this.tickInterval = setInterval(() => {
+			this.tick();
+		}, this.scrollDelay);
+	}
+	restartTicking() {
+		this.clearTickInterval();
+		this.ensureTicking();
+	}
+	tick() {
+		if (!this.running) return;
+		const geometry = this.syncGeometry();
+		if (!geometry.canAnimate) {
+			this.syncInactiveState();
+			return;
+		}
+		this.syncActiveState();
+		if (!this.hasPosition) {
+			this.currentStepDelta = geometry.stepDelta;
+			this.currentPosition = geometry.startPosition;
+			this.completedIterations = 0;
+			this.hasPosition = true;
+		} else {
+			if (this.behavior === "alternate") {
+				const sign = Math.sign(this.currentStepDelta || geometry.stepDelta) || 1;
+				this.currentStepDelta = Math.abs(geometry.stepDelta) * sign;
+			} else this.currentStepDelta = geometry.stepDelta;
+			this.clampCurrentPosition(geometry);
+		}
+		if (this.behavior === "alternate") this.stepAlternate(geometry.hostSize, geometry.trackSize);
+		else this.stepLinear(geometry.hostSize, geometry.trackSize);
+		this.applyCurrentPosition();
+		if (!this.running) {
+			this.clearTickInterval();
+			this.syncAnimationPlayState();
+			return;
+		}
+	}
+	stepLinear(hostSize, trackSize) {
+		const startPosition = this.getStartPosition(hostSize, trackSize);
+		const endPosition = this.behavior === "slide" ? this.getSlideEndPosition(hostSize, trackSize) : this.getOffEndPosition(hostSize, trackSize);
+		const nextPosition = this.currentPosition + this.currentStepDelta;
+		if (this.directionSign < 0) {
+			if (nextPosition > endPosition) {
+				this.currentPosition = nextPosition;
+				return;
+			}
+			const overflow = endPosition - nextPosition;
+			this.completedIterations += 1;
+			if (this.hasCompletedIterations()) {
+				this.currentPosition = endPosition;
+				this.running = false;
+				return;
+			}
+			this.currentPosition = this.behavior === "slide" ? startPosition : startPosition - overflow;
+			return;
+		}
+		if (nextPosition < endPosition) {
+			this.currentPosition = nextPosition;
+			return;
+		}
+		const overflow = nextPosition - endPosition;
+		this.completedIterations += 1;
+		if (this.hasCompletedIterations()) {
+			this.currentPosition = endPosition;
+			this.running = false;
+			return;
+		}
+		this.currentPosition = this.behavior === "slide" ? startPosition : startPosition + overflow;
+	}
+	stepAlternate(hostSize, trackSize) {
+		const minPosition = Math.min(this.getAlternateStartPosition(hostSize, trackSize), this.getFlushEndPosition(hostSize, trackSize));
+		const maxPosition = Math.max(this.getAlternateStartPosition(hostSize, trackSize), this.getFlushEndPosition(hostSize, trackSize));
+		let nextPosition = this.currentPosition + this.currentStepDelta;
+		while (nextPosition < minPosition || nextPosition > maxPosition) {
+			if (nextPosition < minPosition) nextPosition = minPosition + (minPosition - nextPosition);
+			else nextPosition = maxPosition - (nextPosition - maxPosition);
+			this.currentStepDelta *= -1;
+			this.completedIterations += 1;
+			if (this.hasCompletedIterations()) {
+				this.currentPosition = this.currentStepDelta > 0 ? minPosition : maxPosition;
+				this.running = false;
+				return;
+			}
+		}
+		this.currentPosition = nextPosition;
+	}
+	hasCompletedIterations() {
+		return this.hasFiniteAnimation() && this.completedIterations >= Math.max(1, this.loop);
+	}
+	syncInactiveState() {
+		this.track.style.removeProperty("transform");
+		this.track.style.animationName = "none";
+		this.track.style.transform = "translate(0px, 0px)";
+		this.style.setProperty(CSS_VAR_CURRENT_X, "0px");
+		this.style.setProperty(CSS_VAR_CURRENT_Y, "0px");
+		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, "0ms");
+		this.style.setProperty(CSS_VAR_ANIMATION_DIRECTION, "normal");
+		this.style.setProperty(CSS_VAR_ANIMATION_ITERATION_COUNT, "1");
+		this.style.setProperty(CSS_VAR_ANIMATION_TIMING_FUNCTION, "linear");
+		this.currentPosition = 0;
+		this.currentStepDelta = 0;
+		this.completedIterations = 0;
+		this.hasPosition = false;
+	}
+	syncActiveState() {
+		this.track.style.animationName = "";
+		this.track.style.transform = "";
+	}
+	clampCurrentPosition(geometry) {
+		if (this.behavior === "alternate") {
+			const minPosition = Math.min(geometry.startPosition, geometry.endPosition);
+			const maxPosition = Math.max(geometry.startPosition, geometry.endPosition);
+			this.currentPosition = Math.min(maxPosition, Math.max(minPosition, this.currentPosition));
+			return;
+		}
+		if (this.behavior === "slide") {
+			const minPosition = Math.min(geometry.startPosition, geometry.endPosition);
+			const maxPosition = Math.max(geometry.startPosition, geometry.endPosition);
+			this.currentPosition = Math.min(maxPosition, Math.max(minPosition, this.currentPosition));
+		}
+	}
+	applyCurrentPosition() {
+		if (this.isVerticalDirection) {
+			this.style.setProperty(CSS_VAR_CURRENT_X, "0px");
+			this.style.setProperty(CSS_VAR_CURRENT_Y, `${this.currentPosition}px`);
+			return;
+		}
+		this.style.setProperty(CSS_VAR_CURRENT_X, `${this.currentPosition}px`);
+		this.style.setProperty(CSS_VAR_CURRENT_Y, "0px");
 	}
 };
 var ReMarqueeElement = class extends RemarqueebleElement {};
