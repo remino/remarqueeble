@@ -20,6 +20,12 @@ const showModeControls = [
 	['show-lite', 'lite', '<code>.re-marquee</code> Lite CSS Class'],
 	['show-marquee', 'marquee', '<code>&lt;marquee&gt;</code> Native Element'],
 ]
+const modeDependencies = {
+	lite: [
+		'<link rel="stylesheet" href="https://unpkg.com/remarqueeble/dist/lite.css" />',
+	],
+	're-marquee': ['<script src="https://unpkg.com/remarqueeble"></script>'],
+}
 const legacyShowModeNames = {
 	showReMarquee: 'show-re-marquee',
 	showLite: 'show-lite',
@@ -225,6 +231,9 @@ const getSelectedShowModes = () =>
 
 const getShowModeLabelHtml = mode =>
 	showModeControls.find(([, value]) => value === mode)?.[2] ?? mode
+
+const getCodeDependencies = modes =>
+	[...new Set(modes.flatMap(mode => modeDependencies[mode] ?? []))].join('\n')
 
 const syncShowCheckboxAvailability = () => {
 	const selectedModes = getSelectedShowModes()
@@ -554,9 +563,13 @@ const render = ({ syncHash = true } = {}) => {
 
 	preview.replaceChildren(...modes.map(mode => createPreviewItem(mode)))
 
-	const source = modes
-		.map(mode => (mode === 'lite' ? getLiteCode() : getElementCode(mode)))
-		.join('\n')
+	const snippets = modes.map(mode =>
+		mode === 'lite' ? getLiteCode() : getElementCode(mode)
+	)
+	const dependencies = getCodeDependencies(modes)
+	const source = [dependencies, snippets.join('\n')]
+		.filter(Boolean)
+		.join('\n\n')
 
 	code.textContent = source
 

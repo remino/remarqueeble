@@ -24,6 +24,8 @@
       dedicated duration control.
     - Replace the Playground `Show` dropdown with separate display checkboxes
       that keep at least one preview mode enabled.
+    - Include required CDN `<script>` and `<link>` tags in Playground code
+      snippets for the selected custom-element and Lite CSS previews.
 
 ## v0.6.0
 
