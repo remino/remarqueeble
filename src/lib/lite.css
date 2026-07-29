@@ -11,6 +11,7 @@
 .re-marquee__track {
 	animation: re-marquee-scroll var(--re-marquee-duration)
 		var(--re-marquee-timing-function) infinite;
+	animation-fill-mode: both;
 	animation-play-state: var(--re-marquee-play-state);
 	display: inline-block;
 	min-inline-size: max-content;
@@ -40,6 +41,8 @@
 .re-marquee--up,
 .re-marquee--down {
 	block-size: 12rem;
+	container-type: size;
+	position: relative;
 	white-space: normal;
 }
 
@@ -49,8 +52,11 @@
 	animation-name: re-marquee-scroll-y;
 	display: inline-flex;
 	flex-direction: column;
+	inset-block-start: 100%;
+	inset-inline-start: 0;
 	min-inline-size: auto;
 	padding-inline-start: 0;
+	position: absolute;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -61,6 +67,7 @@
 	.re-marquee__track {
 		animation: none;
 		padding-inline-start: 0;
+		position: static;
 		transform: none;
 		will-change: auto;
 	}
@@ -78,10 +85,32 @@
 
 @keyframes re-marquee-scroll-y {
 	from {
-		transform: translateY(var(--re-marquee-start-pos, 100vh));
+		inset-block-start: 100%;
+		transform: translateY(var(--re-marquee-start-pos, 0));
 	}
 
 	to {
+		inset-block-start: 0;
 		transform: translateY(var(--re-marquee-end-pos, -100%));
+	}
+}
+
+@supports (height: 1cqh) {
+	.re-marquee--vertical > .re-marquee__track,
+	.re-marquee--up > .re-marquee__track,
+	.re-marquee--down > .re-marquee__track {
+		inset-block-start: 0;
+	}
+
+	@keyframes re-marquee-scroll-y {
+		from {
+			inset-block-start: 0;
+			transform: translateY(var(--re-marquee-start-pos, 100cqh));
+		}
+
+		to {
+			inset-block-start: 0;
+			transform: translateY(var(--re-marquee-end-pos, -100%));
+		}
 	}
 }
