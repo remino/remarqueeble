@@ -111,81 +111,95 @@ import '../../../lib/lite.css'
 				</label>
 			</details>
 
-			<details open>
+			<details open data-section="speed">
 				<summary>Speed</summary>
 
-				<label>
-					<span><code>scrollamount</code></span>
-					<input
-						data-setting-control="range"
-						name="scrollamountRange"
-						type="range"
-						min="0"
-						max="30"
-						step="1"
-						value="6"
-					/>
-					<input
-						data-setting-control="number"
-						name="scrollamount"
-						type="text"
-						inputmode="text"
-						value="6"
-					/>
-				</label>
+				<div data-section-body="speed">
+					<label>
+						<span><code>scrollamount</code></span>
+						<input
+							data-setting-control="range"
+							name="scrollamountRange"
+							type="range"
+							min="0"
+							max="30"
+							step="1"
+							value="6"
+						/>
+						<input
+							data-setting-control="number"
+							name="scrollamount"
+							type="text"
+							inputmode="text"
+							value="6"
+						/>
+					</label>
 
-				<label>
-					<span><code>scrolldelay</code></span>
-					<input
-						data-setting-control="range"
-						name="scrolldelayRange"
-						type="range"
-						min="0"
-						max="500"
-						step="5"
-						value="85"
-					/>
-					<input
-						data-setting-control="number"
-						name="scrolldelay"
-						type="number"
-						min="0"
-						max="500"
-						step="5"
-						value="85"
-					/>
-				</label>
+					<label>
+						<span><code>scrolldelay</code></span>
+						<input
+							data-setting-control="range"
+							name="scrolldelayRange"
+							type="range"
+							min="0"
+							max="500"
+							step="5"
+							value="85"
+						/>
+						<input
+							data-setting-control="number"
+							name="scrolldelay"
+							type="number"
+							min="0"
+							max="500"
+							step="5"
+							value="85"
+						/>
+					</label>
 
-				<label class="checkbox-control">
-					<input name="truespeed" type="checkbox" />
-					<span><code>truespeed</code></span>
-				</label>
+					<label class="checkbox-control">
+						<input name="truespeed" type="checkbox" />
+						<span><code>truespeed</code></span>
+					</label>
+				</div>
+
+				<p class="section-note" data-section-note="speed" hidden>
+					Only available with <code>&lt;re-marquee&gt;</code> or <code
+						>&lt;marquee&gt;</code
+					>.
+				</p>
 			</details>
 
-			<details>
+			<details data-section="lite-css">
 				<summary>Lite CSS</summary>
 
-				<label>
-					<span><code>--re-marquee-duration</code></span>
-					<input
-						data-setting-control="range"
-						name="durationRange"
-						type="range"
-						min="1"
-						max="60"
-						step="1"
-						value="20"
-					/>
-					<input
-						data-setting-control="number"
-						name="duration"
-						type="number"
-						min="1"
-						max="60"
-						step="1"
-						value="20"
-					/>
-				</label>
+				<div data-section-body="lite-css">
+					<label>
+						<span><code>--re-marquee-duration</code></span>
+						<input
+							data-setting-control="range"
+							name="durationRange"
+							type="range"
+							min="1"
+							max="60"
+							step="1"
+							value="20"
+						/>
+						<input
+							data-setting-control="number"
+							name="duration"
+							type="number"
+							min="1"
+							max="60"
+							step="1"
+							value="20"
+						/>
+					</label>
+				</div>
+
+				<p class="section-note" data-section-note="lite-css" hidden>
+					Only available with <code>.re-marquee</code>.
+				</p>
 			</details>
 
 			<details>

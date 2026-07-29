@@ -10,6 +10,16 @@ const code = document.querySelector('code-viewer')
 const copyButton = document.querySelector('[data-copy]')
 const fullscreenButton = document.querySelector('[data-fullscreen]')
 const resetButton = document.querySelector('[data-reset]')
+const speedSection = document.querySelector('[data-section="speed"]')
+const liteCssSection = document.querySelector('[data-section="lite-css"]')
+const speedSectionBody = document.querySelector('[data-section-body="speed"]')
+const liteCssSectionBody = document.querySelector(
+	'[data-section-body="lite-css"]'
+)
+const speedSectionNote = document.querySelector('[data-section-note="speed"]')
+const liteCssSectionNote = document.querySelector(
+	'[data-section-note="lite-css"]'
+)
 const CODE_VIEWER_TAG_NAME = 'code-viewer'
 const showModeControls = [
 	[
@@ -273,6 +283,37 @@ const syncShowCheckboxAvailability = () => {
 		if (!(control instanceof HTMLInputElement)) continue
 
 		control.disabled = shouldDisableChecked && control.checked
+	}
+}
+
+const syncSectionAvailability = () => {
+	const selectedModes = getSelectedShowModes()
+	const hasLiteMode = selectedModes.includes('lite')
+	const hasElementMode =
+		selectedModes.includes('re-marquee') || selectedModes.includes('marquee')
+
+	if (liteCssSection instanceof HTMLDetailsElement) {
+		liteCssSection.toggleAttribute('data-unavailable', !hasLiteMode)
+	}
+
+	if (speedSection instanceof HTMLDetailsElement) {
+		speedSection.toggleAttribute('data-unavailable', !hasElementMode)
+	}
+
+	if (liteCssSectionBody instanceof HTMLDivElement) {
+		liteCssSectionBody.inert = !hasLiteMode
+	}
+
+	if (speedSectionBody instanceof HTMLDivElement) {
+		speedSectionBody.inert = !hasElementMode
+	}
+
+	if (liteCssSectionNote instanceof HTMLParagraphElement) {
+		liteCssSectionNote.hidden = hasLiteMode
+	}
+
+	if (speedSectionNote instanceof HTMLParagraphElement) {
+		speedSectionNote.hidden = hasElementMode
 	}
 }
 
@@ -715,6 +756,7 @@ const render = ({ syncHash = true } = {}) => {
 	if (!form || !preview || !code) return
 
 	syncShowCheckboxAvailability()
+	syncSectionAvailability()
 
 	const modes = getSelectedShowModes()
 
