@@ -22,6 +22,7 @@
       instead of a viewport-height offset.
     - Make Lite `re-marquee--alternate` bounce when the content edge reaches the
       container edge, including `right` and `down` variants.
+    - Add a public Lite `--re-marquee-iteration-count` variable.
     - Refactor `<re-marquee>` to use an imperative scroll loop that picks up
       resized geometry on the next tick without dedicated resize handling.
     - Keep `<re-marquee>` motion state internal instead of exposing its

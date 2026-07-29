@@ -79,6 +79,21 @@ const liteStyleProperties = [
 			return Number.isFinite(number) && number > 0 ? `${number}s` : ''
 		},
 	],
+	[
+		'loop',
+		'--re-marquee-iteration-count',
+		value => {
+			const trimmed = value.trim()
+
+			if (!trimmed) return ''
+
+			const number = Number(trimmed)
+
+			if (!Number.isFinite(number)) return ''
+			if (number === -1) return 'infinite'
+			return Number.isInteger(number) && number > 0 ? String(number) : ''
+		},
+	],
 ]
 const styleProperties = [
 	[

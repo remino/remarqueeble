@@ -26,7 +26,7 @@ usage, `dist/lite.min.css` is also available.
 
 The lite CSS follows the simpler pure-CSS pattern and does not require
 duplicated content. It does not emulate legacy `<marquee>` measurement,
-`behavior`, `scrollamount`, `scrolldelay`, or finite `loop` handling.
+`behavior`, `scrollamount`, or `scrolldelay`.
 
 When `prefers-reduced-motion: reduce` is active, animation is disabled and the
 content is shown statically.
@@ -39,6 +39,8 @@ Optional classes: `re-marquee--reverse`, `re-marquee--left`,
 CSS variables:
 
 - `--re-marquee-duration`: animation duration. Defaults to `20s`.
+- `--re-marquee-iteration-count`: animation iteration count. Defaults to
+  `infinite`.
 - `--re-marquee-timing-function`: animation timing function. Defaults to
   `linear`.
 - `--re-marquee-start-pos`: starting transform position. Defaults to `0` for
