@@ -12,9 +12,13 @@ const fullscreenButton = document.querySelector('[data-fullscreen]')
 const resetButton = document.querySelector('[data-reset]')
 const CODE_VIEWER_TAG_NAME = 'code-viewer'
 const showModeControls = [
-	['showReMarquee', 're-marquee'],
-	['showLite', 'lite'],
-	['showMarquee', 'marquee'],
+	[
+		'showReMarquee',
+		're-marquee',
+		'<code>&lt;re-marquee&gt;</code> Custom Element',
+	],
+	['showLite', 'lite', '<code>.re-marquee</code> Lite CSS Class'],
+	['showMarquee', 'marquee', '<code>&lt;marquee&gt;</code> Native Element'],
 ]
 const defaultValues = {
 	animate: 'always',
@@ -213,6 +217,9 @@ const getSelectedShowModes = () =>
 	showModeControls
 		.filter(([name]) => getControl(name)?.checked)
 		.map(([, mode]) => mode)
+
+const getShowModeLabelHtml = mode =>
+	showModeControls.find(([, value]) => value === mode)?.[2] ?? mode
 
 const syncShowCheckboxAvailability = () => {
 	const selectedModes = getSelectedShowModes()
@@ -432,7 +439,7 @@ const createPreviewItem = mode => {
 		const marquee = document.createElement('div')
 		const track = document.createElement('div')
 
-		label.innerHTML = `<code>lite.css</code>`
+		label.innerHTML = getShowModeLabelHtml(mode)
 		track.className = 're-marquee__track'
 		track.innerHTML = content
 		applyLiteAttributes(marquee)
@@ -444,7 +451,7 @@ const createPreviewItem = mode => {
 
 	const marquee = document.createElement(mode)
 
-	label.innerHTML = `<code>&lt;${mode}&gt;</code>`
+	label.innerHTML = getShowModeLabelHtml(mode)
 	marquee.innerHTML = content
 	applyAttributes(marquee)
 	wrapper.append(label, marquee)
