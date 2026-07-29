@@ -523,6 +523,10 @@ const getLiteBoxStyleDeclarations = () => {
 const getNativeAttributes = () =>
 	getAttributes()
 		.map(([name, value]) => {
+			if (name === 'animate') {
+				return null
+			}
+
 			if (
 				name === 'width' ||
 				name === 'height' ||
