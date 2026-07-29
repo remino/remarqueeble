@@ -50,6 +50,7 @@
 	gap: var(--dress-m-b) var(--dress-m-i);
 	min-block-size: 0;
 	min-inline-size: 0;
+	overflow: auto;
 	padding: var(--dress-p-b) var(--dress-p-i);
 
 	&:fullscreen {
