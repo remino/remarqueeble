@@ -370,6 +370,74 @@ const getStyleAttributeValue = () =>
 		.map(([property, value]) => `${property}: ${value}`)
 		.join('; ')
 
+const getPreviewFontSizeValue = () => {
+	const rawValue = getValue('fontSize').trim()
+	const number = Number(rawValue)
+
+	return Number.isFinite(number) && number >= 8 && number <= 96
+		? `${number}px`
+		: '16px'
+}
+
+const resolveComputedPixelValue = (property, value) => {
+	const probe = document.createElement('div')
+	const mount = preview ?? document.body
+
+	probe.style.position = 'absolute'
+	probe.style.visibility = 'hidden'
+	probe.style.pointerEvents = 'none'
+	probe.style.inset = '0'
+	probe.style.fontSize = getPreviewFontSizeValue()
+	probe.style.setProperty(property, value)
+	mount.append(probe)
+
+	const computedValue = globalThis
+		.getComputedStyle(probe)
+		.getPropertyValue(property)
+
+	probe.remove()
+
+	const number = Number.parseFloat(computedValue)
+
+	return Number.isFinite(number) ? `${Math.round(number)}px` : ''
+}
+
+const normalizeNativeBoxAttribute = (name, value) => {
+	const trimmed = value.trim()
+
+	if (!trimmed) return ''
+
+	if (/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) {
+		return trimmed
+	}
+
+	if (name === 'width' || name === 'height') {
+		if (/^[+-]?(?:\d+|\d*\.\d+)%$/.test(trimmed)) {
+			return trimmed
+		}
+
+		if (/^[+-]?(?:\d+|\d*\.\d+)px$/.test(trimmed)) {
+			return trimmed.replace(/px$/, '')
+		}
+
+		if (CSS.supports('width', trimmed)) {
+			return resolveComputedPixelValue(name, trimmed).replace(/px$/, '')
+		}
+	}
+
+	if (
+		(name === 'hspace' || name === 'vspace') &&
+		CSS.supports('margin', trimmed)
+	) {
+		const property = name === 'hspace' ? 'margin-left' : 'margin-top'
+		const resolved = resolveComputedPixelValue(property, trimmed)
+
+		return resolved.replace(/px$/, '')
+	}
+
+	return ''
+}
+
 const getLiteBoxStyleDeclarations = () => {
 	const declarations = []
 	const width = parsePresentationalDimension(getValue('width'))
@@ -400,6 +468,24 @@ const getLiteBoxStyleDeclarations = () => {
 
 	return declarations
 }
+
+const getNativeAttributes = () =>
+	getAttributes()
+		.map(([name, value]) => {
+			if (
+				name === 'width' ||
+				name === 'height' ||
+				name === 'hspace' ||
+				name === 'vspace'
+			) {
+				const normalized = normalizeNativeBoxAttribute(name, value)
+
+				return normalized ? [name, normalized] : null
+			}
+
+			return [name, value]
+		})
+		.filter(Boolean)
 
 const getLiteStyleDeclarations = () =>
 	liteStyleProperties
@@ -440,8 +526,10 @@ const getLiteStyleAttributeValue = () =>
 		.join('; ')
 
 const getElementCode = tagName => {
+	const attributesSource =
+		tagName === 'marquee' ? getNativeAttributes() : getAttributes()
 	const attributes = [
-		...getAttributes(),
+		...attributesSource,
 		...(getStyleAttributeValue() ? [['style', getStyleAttributeValue()]] : []),
 	]
 		.map(([name, value]) =>
@@ -471,7 +559,12 @@ const getLiteCode = () => {
 }
 
 const applyAttributes = element => {
-	for (const [name, value] of getAttributes()) {
+	const attributesSource =
+		element.tagName.toLowerCase() === 'marquee'
+			? getNativeAttributes()
+			: getAttributes()
+
+	for (const [name, value] of attributesSource) {
 		if (value) {
 			element.setAttribute(name, value)
 		} else {
