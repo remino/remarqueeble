@@ -56,8 +56,9 @@
 	&:fullscreen {
 		background: var(--dress-bg);
 		block-size: 100dvb;
+		border: 0;
 		inline-size: 100%;
-		padding: var(--dress-m-b) var(--dress-m-i);
+		padding: 0;
 	}
 }
 
@@ -70,6 +71,10 @@
 		font-size: 1rem;
 		margin: 0;
 	}
+}
+
+.preview-stage:fullscreen .preview-item h2 {
+	display: none;
 }
 
 .code-preview {
