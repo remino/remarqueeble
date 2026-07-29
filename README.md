@@ -143,6 +143,7 @@ After registration, use either element name:
 | `scrollamount` / `scrolldelay`    | Yes                        | No                            | Yes                       |
 | Finite `loop` support             | Yes                        | Yes                           | Yes                       |
 | `start()` / `stop()` methods      | Yes                        | No                            | Yes                       |
+| Legacy marquee events             | Yes                        | No                            | Browser-dependent         |
 | CSS-only usage                    | No                         | Yes                           | No                        |
 | Reduced-motion static fallback    | Yes                        | Yes                           | Browser-dependent         |
 | Best use case                     | Modern marquee replacement | Lightweight decorative motion | Legacy compatibility only |

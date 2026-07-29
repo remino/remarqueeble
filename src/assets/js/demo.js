@@ -7,6 +7,8 @@ import githubDark from 'shiki/themes/github-dark.mjs'
 const form = document.querySelector('[data-playground]')
 const preview = document.querySelector('[data-preview]')
 const code = document.querySelector('code-viewer')
+const eventsOutput = document.querySelector('[data-events-output]')
+const eventsScroller = eventsOutput?.closest('pre') ?? null
 const copyButton = document.querySelector('[data-copy]')
 const fullscreenButton = document.querySelector('[data-fullscreen]')
 const resetButton = document.querySelector('[data-reset]')
@@ -122,6 +124,8 @@ const highlighter = createHighlighterCore({
 	langs: [html],
 	themes: [githubDark],
 })
+const EVENT_LOG_PLACEHOLDER = '// waiting for marquee events'
+let eventLogEntries = []
 
 const escapeHtml = value =>
 	value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -659,6 +663,45 @@ const applyLiteAttributes = element => {
 	}
 }
 
+const attachMarqueeEventLogging = (element, mode) => {
+	for (const type of ['start', 'bounce', 'finish']) {
+		element.addEventListener(type, event => {
+			appendEventLog(`[${mode}] ${event.type}`)
+			console.log(`[playground:${mode}] ${event.type}`, event)
+		})
+	}
+}
+
+const renderEventLog = () => {
+	if (!eventsOutput) return
+
+	eventsOutput.textContent =
+		eventLogEntries.length === 0
+			? EVENT_LOG_PLACEHOLDER
+			: eventLogEntries.join('\n')
+}
+
+const clearEventLog = () => {
+	eventLogEntries = []
+	renderEventLog()
+}
+
+const appendEventLog = entry => {
+	if (!eventsOutput) return
+
+	const isPinnedToBottom =
+		!eventsScroller ||
+		eventsScroller.scrollTop + eventsScroller.clientHeight >=
+			eventsScroller.scrollHeight - 1
+
+	eventLogEntries.push(entry)
+	renderEventLog()
+
+	if (isPinnedToBottom && eventsScroller) {
+		eventsScroller.scrollTop = eventsScroller.scrollHeight
+	}
+}
+
 const createPreviewItem = mode => {
 	const wrapper = document.createElement('div')
 	const label = document.createElement('h2')
@@ -685,6 +728,7 @@ const createPreviewItem = mode => {
 	label.innerHTML = getShowModeLabelHtml(mode)
 	marquee.innerHTML = content
 	applyAttributes(marquee)
+	attachMarqueeEventLogging(marquee, mode)
 	wrapper.append(label, marquee)
 
 	return wrapper
@@ -776,6 +820,7 @@ const render = ({ syncHash = true } = {}) => {
 
 	syncShowCheckboxAvailability()
 	syncSectionAvailability()
+	clearEventLog()
 
 	const modes = getSelectedShowModes()
 

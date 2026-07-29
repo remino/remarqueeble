@@ -88,6 +88,7 @@ describe('src/lib/remarqueeble.ts', () => {
 			clientHeight = sizes.hostHeight
 			clientWidth = sizes.hostWidth
 			isConnected = true
+			listeners = new Map()
 			shadowScrollAmountProbe = null
 			shadowTrack = null
 			style = createStyle()
@@ -129,6 +130,21 @@ describe('src/lib/remarqueeble.ts', () => {
 
 			setAttribute(name, value) {
 				this.attributes.set(name, String(value))
+			}
+
+			addEventListener(type, listener) {
+				const listeners = this.listeners.get(type) ?? []
+
+				listeners.push(listener)
+				this.listeners.set(type, listeners)
+			}
+
+			dispatchEvent(event) {
+				for (const listener of this.listeners.get(event.type) ?? []) {
+					listener.call(this, event)
+				}
+
+				return true
 			}
 		}
 
@@ -402,6 +418,51 @@ describe('src/lib/remarqueeble.ts', () => {
 			}
 
 			expect(marquee.shadowTrack.style.transform).toBe('translate(-40px, 0px)')
+		})
+	})
+
+	describe('legacy events', () => {
+		it('emits start when scrolling begins', async () => {
+			const marquee = await createMarquee({})
+			const listener = jasmine.createSpy('start')
+
+			marquee.addEventListener('start', listener)
+			marquee.stop()
+			marquee.start()
+
+			expect(listener).toHaveBeenCalledTimes(1)
+		})
+
+		it('emits bounce when alternate reaches an edge', async () => {
+			const marquee = await createMarquee(
+				{
+					behavior: 'alternate',
+					scrollamount: '10',
+				},
+				{ hostWidth: 100, trackWidth: 40 }
+			)
+			const listener = jasmine.createSpy('bounce')
+
+			marquee.addEventListener('bounce', listener)
+
+			for (let index = 0; index < 7; index += 1) {
+				marquee.__runIntervals()
+			}
+
+			expect(listener).toHaveBeenCalledTimes(1)
+		})
+
+		it('emits finish when a finite loop completes', async () => {
+			const marquee = await createMarquee({
+				loop: '1',
+				scrollamount: '140',
+			})
+			const listener = jasmine.createSpy('finish')
+
+			marquee.addEventListener('finish', listener)
+			marquee.__runIntervals()
+
+			expect(listener).toHaveBeenCalledTimes(1)
 		})
 	})
 

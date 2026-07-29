@@ -324,6 +324,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 		this.syncActiveState()
 		this.applyCurrentPosition()
+		this.emitLegacyEvent('start')
 		this.restartTicking()
 	}
 
@@ -453,6 +454,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 			this.currentPosition = geometry.startPosition
 			this.completedIterations = 0
 			this.hasPosition = true
+			this.emitLegacyEvent('start')
 		} else {
 			if (this.behavior === 'alternate') {
 				const sign = Math.sign(this.currentStepDelta || geometry.stepDelta) || 1
@@ -496,8 +498,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 			this.completedIterations += 1
 
 			if (this.hasCompletedIterations()) {
-				this.currentPosition = endPosition
-				this.running = false
+				this.completeFiniteAnimation(endPosition)
 				return
 			}
 
@@ -515,8 +516,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 		this.completedIterations += 1
 
 		if (this.hasCompletedIterations()) {
-			this.currentPosition = endPosition
-			this.running = false
+			this.completeFiniteAnimation(endPosition)
 			return
 		}
 
@@ -546,11 +546,12 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 			this.currentStepDelta *= -1
 			this.completedIterations += 1
+			this.emitLegacyEvent('bounce')
 
 			if (this.hasCompletedIterations()) {
-				this.currentPosition =
+				this.completeFiniteAnimation(
 					this.currentStepDelta > 0 ? minPosition : maxPosition
-				this.running = false
+				)
 				return
 			}
 		}
@@ -563,6 +564,12 @@ export class RemarqueebleElement extends HTMLElementBase {
 			this.hasFiniteAnimation() &&
 			this.completedIterations >= Math.max(1, this.loop)
 		)
+	}
+
+	private completeFiniteAnimation(position: number): void {
+		this.currentPosition = position
+		this.running = false
+		this.emitLegacyEvent('finish')
 	}
 
 	private syncInactiveState(): void {
@@ -605,6 +612,10 @@ export class RemarqueebleElement extends HTMLElementBase {
 		}
 
 		this.track.style.transform = `translate(${this.currentPosition}px, 0px)`
+	}
+
+	private emitLegacyEvent(type: 'bounce' | 'finish' | 'start'): void {
+		this.dispatchEvent(new Event(type))
 	}
 }
 

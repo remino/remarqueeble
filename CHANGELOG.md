@@ -25,12 +25,17 @@
     - Add a public Lite `--re-marquee-iteration-count` variable.
     - Refactor `<re-marquee>` to use an imperative scroll loop that picks up
       resized geometry on the next tick without dedicated resize handling.
+    - Emit legacy marquee-style `start`, `bounce`, and `finish` events from
+      `<re-marquee>`.
     - Keep `<re-marquee>` motion state internal instead of exposing its
       implementation CSS variables on the host element.
 - Site
     - Document the added Lite helper aliases in the README and Lite page.
     - Add a README feature comparison table for `<re-marquee>`, `.re-marquee`,
       and native `<marquee>`.
+    - Log marquee-style `start`, `bounce`, and `finish` events from Playground
+      `<re-marquee>` and native `<marquee>` previews.
+    - Add an Events output block to the Playground for marquee preview events.
     - Add a `lite.css` mode to the Playground with generated Lite markup and a
       dedicated duration control.
     - Replace the Playground `Show` dropdown with separate display checkboxes

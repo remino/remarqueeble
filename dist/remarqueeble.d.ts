@@ -49,10 +49,12 @@ export declare class RemarqueebleElement extends HTMLElementBase {
     private stepLinear;
     private stepAlternate;
     private hasCompletedIterations;
+    private completeFiniteAnimation;
     private syncInactiveState;
     private syncActiveState;
     private clampCurrentPosition;
     private applyCurrentPosition;
+    private emitLegacyEvent;
 }
 export declare const defineRemarqueebleElements: () => void;
 declare global {

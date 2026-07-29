@@ -237,6 +237,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		this.hasPosition = true;
 		this.syncActiveState();
 		this.applyCurrentPosition();
+		this.emitLegacyEvent("start");
 		this.restartTicking();
 	}
 	getHostSize() {
@@ -319,6 +320,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 			this.currentPosition = geometry.startPosition;
 			this.completedIterations = 0;
 			this.hasPosition = true;
+			this.emitLegacyEvent("start");
 		} else {
 			if (this.behavior === "alternate") {
 				const sign = Math.sign(this.currentStepDelta || geometry.stepDelta) || 1;
@@ -346,8 +348,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 			const overflow = endPosition - nextPosition;
 			this.completedIterations += 1;
 			if (this.hasCompletedIterations()) {
-				this.currentPosition = endPosition;
-				this.running = false;
+				this.completeFiniteAnimation(endPosition);
 				return;
 			}
 			this.currentPosition = this.behavior === "slide" ? startPosition : startPosition - overflow;
@@ -360,8 +361,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		const overflow = nextPosition - endPosition;
 		this.completedIterations += 1;
 		if (this.hasCompletedIterations()) {
-			this.currentPosition = endPosition;
-			this.running = false;
+			this.completeFiniteAnimation(endPosition);
 			return;
 		}
 		this.currentPosition = this.behavior === "slide" ? startPosition : startPosition + overflow;
@@ -375,9 +375,9 @@ var RemarqueebleElement = class extends HTMLElementBase {
 			else nextPosition = maxPosition - (nextPosition - maxPosition);
 			this.currentStepDelta *= -1;
 			this.completedIterations += 1;
+			this.emitLegacyEvent("bounce");
 			if (this.hasCompletedIterations()) {
-				this.currentPosition = this.currentStepDelta > 0 ? minPosition : maxPosition;
-				this.running = false;
+				this.completeFiniteAnimation(this.currentStepDelta > 0 ? minPosition : maxPosition);
 				return;
 			}
 		}
@@ -385,6 +385,11 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	}
 	hasCompletedIterations() {
 		return this.hasFiniteAnimation() && this.completedIterations >= Math.max(1, this.loop);
+	}
+	completeFiniteAnimation(position) {
+		this.currentPosition = position;
+		this.running = false;
+		this.emitLegacyEvent("finish");
 	}
 	syncInactiveState() {
 		this.track.style.transform = "translate(0px, 0px)";
@@ -415,6 +420,9 @@ var RemarqueebleElement = class extends HTMLElementBase {
 			return;
 		}
 		this.track.style.transform = `translate(${this.currentPosition}px, 0px)`;
+	}
+	emitLegacyEvent(type) {
+		this.dispatchEvent(new Event(type));
 	}
 };
 var ReMarqueeElement = class extends RemarqueebleElement {};
