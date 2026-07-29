@@ -140,8 +140,13 @@
 
 	.checkbox-list {
 		display: grid;
-		gap: 0.35rem;
+		gap: var(--dress-m-b);
+		margin-block: var(--dress-m-b);
 		min-inline-size: 0;
+
+		label {
+			margin: 0;
+		}
 	}
 
 	.section-note {
