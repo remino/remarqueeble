@@ -24,17 +24,6 @@ const CSS_VAR_HEIGHT = '--attr-height'
 const CSS_VAR_HSPACE = '--attr-hspace'
 const CSS_VAR_VSPACE = '--attr-vspace'
 const CSS_VAR_BG_COLOR = '--attr-bgcolor'
-const CSS_VAR_ANIMATION_DURATION = '--animation-duration'
-const CSS_VAR_ANIMATION_DIRECTION = '--animation-direction'
-const CSS_VAR_ANIMATION_ITERATION_COUNT = '--animation-iteration-count'
-const CSS_VAR_ANIMATION_PLAY_STATE = '--animation-play-state'
-const CSS_VAR_ANIMATION_TIMING_FUNCTION = '--animation-timing-function'
-const CSS_VAR_CURRENT_X = '--translate-current-x'
-const CSS_VAR_CURRENT_Y = '--translate-current-y'
-const CSS_VAR_TRANSLATE_X_END = '--translate-x-end'
-const CSS_VAR_TRANSLATE_X_START = '--translate-x-start'
-const CSS_VAR_TRANSLATE_Y_END = '--translate-y-end'
-const CSS_VAR_TRANSLATE_Y_START = '--translate-y-start'
 const HTMLElementBase =
 	globalThis.HTMLElement ?? (class {} as typeof HTMLElement)
 
@@ -84,13 +73,10 @@ type PresentationalHint = {
 
 type GeometryState = {
 	canAnimate: boolean
-	duration: number
 	endPosition: number
 	hostSize: number
-	iterationCount: string
 	startPosition: number
 	stepDelta: number
-	steps: number
 	trackSize: number
 }
 
@@ -179,10 +165,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 				.track {
 					display: inline-block;
-					transform: translate(
-						var(${CSS_VAR_CURRENT_X}, 0px),
-						var(${CSS_VAR_CURRENT_Y}, 0px)
-					);
+					transform: translate(0px, 0px);
 					will-change: transform;
 				}
 
@@ -196,21 +179,6 @@ export class RemarqueebleElement extends HTMLElementBase {
 					visibility: hidden;
 				}
 
-				@keyframes remarqueeble-motion {
-					from {
-						transform: translate(
-							var(${CSS_VAR_TRANSLATE_X_START}, 100%),
-							var(${CSS_VAR_TRANSLATE_Y_START}, 0px)
-						);
-					}
-
-					to {
-						transform: translate(
-							var(${CSS_VAR_TRANSLATE_X_END}, -100%),
-							var(${CSS_VAR_TRANSLATE_Y_END}, 0px)
-						);
-					}
-				}
 			</style>
 
 			<span class="track"><slot></slot></span>
@@ -228,7 +196,6 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 		this.track = track
 		this.scrollAmountProbe = scrollAmountProbe
-		this.track.addEventListener('animationend', () => this.handleAnimationEnd())
 	}
 
 	connectedCallback(): void {
@@ -310,21 +277,17 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 		this.running = true
 		this.reset()
-		this.syncAnimationPlayState()
 	}
 
 	stop(): void {
 		this.running = false
 		this.clearTickInterval()
-		this.syncAnimationPlayState()
 	}
 
 	private syncPresentationalHints(): void {
 		for (const hint of ATTRIBUTE_HINTS) {
 			this.syncVar(hint)
 		}
-
-		this.syncAnimationPlayState()
 	}
 
 	private syncVar(hint: PresentationalHint): void {
@@ -401,13 +364,6 @@ export class RemarqueebleElement extends HTMLElementBase {
 		return this.directionSign < 0 ? hostSize - trackSize : 0
 	}
 
-	private syncAnimationPlayState(): void {
-		this.style.setProperty(
-			CSS_VAR_ANIMATION_PLAY_STATE,
-			this.running ? 'running' : 'paused'
-		)
-	}
-
 	private syncGeometry(): GeometryState {
 		const hostSize = this.getHostSize()
 		const trackSize = this.getTrackSize()
@@ -425,47 +381,15 @@ export class RemarqueebleElement extends HTMLElementBase {
 					? this.getFlushEndPosition(hostSize, trackSize)
 					: this.getOffEndPosition(hostSize, trackSize)
 		const distance = Math.abs(endPosition - startPosition)
-		const steps = Math.max(
-			1,
-			Math.ceil(distance / Math.max(1, this.scrollAmount))
-		)
-		const duration = Math.max(1, steps * this.scrollDelay)
-		const iterationCount = this.getCssIterationCount()
 		const stepDelta =
 			this.directionSign < 0 ? -this.scrollAmount : this.scrollAmount
 
-		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, `${duration}ms`)
-		this.style.setProperty(
-			CSS_VAR_ANIMATION_DIRECTION,
-			this.behavior === 'alternate' ? 'alternate' : 'normal'
-		)
-		this.style.setProperty(CSS_VAR_ANIMATION_ITERATION_COUNT, iterationCount)
-		this.style.setProperty(
-			CSS_VAR_ANIMATION_TIMING_FUNCTION,
-			`steps(${steps}, end)`
-		)
-
-		if (this.isVerticalDirection) {
-			this.style.setProperty(CSS_VAR_TRANSLATE_X_START, '0px')
-			this.style.setProperty(CSS_VAR_TRANSLATE_X_END, '0px')
-			this.style.setProperty(CSS_VAR_TRANSLATE_Y_START, `${startPosition}px`)
-			this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, `${endPosition}px`)
-		} else {
-			this.style.setProperty(CSS_VAR_TRANSLATE_X_START, `${startPosition}px`)
-			this.style.setProperty(CSS_VAR_TRANSLATE_X_END, `${endPosition}px`)
-			this.style.setProperty(CSS_VAR_TRANSLATE_Y_START, '0px')
-			this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, '0px')
-		}
-
 		return {
 			canAnimate,
-			duration,
 			endPosition,
 			hostSize,
-			iterationCount,
 			startPosition,
 			stepDelta,
-			steps,
 			trackSize,
 		}
 	}
@@ -480,41 +404,6 @@ export class RemarqueebleElement extends HTMLElementBase {
 		const value = this.getAttribute(ATTR_ANIMATE)
 		if (value === 'overflow' || value === 'never') return value
 		return DEFAULT_ANIMATE
-	}
-
-	private syncStaticAnimation(): void {
-		this.clearTickInterval()
-		this.track.style.removeProperty('transform')
-		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, '0ms')
-		this.style.setProperty(CSS_VAR_ANIMATION_DIRECTION, 'normal')
-		this.style.setProperty(CSS_VAR_ANIMATION_ITERATION_COUNT, '1')
-		this.style.setProperty(CSS_VAR_ANIMATION_TIMING_FUNCTION, 'linear')
-		this.style.setProperty(CSS_VAR_TRANSLATE_X_START, '0px')
-		this.style.setProperty(CSS_VAR_TRANSLATE_X_END, '0px')
-		this.style.setProperty(CSS_VAR_TRANSLATE_Y_START, '0px')
-		this.style.setProperty(CSS_VAR_TRANSLATE_Y_END, '0px')
-
-		this.style.setProperty(CSS_VAR_CURRENT_X, '0px')
-		this.style.setProperty(CSS_VAR_CURRENT_Y, '0px')
-		this.track.style.animationName = 'none'
-		this.track.style.transform = 'translate(0px, 0px)'
-		this.currentPosition = 0
-		this.currentStepDelta = 0
-		this.hasPosition = false
-	}
-
-	private getCssIterationCount(): string {
-		if (this.behavior === 'slide' && !this.hasAttribute(ATTR_LOOP)) return '1'
-		if (!this.hasAttribute(ATTR_LOOP)) return 'infinite'
-		if (Number.isFinite(this.loop) && this.loop > 0) return String(this.loop)
-		return 'infinite'
-	}
-
-	private handleAnimationEnd(): void {
-		if (!this.hasFiniteAnimation()) return
-
-		this.running = false
-		this.syncAnimationPlayState()
 	}
 
 	private clearTickInterval(): void {
@@ -585,7 +474,6 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 		if (!this.running) {
 			this.clearTickInterval()
-			this.syncAnimationPlayState()
 			return
 		}
 	}
@@ -678,15 +566,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 	}
 
 	private syncInactiveState(): void {
-		this.track.style.removeProperty('transform')
-		this.track.style.animationName = 'none'
 		this.track.style.transform = 'translate(0px, 0px)'
-		this.style.setProperty(CSS_VAR_CURRENT_X, '0px')
-		this.style.setProperty(CSS_VAR_CURRENT_Y, '0px')
-		this.style.setProperty(CSS_VAR_ANIMATION_DURATION, '0ms')
-		this.style.setProperty(CSS_VAR_ANIMATION_DIRECTION, 'normal')
-		this.style.setProperty(CSS_VAR_ANIMATION_ITERATION_COUNT, '1')
-		this.style.setProperty(CSS_VAR_ANIMATION_TIMING_FUNCTION, 'linear')
 		this.currentPosition = 0
 		this.currentStepDelta = 0
 		this.completedIterations = 0
@@ -694,8 +574,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 	}
 
 	private syncActiveState(): void {
-		this.track.style.animationName = ''
-		this.track.style.transform = ''
+		this.track.style.removeProperty('animation-name')
 	}
 
 	private clampCurrentPosition(geometry: GeometryState): void {
@@ -721,13 +600,11 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 	private applyCurrentPosition(): void {
 		if (this.isVerticalDirection) {
-			this.style.setProperty(CSS_VAR_CURRENT_X, '0px')
-			this.style.setProperty(CSS_VAR_CURRENT_Y, `${this.currentPosition}px`)
+			this.track.style.transform = `translate(0px, ${this.currentPosition}px)`
 			return
 		}
 
-		this.style.setProperty(CSS_VAR_CURRENT_X, `${this.currentPosition}px`)
-		this.style.setProperty(CSS_VAR_CURRENT_Y, '0px')
+		this.track.style.transform = `translate(${this.currentPosition}px, 0px)`
 	}
 }
 

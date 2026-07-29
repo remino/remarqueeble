@@ -20,6 +20,8 @@
       `re-marquee--alternate`.
     - Refactor `<re-marquee>` to use an imperative scroll loop that picks up
       resized geometry on the next tick without dedicated resize handling.
+    - Keep `<re-marquee>` motion state internal instead of exposing its
+      implementation CSS variables on the host element.
 - Site
     - Document the added Lite helper aliases in the README and Lite page.
     - Add a `lite.css` mode to the Playground with generated Lite markup and a

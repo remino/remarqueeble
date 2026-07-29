@@ -255,25 +255,19 @@ describe('src/lib/remarqueeble.ts', () => {
 		it('freezes at rest when scrollamount is zero', async () => {
 			const marquee = await createMarquee({ scrollamount: '0' })
 
-			expect(marquee.shadowTrack.style.animationName).toBe('none')
 			expect(marquee.shadowTrack.style.transform).toBe('translate(0px, 0px)')
-			expect(
-				marquee.style.getPropertyValue('--animation-timing-function')
-			).toBe('linear')
-			expect(marquee.style.getPropertyValue('--animation-duration')).toBe('0ms')
+			expect(marquee.currentPosition).toBe(0)
+			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe('')
 		})
 
 		it('keeps positive scrollamount values animated', async () => {
 			const marquee = await createMarquee({ scrollamount: '1' })
 
-			expect(marquee.shadowTrack.style.animationName).toBe('')
-			expect(marquee.shadowTrack.style.transform).toBe('')
-			expect(
-				marquee.style.getPropertyValue('--animation-timing-function')
-			).toBe('steps(140, end)')
+			expect(marquee.currentPosition).toBe(100)
+			expect(marquee.shadowTrack.style.transform).toBe('translate(100px, 0px)')
 		})
 
-		it('resolves CSS scrollamount values before computing steps', async () => {
+		it('resolves CSS scrollamount values before computing movement', async () => {
 			globalThis.CSS = {
 				supports: (property, value) =>
 					property === 'width' && value === 'calc(1em + 2px)',
@@ -283,25 +277,21 @@ describe('src/lib/remarqueeble.ts', () => {
 				{ scrollAmountWidths: { 'calc(1em + 2px)': 10 } }
 			)
 
-			expect(
-				marquee.style.getPropertyValue('--animation-timing-function')
-			).toBe('steps(14, end)')
+			marquee.__runIntervals()
+			expect(marquee.currentPosition).toBe(90)
 		})
 
 		it('falls back to the default scrollamount for negative values', async () => {
 			const marquee = await createMarquee({ scrollamount: '-1' })
 
-			expect(
-				marquee.style.getPropertyValue('--animation-timing-function')
-			).toBe('steps(24, end)')
+			marquee.__runIntervals()
+			expect(marquee.currentPosition).toBe(94)
 		})
 
 		it('falls back to the default scrolldelay for negative values', async () => {
 			const marquee = await createMarquee({ scrolldelay: '-1' })
 
-			expect(marquee.style.getPropertyValue('--animation-duration')).toBe(
-				'2040ms'
-			)
+			expect(marquee.scrollDelay).toBe(85)
 		})
 
 		it('preserves valid low scrolldelay values with truespeed', async () => {
@@ -310,9 +300,7 @@ describe('src/lib/remarqueeble.ts', () => {
 				truespeed: '',
 			})
 
-			expect(marquee.style.getPropertyValue('--animation-duration')).toBe(
-				'480ms'
-			)
+			expect(marquee.scrollDelay).toBe(20)
 		})
 	})
 
@@ -320,37 +308,29 @@ describe('src/lib/remarqueeble.ts', () => {
 		it('keeps the default behavior animated even when content fits', async () => {
 			const marquee = await createMarquee({})
 
-			expect(marquee.shadowTrack.style.animationName).toBe('')
-			expect(marquee.shadowTrack.style.transform).toBe('')
-			expect(
-				marquee.style.getPropertyValue('--animation-timing-function')
-			).toBe('steps(24, end)')
+			expect(marquee.currentPosition).toBe(100)
+			expect(marquee.shadowTrack.style.transform).toBe('translate(100px, 0px)')
 		})
 
 		it('keeps animate always animated even when content fits', async () => {
 			const marquee = await createMarquee({ animate: 'always' })
 
-			expect(marquee.shadowTrack.style.animationName).toBe('')
-			expect(marquee.shadowTrack.style.transform).toBe('')
-			expect(
-				marquee.style.getPropertyValue('--animation-timing-function')
-			).toBe('steps(24, end)')
+			expect(marquee.currentPosition).toBe(100)
+			expect(marquee.shadowTrack.style.transform).toBe('translate(100px, 0px)')
 		})
 
 		it('freezes at rest when animate is never', async () => {
 			const marquee = await createMarquee({ animate: 'never' })
 
-			expect(marquee.shadowTrack.style.animationName).toBe('none')
 			expect(marquee.shadowTrack.style.transform).toBe('translate(0px, 0px)')
-			expect(marquee.style.getPropertyValue('--animation-duration')).toBe('0ms')
+			expect(marquee.currentPosition).toBe(0)
 		})
 
 		it('freezes at rest when animate overflow content fits', async () => {
 			const marquee = await createMarquee({ animate: 'overflow' })
 
-			expect(marquee.shadowTrack.style.animationName).toBe('none')
 			expect(marquee.shadowTrack.style.transform).toBe('translate(0px, 0px)')
-			expect(marquee.style.getPropertyValue('--animation-duration')).toBe('0ms')
+			expect(marquee.currentPosition).toBe(0)
 		})
 
 		it('animates when animate overflow content exceeds the host', async () => {
@@ -359,11 +339,9 @@ describe('src/lib/remarqueeble.ts', () => {
 				{ trackWidth: 140 }
 			)
 
-			expect(marquee.shadowTrack.style.animationName).toBe('')
-			expect(marquee.shadowTrack.style.transform).toBe('')
-			expect(
-				marquee.style.getPropertyValue('--animation-timing-function')
-			).toBe('steps(40, end)')
+			expect(marquee.currentPosition).toBe(100)
+			marquee.__runIntervals()
+			expect(marquee.currentPosition).toBe(94)
 		})
 
 		it('uses height to decide vertical animate overflow', async () => {
@@ -372,11 +350,9 @@ describe('src/lib/remarqueeble.ts', () => {
 				{ trackHeight: 75 }
 			)
 
-			expect(marquee.shadowTrack.style.animationName).toBe('')
-			expect(marquee.shadowTrack.style.transform).toBe('')
-			expect(
-				marquee.style.getPropertyValue('--animation-timing-function')
-			).toBe('steps(21, end)')
+			expect(marquee.currentPosition).toBe(50)
+			marquee.__runIntervals()
+			expect(marquee.shadowTrack.style.transform).toBe('translate(0px, 44px)')
 		})
 	})
 
@@ -390,19 +366,13 @@ describe('src/lib/remarqueeble.ts', () => {
 				{ hostWidth: 100, trackWidth: 40 }
 			)
 
-			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
-				'60px'
-			)
+			expect(marquee.shadowTrack.style.transform).toBe('translate(60px, 0px)')
 
 			marquee.__runIntervals()
-			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
-				'50px'
-			)
+			expect(marquee.shadowTrack.style.transform).toBe('translate(50px, 0px)')
 
 			marquee.__runIntervals()
-			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
-				'40px'
-			)
+			expect(marquee.shadowTrack.style.transform).toBe('translate(40px, 0px)')
 		})
 
 		it('stops slide flush with the start edge when the content fits inside the host', async () => {
@@ -411,15 +381,11 @@ describe('src/lib/remarqueeble.ts', () => {
 				scrollamount: '10',
 			})
 
-			expect(marquee.style.getPropertyValue('--translate-x-end')).toBe('0px')
-
 			for (let index = 0; index < 10; index += 1) {
 				marquee.__runIntervals()
 			}
 
-			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
-				'0px'
-			)
+			expect(marquee.shadowTrack.style.transform).toBe('translate(0px, 0px)')
 		})
 
 		it('stops slide at the furthest fully-revealed position when the content overflows the host', async () => {
@@ -431,50 +397,26 @@ describe('src/lib/remarqueeble.ts', () => {
 				{ trackWidth: 140 }
 			)
 
-			expect(marquee.style.getPropertyValue('--translate-x-end')).toBe('-40px')
-
 			for (let index = 0; index < 14; index += 1) {
 				marquee.__runIntervals()
 			}
 
-			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
-				'-40px'
-			)
+			expect(marquee.shadowTrack.style.transform).toBe('translate(-40px, 0px)')
 		})
 	})
 
 	describe('layout changes', () => {
-		it('recomputes the animation on the next tick after the host is resized', async () => {
-			const marquee = await createMarquee({})
-
-			expect(
-				marquee.style.getPropertyValue('--animation-timing-function')
-			).toBe('steps(24, end)')
-
-			marquee.clientWidth = 160
-			marquee.__runIntervals()
-
-			expect(
-				marquee.style.getPropertyValue('--animation-timing-function')
-			).toBe('steps(34, end)')
-		})
-
 		it('preserves the current animation progress when the host is resized', async () => {
 			const marquee = await createMarquee({})
 
 			marquee.currentPosition = 42
 			marquee.hasPosition = true
-			marquee.style.setProperty('--translate-current-x', '42px')
+			marquee.shadowTrack.style.transform = 'translate(42px, 0px)'
 			marquee.clientWidth = 160
 
 			marquee.__runIntervals()
 
-			expect(marquee.style.getPropertyValue('--animation-duration')).toBe(
-				'2890ms'
-			)
-			expect(marquee.style.getPropertyValue('--translate-current-x')).toBe(
-				'36px'
-			)
+			expect(marquee.shadowTrack.style.transform).toBe('translate(36px, 0px)')
 		})
 
 		it('keeps overflow animation running across repeated resizes', async () => {
@@ -483,21 +425,17 @@ describe('src/lib/remarqueeble.ts', () => {
 				{ hostWidth: 100, trackWidth: 140 }
 			)
 
-			expect(marquee.shadowTrack.style.animationName).toBe('')
+			expect(marquee.shadowTrack.style.transform).toBe('translate(100px, 0px)')
 
 			marquee.clientWidth = 160
 			marquee.__runIntervals()
 
-			expect(marquee.shadowTrack.style.animationName).toBe('none')
-			expect(marquee.style.getPropertyValue('--animation-duration')).toBe('0ms')
+			expect(marquee.shadowTrack.style.transform).toBe('translate(0px, 0px)')
 
 			marquee.clientWidth = 100
 			marquee.__runIntervals()
 
-			expect(marquee.shadowTrack.style.animationName).toBe('')
-			expect(marquee.style.getPropertyValue('--animation-duration')).toBe(
-				'3400ms'
-			)
+			expect(marquee.shadowTrack.style.transform).toBe('translate(94px, 0px)')
 		})
 	})
 })
