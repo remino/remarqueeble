@@ -4,6 +4,7 @@
 	--re-marquee-play-state: running;
 	--re-marquee-timing-function: linear;
 
+	container-type: inline-size;
 	display: block;
 	overflow: hidden;
 	white-space: nowrap;
@@ -28,6 +29,8 @@
 
 .re-marquee--alternate > .re-marquee__track {
 	animation-direction: alternate;
+	animation-name: re-marquee-scroll-alternate-x;
+	padding-inline-start: 0;
 }
 
 .re-marquee--paused {
@@ -60,6 +63,17 @@
 	position: absolute;
 }
 
+.re-marquee--alternate.re-marquee--vertical > .re-marquee__track,
+.re-marquee--alternate.re-marquee--up > .re-marquee__track,
+.re-marquee--alternate.re-marquee--down > .re-marquee__track {
+	animation-name: re-marquee-scroll-alternate-y;
+}
+
+.re-marquee--alternate.re-marquee--right > .re-marquee__track,
+.re-marquee--alternate.re-marquee--down > .re-marquee__track {
+	animation-direction: alternate-reverse;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.re-marquee {
 		overflow: auto;
@@ -84,6 +98,16 @@
 	}
 }
 
+@keyframes re-marquee-scroll-alternate-x {
+	from {
+		transform: translateX(var(--re-marquee-start-pos, calc(100cqw - 100%)));
+	}
+
+	to {
+		transform: translateX(var(--re-marquee-end-pos, 0));
+	}
+}
+
 @keyframes re-marquee-scroll-y {
 	from {
 		inset-block-start: 100%;
@@ -93,6 +117,18 @@
 	to {
 		inset-block-start: 0;
 		transform: translateY(var(--re-marquee-end-pos, -100%));
+	}
+}
+
+@keyframes re-marquee-scroll-alternate-y {
+	from {
+		inset-block-start: 0;
+		transform: translateY(var(--re-marquee-start-pos, calc(100cqh - 100%)));
+	}
+
+	to {
+		inset-block-start: 0;
+		transform: translateY(var(--re-marquee-end-pos, 0));
 	}
 }
 

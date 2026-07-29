@@ -18,8 +18,10 @@
     - Add Lite CSS helper aliases for marquee-like directions and behavior,
       including `re-marquee--right`, `re-marquee--up`, `re-marquee--down`, and
       `re-marquee--alternate`.
-    - Make Lite vertical marquee travel use container-sized track padding
+    - Make Lite vertical marquee travel use container-relative positioning
       instead of a viewport-height offset.
+    - Make Lite `re-marquee--alternate` bounce when the content edge reaches the
+      container edge, including `right` and `down` variants.
     - Refactor `<re-marquee>` to use an imperative scroll loop that picks up
       resized geometry on the next tick without dedicated resize handling.
     - Keep `<re-marquee>` motion state internal instead of exposing its
