@@ -7,6 +7,7 @@ A CSS-only marquee with simple class names and no JavaScript.
 - [Use it](#use-it)
 - [Default](#default)
 - [Reverse](#reverse)
+- [More aliases](#more-aliases)
 - [Vertical](#vertical)
 - [Stepped timing](#stepped-timing)
 - [Pause on hover](#pause-on-hover)
@@ -30,8 +31,10 @@ duplicated content. It does not emulate legacy `<marquee>` measurement,
 When `prefers-reduced-motion: reduce` is active, animation is disabled and the
 content is shown statically.
 
-Optional classes: `re-marquee--reverse`, `re-marquee--vertical`,
-`re-marquee--paused`, and `re-marquee--pause-on-hover`.
+Optional classes: `re-marquee--reverse`, `re-marquee--left`,
+`re-marquee--right`, `re-marquee--alternate`, `re-marquee--vertical`,
+`re-marquee--up`, `re-marquee--down`, `re-marquee--paused`, and
+`re-marquee--pause-on-hover`.
 
 CSS variables:
 
@@ -99,6 +102,75 @@ The same structure, but running in the opposite direction.
         <span>Right to left</span>
         <span>left to right</span>
         <em>reverse flow</em>
+    </div>
+</div>
+```
+
+[Back to top](#)
+
+---
+
+## More aliases
+
+The extra helper names map onto the same Lite behaviors, but match marquee-like
+direction and behavior wording more closely.
+
+<div class="lite-lane">
+	<div class="re-marquee re-marquee--right" style="--re-marquee-duration: 13s;">
+		<div class="re-marquee__track">
+			<span>`re-marquee--right`</span>
+			<span>same motion as reverse</span>
+			<em>alias class</em>
+		</div>
+	</div>
+</div>
+
+<div class="lite-lane">
+	<div class="re-marquee re-marquee--alternate" style="--re-marquee-duration: 7s;">
+		<div class="re-marquee__track">
+			<span>`re-marquee--alternate`</span>
+			<span>bounces per cycle</span>
+			<strong>alternate</strong>
+		</div>
+	</div>
+</div>
+
+<div class="lite-lane">
+	<div class="re-marquee re-marquee--down" style="--re-marquee-duration: 9s; block-size: 9rem;">
+		<div class="re-marquee__track">
+			<span>`re-marquee--down`</span>
+			<span>vertical</span>
+			<span>reverse direction</span>
+		</div>
+	</div>
+</div>
+
+```html
+<div class="re-marquee re-marquee--right" style="--re-marquee-duration: 13s;">
+    <div class="re-marquee__track">
+        <span>`re-marquee--right`</span>
+        <span>same motion as reverse</span>
+        <em>alias class</em>
+    </div>
+</div>
+
+<div
+    class="re-marquee re-marquee--alternate"
+    style="--re-marquee-duration: 7s;">
+    <div class="re-marquee__track">
+        <span>`re-marquee--alternate`</span>
+        <span>bounces per cycle</span>
+        <strong>alternate</strong>
+    </div>
+</div>
+
+<div
+    class="re-marquee re-marquee--down"
+    style="--re-marquee-duration: 9s; block-size: 9rem;">
+    <div class="re-marquee__track">
+        <span>`re-marquee--down`</span>
+        <span>vertical</span>
+        <span>reverse direction</span>
     </div>
 </div>
 ```

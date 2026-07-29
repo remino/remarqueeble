@@ -185,7 +185,12 @@ content is shown statically.
 Optional classes:
 
 - `re-marquee--reverse`: scroll in the opposite direction.
+- `re-marquee--left`: alias for the default leftward horizontal flow.
+- `re-marquee--right`: alias for `re-marquee--reverse`.
+- `re-marquee--alternate`: alternate the animation direction on each cycle.
 - `re-marquee--vertical`: scroll vertically.
+- `re-marquee--up`: alias for `re-marquee--vertical`.
+- `re-marquee--down`: vertical flow in the reverse direction.
 - `re-marquee--paused`: pause the animation.
 - `re-marquee--pause-on-hover`: pause while hovered.
 

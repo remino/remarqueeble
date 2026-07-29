@@ -19,8 +19,14 @@
 	will-change: transform;
 }
 
-.re-marquee--reverse > .re-marquee__track {
+.re-marquee--reverse > .re-marquee__track,
+.re-marquee--right > .re-marquee__track,
+.re-marquee--down > .re-marquee__track {
 	animation-direction: reverse;
+}
+
+.re-marquee--alternate > .re-marquee__track {
+	animation-direction: alternate;
 }
 
 .re-marquee--paused {
@@ -31,12 +37,16 @@
 	--re-marquee-play-state: paused;
 }
 
-.re-marquee--vertical {
+.re-marquee--vertical,
+.re-marquee--up,
+.re-marquee--down {
 	block-size: 12rem;
 	white-space: normal;
 }
 
-.re-marquee--vertical > .re-marquee__track {
+.re-marquee--vertical > .re-marquee__track,
+.re-marquee--up > .re-marquee__track,
+.re-marquee--down > .re-marquee__track {
 	animation-name: re-marquee-scroll-y;
 	display: inline-flex;
 	flex-direction: column;

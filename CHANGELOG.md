@@ -14,6 +14,13 @@
 
 ## HEAD
 
+- Library
+    - Add Lite CSS helper aliases for marquee-like directions and behavior,
+      including `re-marquee--right`, `re-marquee--up`, `re-marquee--down`, and
+      `re-marquee--alternate`.
+- Site
+    - Document the added Lite helper aliases in the README and Lite page.
+
 ## v0.6.0
 
 - Library
