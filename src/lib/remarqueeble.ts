@@ -131,6 +131,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 	private readonly track: HTMLElement
 	private readonly scrollAmountProbe: HTMLElement
+	private readonly resizeObserver: ResizeObserver | null
 	private running = false
 
 	constructor() {
@@ -212,12 +213,21 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 		this.track = track
 		this.scrollAmountProbe = scrollAmountProbe
+		this.resizeObserver =
+			typeof ResizeObserver === 'undefined'
+				? null
+				: new ResizeObserver(() => {
+						if (!this.isConnected) return
+						this.reset()
+					})
 		this.track.addEventListener('animationend', () => this.handleAnimationEnd())
 	}
 
 	connectedCallback(): void {
 		this.running = true
 		this.syncPresentationalHints()
+		this.resizeObserver?.observe(this)
+		this.resizeObserver?.observe(this.track)
 
 		requestAnimationFrame(() => {
 			if (!this.isConnected || !this.running) return
@@ -227,6 +237,7 @@ export class RemarqueebleElement extends HTMLElementBase {
 
 	disconnectedCallback(): void {
 		this.running = false
+		this.resizeObserver?.disconnect()
 	}
 
 	attributeChangedCallback(

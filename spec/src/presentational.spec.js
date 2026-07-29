@@ -8,6 +8,7 @@ describe('src/lib/remarqueeble.ts', () => {
 	const originalCss = globalThis.CSS
 	const originalHTMLElement = globalThis.HTMLElement
 	const originalRequestAnimationFrame = globalThis.requestAnimationFrame
+	const originalResizeObserver = globalThis.ResizeObserver
 
 	afterEach(() => {
 		if (originalCss === undefined) {
@@ -26,6 +27,12 @@ describe('src/lib/remarqueeble.ts', () => {
 			delete globalThis.requestAnimationFrame
 		} else {
 			globalThis.requestAnimationFrame = originalRequestAnimationFrame
+		}
+
+		if (originalResizeObserver === undefined) {
+			delete globalThis.ResizeObserver
+		} else {
+			globalThis.ResizeObserver = originalResizeObserver
 		}
 	})
 
@@ -51,9 +58,32 @@ describe('src/lib/remarqueeble.ts', () => {
 	}
 
 	const installElementShim = sizes => {
+		const resizeObservers = []
+
 		globalThis.requestAnimationFrame = callback => {
 			callback()
 			return 1
+		}
+
+		globalThis.ResizeObserver = class {
+			constructor(callback) {
+				this.callback = callback
+				this.targets = new Set()
+				resizeObservers.push(this)
+			}
+
+			disconnect() {
+				this.targets.clear()
+			}
+
+			observe(target) {
+				this.targets.add(target)
+			}
+
+			trigger(target) {
+				if (!this.targets.has(target)) return
+				this.callback([{ target }])
+			}
 		}
 
 		globalThis.HTMLElement = class {
@@ -104,10 +134,12 @@ describe('src/lib/remarqueeble.ts', () => {
 				this.attributes.set(name, String(value))
 			}
 		}
+
+		return { resizeObservers }
 	}
 
 	const createMarquee = async (attributes, sizes = {}) => {
-		installElementShim({
+		const shims = installElementShim({
 			hostHeight: 50,
 			hostWidth: 100,
 			scrollAmountWidths: {},
@@ -126,6 +158,7 @@ describe('src/lib/remarqueeble.ts', () => {
 		}
 
 		marquee.connectedCallback()
+		marquee.__resizeObservers = shims.resizeObservers
 
 		return marquee
 	}
@@ -341,6 +374,25 @@ describe('src/lib/remarqueeble.ts', () => {
 			expect(
 				marquee.style.getPropertyValue('--animation-timing-function')
 			).toBe('steps(21, end)')
+		})
+	})
+
+	describe('layout changes', () => {
+		it('recomputes the animation when the host is resized', async () => {
+			const marquee = await createMarquee({})
+
+			expect(
+				marquee.style.getPropertyValue('--animation-timing-function')
+			).toBe('steps(24, end)')
+
+			marquee.clientWidth = 160
+			for (const observer of marquee.__resizeObservers) {
+				observer.trigger(marquee)
+			}
+
+			expect(
+				marquee.style.getPropertyValue('--animation-timing-function')
+			).toBe('steps(34, end)')
 		})
 	})
 })

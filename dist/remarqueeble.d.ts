@@ -9,6 +9,7 @@ export declare class RemarqueebleElement extends HTMLElementBase {
     static observedAttributes: string[];
     private readonly track;
     private readonly scrollAmountProbe;
+    private readonly resizeObserver;
     private running;
     constructor();
     connectedCallback(): void;

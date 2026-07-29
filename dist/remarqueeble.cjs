@@ -104,6 +104,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	];
 	track;
 	scrollAmountProbe;
+	resizeObserver;
 	running = false;
 	constructor() {
 		super();
@@ -176,11 +177,17 @@ var RemarqueebleElement = class extends HTMLElementBase {
 		if (!scrollAmountProbe) throw new Error("Remarqueeble scrollamount probe was not created.");
 		this.track = track;
 		this.scrollAmountProbe = scrollAmountProbe;
+		this.resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => {
+			if (!this.isConnected) return;
+			this.reset();
+		});
 		this.track.addEventListener("animationend", () => this.handleAnimationEnd());
 	}
 	connectedCallback() {
 		this.running = true;
 		this.syncPresentationalHints();
+		this.resizeObserver?.observe(this);
+		this.resizeObserver?.observe(this.track);
 		requestAnimationFrame(() => {
 			if (!this.isConnected || !this.running) return;
 			this.reset();
@@ -188,6 +195,7 @@ var RemarqueebleElement = class extends HTMLElementBase {
 	}
 	disconnectedCallback() {
 		this.running = false;
+		this.resizeObserver?.disconnect();
 	}
 	attributeChangedCallback(_name, oldValue, newValue) {
 		if (oldValue === newValue) return;
