@@ -37,7 +37,7 @@ const defaultValues = {
 	content:
 		'Default marquee behaviour. Nisi nisi anim enim consequat pariatur reprehenderit.',
 	direction: 'left',
-	duration: '',
+	duration: '20',
 	scrollamount: '6',
 	scrolldelay: '85',
 	'show-lite': 'false',
@@ -63,10 +63,11 @@ const liteStyleProperties = [
 	[
 		'duration',
 		'--re-marquee-duration',
-		value =>
-			value && CSS.supports('animation-duration', value.trim())
-				? value.trim()
-				: '',
+		value => {
+			const number = Number(value.trim())
+
+			return Number.isFinite(number) && number > 0 ? `${number}s` : ''
+		},
 	],
 ]
 const styleProperties = [
@@ -325,11 +326,20 @@ const syncPairedInput = target => {
 	if (target.name === 'scrolldelay') {
 		getControl('scrolldelayRange').value = target.value
 	}
+
+	if (target.name === 'durationRange') {
+		getControl('duration').value = target.value
+	}
+
+	if (target.name === 'duration') {
+		syncRangeValue('durationRange', target.value)
+	}
 }
 
 const syncPairedControls = () => {
 	syncRangeValue('scrollamountRange', getValue('scrollamount'))
 	getControl('scrolldelayRange').value = getValue('scrolldelay')
+	syncRangeValue('durationRange', getValue('duration'))
 }
 
 const getAttributes = () => {

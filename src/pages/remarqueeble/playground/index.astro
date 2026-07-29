@@ -167,7 +167,24 @@ import '../../../lib/lite.css'
 
 				<label>
 					<span>Duration</span>
-					<input name="duration" type="text" value="" placeholder="20s" />
+					<input
+						data-setting-control="range"
+						name="durationRange"
+						type="range"
+						min="1"
+						max="60"
+						step="1"
+						value="20"
+					/>
+					<input
+						data-setting-control="number"
+						name="duration"
+						type="number"
+						min="1"
+						max="60"
+						step="1"
+						value="20"
+					/>
 				</label>
 			</details>
 
